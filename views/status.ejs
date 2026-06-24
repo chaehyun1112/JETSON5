@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 상태</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <%- include("partials/sidebar", { resident: data.resident, activePage: "status" }) %>
+
+        <main class="dashboard status-page">
+            <%- include("partials/topbar", {
+                title: "실시간 상태",
+                lastUpdated: data.lastUpdated,
+                avatarLabel: "김"
+            }) %>
+
+            <section class="status-grid">
+                <%- include("partials/status-summary-card", {
+                    item: data.summary.device,
+                    stateClass: "state-good"
+                }) %>
+
+                <%- include("partials/status-summary-card", {
+                    item: data.summary.remaining,
+                    stateClass: "state-purple",
+                    subClass: "pill success"
+                }) %>
+
+                <article class="panel status-weight-panel">
+                    <div class="panel-title">
+                        <h2>복약량 실시간 변화 그래프 <small>(단위: g)</small></h2>
+                    </div>
+                    <div id="weightLineChart" class="line-chart" data-chart='<%- JSON.stringify(data.weightChart) %>'></div>
+                </article>
+
+                <article class="panel status-right-panel">
+                    <%- include("partials/status-dose-panel", {
+                        doseAmounts: data.doseAmounts,
+                        weeklyTrend: data.weeklyTrend
+                    }) %>
+                </article>
+
+                <%- include("partials/status-log-table", { logs: data.logs }) %>
+
+                <%- include("partials/status-event-panel", { events: data.events }) %>
+            </section>
+        </main>
+    </div>
+
+    <script src="/js/status.js"></script>
+</body>
+</html>

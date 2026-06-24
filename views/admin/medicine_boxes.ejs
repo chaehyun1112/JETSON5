@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/style_medicines.css" />
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <strong>스마트 약상자</strong>
+        <span>관리자</span>
+      </div>
+
+      <nav class="admin-menu">
+        <a href="/admin">대시보드</a>
+        <a href="/admin/members">회원관리</a>
+        <a href="/admin/medicine_boxes" class="active">약상자 관리</a>
+        <a href="/admin/messages">알림 메시지</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1><%= pageTitle %></h1>
+          <p>약상자의 전원 상태와 센서 데이터를 확인합니다.</p>
+        </div>
+      </header>
+
+      <section class="box-summary-grid">
+        <article class="stat-card">
+          <span>전체 약상자</span>
+          <strong><%= medicineBoxes.length %></strong>
+          <p>등록된 약상자 수</p>
+        </article>
+      </section>
+
+      <section class="medicine-box-layout">
+        <div class="admin-panel medicine-box-list-panel">
+          <div class="panel-header">
+            <h2>약상자 목록</h2>
+            <span>실시간 상태</span>
+          </div>
+
+          <table class="admin-table medicine-box-table">
+            <thead>
+              <tr>
+                <th>약상자 ID</th>
+                <th>사용자</th>
+                <th>전원</th>
+                <th>개폐</th>
+                <th>무게</th>
+                <th>최근 갱신</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% medicineBoxes.forEach((box) => { %>
+                <tr
+                  class="medicine-box-row"
+                  data-id="<%= box.id %>"
+                  data-owner="<%= box.owner %>"
+                  data-status="<%= box.status %>"
+                  data-weight="<%= box.weight %>"
+                  data-open="<%= box.isOpen ? '열림' : '닫힘' %>"
+                  data-lcd="<%= box.lcdTime %>"
+                  data-buzzer="<%= box.buzzer ? '작동' : '꺼짐' %>"
+                  data-led="<%= box.led ? '작동' : '꺼짐' %>"
+                  data-updated="<%= box.lastUpdated %>"
+                >
+                  <td>
+                    <button type="button" class="member-link"><%= box.id %></button>
+                  </td>
+                  <td><%= box.owner %></td>
+                  <td>
+                    <span class="status-badge <%= box.status === 'ON' ? 'on' : 'off' %>">
+                      <%= box.status === "ON" ? "켜짐" : "꺼짐" %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-badge <%= box.isOpen ? 'warning' : 'normal' %>">
+                      <%= box.isOpen ? "열림" : "닫힘" %>
+                    </span>
+                  </td>
+                  <td><%= box.weight %></td>
+                  <td><%= box.lastUpdated %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="admin-panel medicine-box-detail-panel">
+          <div class="panel-header">
+            <h2>센서 상세정보</h2>
+          </div>
+
+          <div id="emptyBoxDetail" class="empty-detail">
+            약상자 ID를 선택해주세요.
+          </div>
+
+          <div id="boxDetail" class="medicine-box-detail hidden">
+            <div class="detail-title">
+              <strong id="detailBoxId"></strong>
+              <span id="detailPower"></span>
+            </div>
+
+            <dl class="detail-list">
+              <div>
+                <dt>사용자</dt>
+                <dd id="detailOwner"></dd>
+              </div>
+
+              <div>
+                <dt>약 무게</dt>
+                <dd id="detailWeight"></dd>
+              </div>
+
+              <div>
+                <dt>개폐 여부</dt>
+                <dd id="detailOpen"></dd>
+              </div>
+
+              <div>
+                <dt>LCD 화면 켜진 시간</dt>
+                <dd id="detailLcd"></dd>
+              </div>
+
+              <div>
+                <dt>부저 알람 여부</dt>
+                <dd id="detailBuzzer"></dd>
+              </div>
+
+              <div>
+                <dt>LED 작동 여부</dt>
+                <dd id="detailLed"></dd>
+              </div>
+
+              <div>
+                <dt>최근 데이터 갱신</dt>
+                <dd id="detailUpdated"></dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const boxRows = document.querySelectorAll(".medicine-box-row");
+
+    const emptyBoxDetail = document.querySelector("#emptyBoxDetail");
+    const boxDetail = document.querySelector("#boxDetail");
+
+    const detailBoxId = document.querySelector("#detailBoxId");
+    const detailPower = document.querySelector("#detailPower");
+    const detailOwner = document.querySelector("#detailOwner");
+    const detailWeight = document.querySelector("#detailWeight");
+    const detailOpen = document.querySelector("#detailOpen");
+    const detailLcd = document.querySelector("#detailLcd");
+    const detailBuzzer = document.querySelector("#detailBuzzer");
+    const detailLed = document.querySelector("#detailLed");
+    const detailUpdated = document.querySelector("#detailUpdated");
+
+    boxRows.forEach((row) => {
+      row.addEventListener("click", () => {
+        boxRows.forEach((item) => item.classList.remove("selected"));
+        row.classList.add("selected");
+
+        detailBoxId.textContent = row.dataset.id;
+        detailPower.textContent = row.dataset.status === "ON" ? "켜짐" : "꺼짐";
+        detailOwner.textContent = row.dataset.owner;
+        detailWeight.textContent = row.dataset.weight;
+        detailOpen.textContent = row.dataset.open;
+        detailLcd.textContent = row.dataset.lcd;
+        detailBuzzer.textContent = row.dataset.buzzer;
+        detailLed.textContent = row.dataset.led;
+        detailUpdated.textContent = row.dataset.updated;
+
+        emptyBoxDetail.classList.add("hidden");
+        boxDetail.classList.remove("hidden");
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <style>
+  * {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eaf3ff;
+  color: #1f2d3d;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  width: 280px;
+  text-align: center;
+}
+
+.login-box h1 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1b4fb8;
+}
+
+.subtitle {
+  margin: 0 0 28px;
+  font-size: 13px;
+  color: #2d65c8;
+}
+
+.icon-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.handle {
+  width: 28px;
+  height: 18px;
+  border: 5px solid #2359d1;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.case {
+  width: 58px;
+  height: 48px;
+  border: 5px solid #2359d1;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #2359d1;
+  font-size: 20px;
+}
+
+.login-box h2 {
+  margin: 6px 0 20px;
+  font-size: 14px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.login-form label {
+  margin-bottom: 5px;
+  font-size: 12px;
+  color: #333;
+}
+
+.login-form input {
+  height: 28px;
+  margin-bottom: 10px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 3px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.login-form input:focus {
+  outline: 2px solid #2f64d6;
+}
+
+.login-btn {
+  height: 30px;
+  border: none;
+  border-radius: 3px;
+  background: #2359d1;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: #1c48ac;
+}
+
+.links {
+  margin: 12px 0;
+  font-size: 11px;
+  color: #555;
+}
+
+.links a {
+  color: #555;
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.join-btn {
+  display: block;
+  height: 28px;
+  line-height: 28px;
+  border-radius: 3px;
+  background: #fff;
+  color: #333;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.join-btn:hover {
+  background: #f3f6fb;
+}
+</style>
+</head>
+<body>
+  <main class="login-page">
+    <section class="login-box">
+      <h1>스마트 약상자</h1>
+      <p class="subtitle">나에게 알맞은 약상자 케어 시스템</p>
+
+      <div class="icon-box">
+        <div class="handle"></div>
+        <div class="case">
+          <span>💊</span>
+        </div>
+      </div>
+
+      <h2>로그인</h2>
+
+      <% if (error) { %>
+        <p class="login-error"><%= error %></p>
+      <% } %>
+
+      <form action="/login" method="post" class="login-form">
+        <label for="userId">아이디</label>
+        <input
+          type="text"
+          id="userId"
+          name="userId"
+          placeholder="아이디를 입력해주세요"
+          required
+        />
+
+        <label for="password">비밀번호</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="비밀번호를 입력해주세요"
+          required
+        />
+
+        <button type="submit" class="login-btn">로그인</button>
+      </form>
+
+      <div class="links">
+        <a href="#">아이디 찾기</a>
+        <span>|</span>
+        <a href="#">비밀번호 찾기</a>
+      </div>
+
+      <a href="/join" class="join-btn">회원가입</a>
+    </section>
+  </main>
+</body>
+</html>
