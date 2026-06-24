@@ -13,6 +13,7 @@ const router = require("./routes/index.js")
 
 app.use(express.static("public"));
 
+
 app.use(express.urlencoded({extended : true}));
 
 app.use(session({

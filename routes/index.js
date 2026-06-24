@@ -22,19 +22,19 @@ router.get('/', (req, res) => {
 });
  
 // 서비스 소개
-router.get('/about', (req, res) => {
-  res.render('about', { title: '서비스 소개 — 복약안심서비스' });
+router.get('/user/user_service/about', (req, res) => {
+  res.render('user/user_service/about', { title: '서비스 소개 — 복약안심서비스' });
 });
  
 // 대시보드 — 약통 미등록 시 안내 페이지로 분기
-router.get('/dashboard', requireLogin, (req, res) => {
+router.get('/user/user_dashboard/main_dashboard', requireLogin, (req, res) => {
   // 세션에 pillboxId가 없으면 미등록 안내 페이지
   if (!req.session.user.pillboxId) {
-    return res.render('no-pillbox', {
+    return res.render('user/user_service/no-pillbox', {
       title: '약통 미등록 — 복약안심서비스',
     });
   }
-  res.render('dashboard', {
+  res.render('user/user_dashboard/main_dashboard', {
     title: '대시보드 — 복약안심서비스',
     stats: { total: 12, completed: 9, warning: 2, rate: 75 },
     patients: [
@@ -53,27 +53,27 @@ router.get('/dashboard', requireLogin, (req, res) => {
 });
  
 // 약통 등록 페이지 (임시 — 실제 DB 연동 시 확장)
-router.get('/register-pillbox', requireLogin, (req, res) => {
-  res.render('register-pillbox', { title: '약통 등록 — 복약안심서비스', error: null });
+router.get('/user/user_service/register-pillbox', requireLogin, (req, res) => {
+  res.render('user/user_service/register-pillbox', { title: '약통 등록 — 복약안심서비스', error: null });
 });
  
-router.post('/register-pillbox', requireLogin, (req, res) => {
+router.post('/user/user_service/register-pillbox', requireLogin, (req, res) => {
   const { pillboxId } = req.body;
   if (!pillboxId || pillboxId.trim() === '') {
-    return res.render('register-pillbox', {
+    return res.render('user/user_service/register-pillbox', {
       title: '약통 등록 — 복약안심서비스',
       error: '약통 번호를 입력해주세요.',
     });
   }
   // 세션에 저장 (실제 서비스에서는 DB에 저장)
   req.session.user.pillboxId = pillboxId.trim();
-  res.redirect('/dashboard');
+  res.redirect('/user/user_dashboard/main_dashboard');
 });
  
 // 로그인 GET
 router.get('/login', (req, res) => {
-  if (req.session.user) return res.redirect('/about');
-  res.render('login', { title: '로그인 — 복약안심서비스', error: null });
+  if (req.session.user) return res.redirect('/user/user_service/about');
+  res.render('login/login', { title: '로그인 — 복약안심서비스', error: null });
 });
  
 // 로그인 POST
@@ -81,9 +81,9 @@ router.post('/login', (req, res) => {
   const { userId, password } = req.body;
   if (userId === 'admin' && password === '1234') {
     req.session.user = { id: userId, name: '김성훈', role: '보호자', pillboxId: null };
-    return res.redirect('/about');
+    return res.redirect('/user/user_service/about');
   }
-  res.render('login', {
+  res.render('login/login', {
     title: '로그인 — 복약안심서비스',
     error: '아이디 또는 비밀번호가 올바르지 않습니다.',
   });
@@ -95,16 +95,16 @@ router.post('/logout', (req, res) => {
 });
 
 
-router.get('/medicine_buy', (req, res) => {
-  res.render('medicine_buy', { title: '약통 구매 — 복약안심서비스' });
+router.get('/user/user_service/medicine_buy', (req, res) => {
+  res.render('user/user_service/medicine_buy', { title: '약통 구매 — 복약안심서비스' });
 });
 
 // POST — 구매하기 버튼 클릭 시 완료 페이지로
-router.post('/medicine_buy', (req, res) => {
+router.post('/user/user_service/medicine_buy', (req, res) => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const rand = (n) => Array.from({ length: n }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   const pillboxCode = `PB-${rand(4)}-${rand(4)}-${rand(4)}`;
-  res.render('medicine_buy_complete', {
+  res.render('user/user_service/medicine_buy_complete', {
     title: '구매 완료 — 복약안심서비스',
     pillboxCode,
   });
