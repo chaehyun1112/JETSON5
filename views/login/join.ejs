@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입</title>
+  <link rel="stylesheet" href="/login/join.css">
+</head>
+<body>
+  <main class="join-page">
+    <section class="join-box">
+      <h1>스마트 약상자</h1>
+      <p class="subtitle">나에게 알맞은 약상자 케어 시스템</p>
+
+```
+  <div class="icon-box">
+    <div class="handle"></div>
+    <div class="case">
+      <span>💊</span>
+    </div>
+  </div>
+
+  <h2>회원가입</h2>
+
+  <form action="/join" method="post" class="join-form">
+
+    <label>회원 유형</label>
+    <select name="role" required>
+      <option value="">선택해주세요</option>
+      <option value="P">보호자</option>
+      <option value="S">대상자</option>
+      <option value="A">관리자</option>
+    </select>
+
+    <label>아이디</label>
+    <input type="text" name="id" placeholder="아이디를 입력해주세요" required>
+
+    <label>비밀번호</label>
+    <input type="password" name="pw" placeholder="비밀번호를 입력해주세요" required>
+
+    <label>이름</label>
+    <input type="text" name="name" placeholder="이름을 입력해주세요" required>
+
+    <label>이메일</label>
+    <input type="email" name="email" placeholder="이메일을 입력해주세요" required>
+
+    <label>연락처</label>
+    <input type="text" name="phone" placeholder="연락처를 입력해주세요" required>
+    
+    <label>주소 (선택)</label>
+    <input type="text" name="addr" placeholder="주소를 입력해주세요">
+
+    <button type="submit" class="join-btn">회원가입</button>
+  </form>
+
+  <div class="links">
+    <a href="/login">로그인 페이지로 이동</a>
+  </div>
+</section>
+
+  </main>
+</body>
+</html>
