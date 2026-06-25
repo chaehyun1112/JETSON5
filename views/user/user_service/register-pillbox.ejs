@@ -35,7 +35,24 @@
       <% } %>
 
       <form action="/user/user_service/register-pillbox" method="POST" class="pillbox-form">
+        
         <div class="pillbox-form__group">
+
+          <label>대상자 선택</label>
+
+            <select
+                name="seniorId"
+                required>
+
+                <% seniors.forEach(senior => { %>
+
+                    <option value="<%= senior.SENIOR_ID %>">
+                        <%= senior.SENIOR_NAME %>
+                    </option>
+
+                <% }) %>
+
+            </select>
           <label for="pillboxId">약통 시리얼 번호</label>
           <input
             type="text"
@@ -49,7 +66,7 @@
         <button type="submit" class="btn btn--primary btn--full">등록하기</button>
       </form>
 
-      <a href="/user/user_service/about" class="nopill-card__link">약통이 없으신가요? 구매하러 가기 →</a>
+      <a href="/user/user_service/medicine_buy" class="nopill-card__link">약통이 없으신가요? 구매하러 가기 →</a>
 
     </div>
   </main>

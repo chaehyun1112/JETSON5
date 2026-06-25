@@ -1,5 +1,7 @@
-const express = require("express");
+const express = require('express');
+const bcrypt = require("bcrypt");
 const router = express.Router();
+const conn = require('../config/db');
 
 // 로그인 체크 미들웨어
 function requireLogin(req, res, next) {
@@ -54,39 +56,141 @@ router.get('/user/user_dashboard/main_dashboard', requireLogin, (req, res) => {
  
 // 약통 등록 페이지 (임시 — 실제 DB 연동 시 확장)
 router.get('/user/user_service/register-pillbox', requireLogin, (req, res) => {
-  res.render('user/user_service/register-pillbox', { title: '약통 등록 — 복약안심서비스', error: null });
-});
+    if(!req.session.user){
+        return res.redirect("/");
+    }
+
+    const sql = `
+    SELECT *
+    FROM TB_SENIOR
+    WHERE MEM_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [req.session.user.id],
+        (err, rows) => {
+
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            res.render(
+                "user/user_service/register-pillbox", {
+            title: "약통 등록",
+            user: req.session.user,
+            error: null,
+            seniors: rows
+          });
+        }
+    );});
  
 router.post('/user/user_service/register-pillbox', requireLogin, (req, res) => {
-  const { pillboxId } = req.body;
-  if (!pillboxId || pillboxId.trim() === '') {
-    return res.render('user/user_service/register-pillbox', {
-      title: '약통 등록 — 복약안심서비스',
-      error: '약통 번호를 입력해주세요.',
-    });
-  }
-  // 세션에 저장 (실제 서비스에서는 DB에 저장)
-  req.session.user.pillboxId = pillboxId.trim();
-  res.redirect('/user/user_dashboard/main_dashboard');
+    const {
+        seniorId,
+        pillboxId
+    } = req.body;
+
+    const sql = `
+    UPDATE TB_SENIOR
+    SET PILLBOX_NUM = ?
+    WHERE SENIOR_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [pillboxId, seniorId],
+        (err, result) => {
+
+            if(err){
+                console.log(err);
+
+                return res.send(
+                    "<script>alert('약통 등록 실패');history.back();</script>"
+                );
+            }
+
+            res.send(
+                "<script>alert('약통 등록 완료');location.href='/user/user_dashboard/main_dashboard';</script>"
+            );
+        }
+    );
 });
  
+router.get('/join', (req, res) => {
+    res.render('login/join');
+});
+
+// 회원가입
+router.post("/join", async (req, res) => {
+    console.log(req.body);
+    const {role, id, pw, name, email, addr, phone} = req.body;
+    const hashedPw = await bcrypt.hash(pw, 10);
+
+    const sql = "insert into TB_MEMBER (MEM_ID, MEM_PW, MEM_NAME, MEM_EMAIL, MEM_CONTACT, MEM_ADDR, MEM_ST) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    conn.query(sql, [id, hashedPw, name, email, phone, addr || null, role], (err, result) => {
+        if (err) {
+            res.send("<script>alert('회원가입에 실패했습니다.'); location.href='/join'</script>");
+        } else {
+            res.redirect("/login");
+
+        }
+    })
+})
+
 // 로그인 GET
 router.get('/login', (req, res) => {
-  if (req.session.user) return res.redirect('/user/user_service/about');
+  if (req.session.user) return res.redirect('/user/user_dashboard/main_dashboard');
   res.render('login/login', { title: '로그인 — 복약안심서비스', error: null });
 });
  
 // 로그인 POST
-router.post('/login', (req, res) => {
-  const { userId, password } = req.body;
-  if (userId === 'admin' && password === '1234') {
-    req.session.user = { id: userId, name: '김성훈', role: '보호자', pillboxId: null };
-    return res.redirect('/user/user_service/about');
-  }
-  res.render('login/login', {
-    title: '로그인 — 복약안심서비스',
-    error: '아이디 또는 비밀번호가 올바르지 않습니다.',
-  });
+router.post("/login", (req, res) => {
+
+    const { userId, password  } = req.body;
+
+    const sql = `
+        SELECT *
+        FROM TB_MEMBER
+        WHERE MEM_ID = ?
+    `;
+    conn.query(sql, [userId], async (err, rows) => {
+
+        if(err){
+            console.log(err);
+            return res.send("DB 오류");
+        }
+        if(rows.length === 0){
+            return res.send("<script>alert('아이디가 존재하지 않습니다.'); location.href='/login';</script>");
+        }
+        const user = rows[0];
+        const isMatch = await bcrypt.compare(
+            password,
+            user.MEM_PW
+        );
+        if(isMatch){
+
+            req.session.user = {
+                id : user.MEM_ID,
+                name: user.MEM_NAME,
+                role : user.MEM_ST
+            };
+            if(user.MEM_ST === "P"){
+                return res.redirect("/user/user_service/about");
+            }
+            if(user.MEM_ST === "S"){
+                return res.redirect("/user/user_service/about");
+            }
+            if(user.MEM_ST === "A"){
+                return res.redirect("/admin/admin_dashboard/admin");
+            }
+        } else {
+            return res.send(
+                "<script>alert('비밀번호가 일치하지 않습니다.'); location.href='/login';</script>"
+            );
+        }
+    });
 });
  
 // 로그아웃
@@ -94,6 +198,107 @@ router.post('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
 });
 
+// 로그인 안 한 사람 접근 차단
+router.get("/user/user_dashboard/main_dashboard", (req, res) => {
+
+    if(!req.session.user){
+        return res.redirect("/");
+    }
+
+    res.render("user/user_dashboard/main_dashboard");
+});
+
+router.get("/admin/admin_dashboard/admin", (req, res) => {
+
+    if(!req.session.user){
+        return res.redirect("/");
+    }
+
+    res.render("admin/admin_dashboard/admin");
+});
+
+// 아이디 찾기
+router.post("/findId", (req, res) => {
+
+    const { name, email } = req.body;
+
+    const sql = `
+    SELECT MEM_ID
+    FROM TB_MEMBER
+    WHERE MEM_NAME = ?
+    AND MEM_EMAIL = ?
+    `;
+
+    conn.query(
+        sql,
+        [name, email],
+        (err, rows) => {
+
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            if(rows.length === 0){
+                return res.send(
+                    "<script>alert('일치하는 회원이 없습니다.');location.href='/findId';</script>"
+                );
+            }
+
+            res.send(`
+                <script>
+                alert('회원님의 아이디는 ${rows[0].MEM_ID} 입니다.');
+                location.href='/';
+                </script>
+            `);
+        }
+    );
+});
+
+// 비밀번호 재설정
+router.post("/resetPw", async (req, res) => {
+
+    const { id, email, newPw } = req.body;
+
+    const sql =
+    "SELECT * FROM TB_MEMBER WHERE MEM_ID=? AND MEM_EMAIL=?";
+
+    conn.query(
+        sql,
+        [id, email],
+        async (err, rows) => {
+
+            if(rows.length === 0){
+
+                return res.send(
+                    "<script>alert('회원정보가 일치하지 않습니다.');location.href='/resetPw';</script>"
+                );
+            }
+
+            const hashedPw =
+            await bcrypt.hash(newPw, 10);
+
+            const updateSql =
+            "UPDATE TB_MEMBER SET MEM_PW=? WHERE MEM_ID=?";
+
+            conn.query(
+                updateSql,
+                [hashedPw, id],
+                (err, result) => {
+
+                    if(err){
+                        console.log(err);
+                        return;
+                    }
+
+                    res.send(
+                        "<script>alert('비밀번호가 변경되었습니다.');location.href='/';</script>"
+                    );
+                }
+            );
+        }
+    );
+});
 
 router.get('/user/user_service/medicine_buy', (req, res) => {
   res.render('user/user_service/medicine_buy', { title: '약통 구매 — 복약안심서비스' });
@@ -290,11 +495,6 @@ router.get('/', (req, res) => {
     ],
   });
 });
-
-router.get('/login', (req, res) => {
-  res.render('login', { title: '로그인 — 복약안심서비스' });
-});
-
 
 router.get("/", (req, res) => {
     const data = {
@@ -594,6 +794,14 @@ router.get("/alerts", (req, res) => {
     };
 
     res.render("alerts", { data });
+});
+
+router.get("/findId", (req, res) => {
+    res.render("login/findId");
+});
+
+router.get("/resetPw", (req, res) => {
+    res.render("login/resetPw");
 });
 
 
