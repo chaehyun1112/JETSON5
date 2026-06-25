@@ -1,0 +1,313 @@
+/* =============================================
+   복약안심서비스 — style.css
+   ============================================= */
+
+/* ── 리셋 & 기본 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #1a2340;
+  background: #f0f4fa;
+}
+
+a { text-decoration: none; color: inherit; }
+img, svg { display: block; }
+
+.footer {
+  background: #0f1f4a;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.footer p {
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
+
+/* ── 공통 버튼 ── */
+.btn {
+  display: inline-block;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 28px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  text-align: center;
+}
+
+.btn--primary {
+  background: #2563eb;
+  color: #fff;
+}
+.btn--primary:hover { background: #1d4ed8; }
+
+.btn--outline {
+  background: #fff;
+  color: #2563eb;
+  border: 1.5px solid #2563eb;
+}
+.btn--outline:hover { background: #eff6ff; }
+
+.btn--white {
+  background: #fff;
+  color: #1e3a8a;
+  font-weight: 500;
+}
+.btn--white:hover { background: #eff6ff; }
+
+.btn--sm { padding: 8px 20px; font-size: 14px; }
+.btn--full { width: 100%; display: block; }
+
+
+/* =============================================
+   네비게이션
+   ============================================= */
+.nav {
+  background: #fff;
+  border-bottom: 0.5px solid #d8e2f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav__inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.nav__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #1e3a8a;
+  white-space: nowrap;
+}
+
+.nav__logo-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.nav__links {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav__links a {
+  font-size: 14px;
+  color: #4b5a7a;
+  transition: color 0.2s;
+}
+.nav__links a:hover { color: #2563eb; }
+
+
+
+/* =============================================
+   서비스 소개 페이지 (about)
+   ============================================= */
+.about-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  padding: 3.5rem 1.5rem;
+}
+.about-header__inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.about-header .section-tag { color: #93c5fd; }
+.about-header__title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0.4rem 0;
+}
+.about-header__sub {
+  font-size: 15px;
+  color: #bfdbfe;
+}
+
+.about-main { padding: 2.5rem 1.5rem 4rem; }
+.about-container {
+  max-width: 860px;
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;   /* 추가 */
+  align-items: center;      /* 가운데 정렬 */
+  gap: 2rem;
+}
+
+/* 약통 버튼 */
+.about-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.about-action-card--primary {
+  width: 360px !important;
+  height: auto !important;
+}
+.about-action-card--primary {
+  background: #2563eb;
+  color: #fff;
+
+  width: 360px;      /* 가로 크기 */
+  padding: 1rem 1.5rem;
+}
+
+.about-action-card {
+  height: auto;
+}
+
+.about-action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.about-action-card--primary {
+  background: #2563eb;
+  color: #fff;
+}
+.about-action-card--primary:hover { background: #1d4ed8; }
+
+.about-action-card--outline {
+  background: #fff;
+  color: #1e3a8a;
+  border-color: #d8e2f0;
+}
+.about-action-card--outline:hover { border-color: #2563eb; background: #eff6ff; }
+
+.about-action-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+.about-action-card__icon--outline {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.about-action-card__title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.about-action-card__desc {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.about-action-card__arrow {
+  margin-left: auto;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* 문구 섹션들 */
+.about-sections {
+  width: 700px;
+  margin: 0 auto;
+}
+.about-section {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem 0;
+  border-bottom: 0.5px solid #e8eef8;
+}
+.about-section:last-child { border-bottom: none; }
+
+.about-section__num {
+  font-size: 36px;
+  font-weight: 700;
+  color: #dbeafe;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.about-section__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 10px;
+}
+
+.about-section__text {
+  font-size: 14px;
+  color: #4b5a7a;
+  line-height: 1.9;
+}
+
+
+.footer {
+  background: #0f1f4a;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.footer p {
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
+/* 1. 화면 전체 높이를 확보하기 위한 기본 설정 */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh; /* 브라우저 화면 높이를 100% 채움 */
+}
+
+/* 2. body를 세로형 Flex 컨테이너로 지정 */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 3. 푸터 바로 위에 있는 모든 콘텐츠 영역을 늘려주는 설정 */
+/* footer의 이전 형제 요소들(헤더, 메인 컨텐츠 등)이 남는 공간을 다 차지하게 합니다 */
+body > *:not(.footer) {
+  flex: 1; 
+  /* 만약 특정 본문 태그(예: <main> 또는 <div class="content">)에만 
+     적용하고 싶다면, 이 부분을 해당 클래스명으로 바꾸셔도 됩니다. */
+}
+
+/* 4. 푸터 스타일 (기존 스타일에 맞춰 여백이나 배경색을 유지) */
+.footer {
+  width: 100%;
+  background-color: #0b132b; /* 대시보드 하단의 짙은 네이비 색상 */
+  color: #8fa0c4;            /* 글자 색상 */
+  padding: 20px 0;           /* 위아래 여백 */
+  text-align: center;
+}

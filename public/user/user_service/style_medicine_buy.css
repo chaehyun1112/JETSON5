@@ -1,5 +1,5 @@
 /* =============================================
-복약안심서비스 — style.css
+   복약안심서비스 — style.css
    ============================================= */
 
 /* ── 리셋 & 기본 ── */
@@ -18,12 +18,18 @@ body {
 a { text-decoration: none; color: inherit; }
 img, svg { display: block; }
 
-/* ── 공통 컨테이너 ── */
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+
+.footer {
+  background: #0f1f4a;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
 }
+
+.footer p {
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
 
 /* ── 공통 버튼 ── */
 .btn {
@@ -116,12 +122,6 @@ img, svg { display: block; }
 
 
 
-
-
-/* =============================================
-  네비게이션 — 드롭다운 & 로그인 후 메뉴
-   ============================================= */
-
 /* 대시보드 드롭다운 */
 .nav__dropdown {
   position: relative;
@@ -144,12 +144,11 @@ img, svg { display: block; }
 }
 
 .nav__dropdown-menu {
-
   display: none;
   position: absolute;
   top: 100%;
-  left: 0;
-  transform: none;
+  left: 50%;
+  transform: translateX(-50%);
   padding-top: 14px;
   min-width: 160px;
   z-index: 200;
@@ -182,9 +181,6 @@ img, svg { display: block; }
   background: #eff6ff;
   color: #2563eb;
 }
-
-
-
 
 /* 우측 액션 영역 */
 .nav__actions {
@@ -313,338 +309,148 @@ img, svg { display: block; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* =============================================
+헤더
+   ============================================= */
+.about-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  padding: 3.5rem 1.5rem;
+}
+.about-header__inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.about-header .section-tag { color: #93c5fd; }
+.about-header__title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0.4rem 0;
+}
+.about-header__sub {
+  font-size: 15px;
+  color: #bfdbfe;
+}
+
+.about-main { padding: 2.5rem 1.5rem 4rem; }
+.about-container { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem; }
 
 /* =============================================
-   대시보드 페이지
+   약통 구매 페이지 (medicine_buy)
    ============================================= */
-.db-page {
-  background: #f0f4fa;
-}
-
-/* 헤더 배너 */
-.db-header {
-  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-  padding: 2.5rem 1.5rem;
-}
-
-.db-header__inner {
-  max-width: 1000px;
-  margin: 0 auto;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.db-header__greeting {
-  font-size: 14px;
-  color: #93c5fd;
-  margin-bottom: 4px;
-}
-.db-header__greeting strong { color: #fff; }
-
-.db-header__title {
-  font-size: 26px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
-.db-header__date {
-  font-size: 13px;
-  color: #93c5fd;
-}
-
-/* 실시간 배지 */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
+.buy-card {
+  background: #fff;
   border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 13px;
-  border: 0.5px solid rgba(255,255,255,0.25);
-}
-
-.status-badge__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #4ade80;
-  animation: pulse 1.6s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-/* 본문 레이아웃 */
-.db-main { padding: 2rem 1.5rem 3rem; }
-
-.db-container {
-  max-width: 1000px;
-  margin: 0 auto;
+  border: 0.5px solid #d8e2f0;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.75rem;
+  max-width: 560px;
+  margin: 0 auto;
 }
 
-/* 통계 카드 4개 */
-.db-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+.buy-card__name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e3a8a;
 }
 
-.db-stat-card {
-  background: #fff;
+/* 사진 영역 */
+.buy-card__img-wrap {
+  width: 100%;
   border-radius: 14px;
-  border: 0.5px solid #d8e2f0;
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  overflow: hidden;
+  border: 0.5px solid #e8eef8;
+  background: #f5f8ff;
 }
 
-.db-stat-card__icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+.buy-card__img-wrap img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  display: block;
+}
+
+.buy-card__img-placeholder {
+  height: 280px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-}
-.db-stat-card__icon svg { width: 22px; height: 22px; }
-
-.db-stat-card__icon--blue   { background: #dbeafe; color: #2563eb; }
-.db-stat-card__icon--green  { background: #dcfce7; color: #166534; }
-.db-stat-card__icon--red    { background: #fee2e2; color: #dc2626; }
-.db-stat-card__icon--purple { background: #ede9fe; color: #6d28d9; }
-
-.db-stat-card__label {
-  font-size: 12px;
+  gap: 10px;
   color: #6b7a9a;
-  margin-bottom: 2px;
 }
 
-.db-stat-card__num {
-  font-size: 26px;
-  font-weight: 700;
-  color: #1e3a8a;
-  line-height: 1;
-}
-.db-stat-card__num span { font-size: 14px; font-weight: 400; margin-left: 2px; color: #6b7a9a; }
-.db-stat-card__num--green  { color: #166534; }
-.db-stat-card__num--red    { color: #dc2626; }
-.db-stat-card__num--purple { color: #6d28d9; }
-
-/* 공통 카드 */
-.db-card {
-  background: #fff;
-  border-radius: 14px;
-  border: 0.5px solid #d8e2f0;
-  padding: 1.5rem;
+.buy-card__img-placeholder p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5a7a;
 }
 
-.db-card__header {
+.buy-card__img-placeholder span {
+  font-size: 12px;
+  color: #9baabb;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* 기능 설명 */
+.buy-card__info {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.db-card__title {
-  font-size: 15px;
-  font-weight: 500;
-  color: #1e3a8a;
-}
-
-.db-card__more {
-  font-size: 13px;
-  color: #2563eb;
-  transition: opacity 0.2s;
-}
-.db-card__more:hover { opacity: 0.7; }
-
-/* 복약률 카드 */
-.db-rate-card .db-card__header {
-  margin-bottom: 0.75rem;
-}
-.db-rate-card__val {
-  font-size: 20px;
-  font-weight: 700;
-  color: #2563eb;
-}
-.db-rate-card__sub {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #6b7a9a;
-}
-
-.db-progress {
-  background: #e8eef8;
-  border-radius: 8px;
-  height: 10px;
-  overflow: hidden;
-}
-.db-progress__fill {
-  background: linear-gradient(90deg, #2563eb, #60a5fa);
-  height: 10px;
-  border-radius: 8px;
-  transition: width 0.6s ease;
-}
-
-/* 2열 그리드 */
-.db-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-/* 환자 테이블 */
-.db-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.db-table th {
-  text-align: left;
-  font-size: 11px;
-  font-weight: 500;
-  color: #6b7a9a;
-  padding: 0 8px 10px;
-  border-bottom: 0.5px solid #e8eef8;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.db-table td {
-  padding: 10px 8px;
-  color: #2d3a5a;
-  border-bottom: 0.5px solid #f0f4fa;
-  vertical-align: middle;
-}
-
-.db-table tr:last-child td { border-bottom: none; }
-
-.db-table__name {
+.buy-card__feature {
   display: flex;
   align-items: center;
   gap: 8px;
-  white-space: nowrap;
+  font-size: 14px;
+  color: #2d3a5a;
 }
 
-.db-table__drug {
-  color: #6b7a9a;
-  font-size: 12px;
-}
-
-.db-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-size: 12px;
-  font-weight: 700;
-  display: inline-flex;
+/* 가격 + 구매 버튼 */
+.buy-card__purchase {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  border-top: 0.5px solid #e8eef8;
+  gap: 1rem;
 }
 
-/* 상태 배지 */
-.db-status {
-  display: inline-block;
-  border-radius: 20px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 500;
-}
-.db-status--ok   { background: #dcfce7; color: #166534; }
-.db-status--warn { background: #fef9c3; color: #854d0e; }
-.db-status--late { background: #fee2e2; color: #991b1b; }
-
-/* 알림 리스트 */
-.db-alert-list {
-  list-style: none;
+.buy-card__price-wrap {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.db-alert {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 8px;
-  border-radius: 8px;
-  transition: background 0.15s;
-}
-.db-alert:hover { background: #f5f8ff; }
-
-.db-alert__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-.db-alert--ok   .db-alert__dot { background: #4ade80; }
-.db-alert--warn .db-alert__dot { background: #facc15; }
-.db-alert--late .db-alert__dot { background: #f87171; }
-
-.db-alert__body { flex: 1; }
-
-.db-alert__msg {
-  font-size: 13px;
-  color: #2d3a5a;
-  line-height: 1.5;
+.buy-card__price-label {
+  font-size: 12px;
+  color: #9baabb;
 }
 
-.db-alert__time {
-  font-size: 11px;
+.buy-card__price {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+.buy-card__price span {
+  font-size: 16px;
+  font-weight: 400;
   color: #6b7a9a;
-  margin-top: 2px;
+  margin-left: 2px;
 }
 
-/* 로그인 에러 메시지 */
-.login-error {
-  background: #fee2e2;
-  color: #991b1b;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 13px;
-  margin-bottom: 1rem;
-  border: 0.5px solid #fca5a5;
+.buy-card__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  font-size: 15px;
+  white-space: nowrap;
 }
-
-
-/* =============================================
-   대시보드 반응형
-   ============================================= */
-@media (max-width: 768px) {
-  .db-grid-2 {
-    grid-template-columns: 1fr;
-  }
-  .db-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-  .btn--ghost { display: none; }
-}
-
-@media (max-width: 480px) {
-  .db-stats { grid-template-columns: 1fr 1fr; }
-  .db-table__drug { display: none; }
-}
-
-
 
 
 .footer {

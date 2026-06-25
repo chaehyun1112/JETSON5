@@ -1,5 +1,9 @@
-const express = require("express");
+const express = require('express');
+const bcrypt = require("bcrypt");
 const router = express.Router();
+const conn = require('../config/db');
+
+const mysql = require('mysql2');
 
 // 로그인 체크 미들웨어
 function requireLogin(req, res, next) {
@@ -25,75 +29,330 @@ router.get('/', (req, res) => {
 router.get('/user/user_service/about', (req, res) => {
   res.render('user/user_service/about', { title: '서비스 소개 — 복약안심서비스' });
 });
- 
-// 대시보드 — 약통 미등록 시 안내 페이지로 분기
-router.get('/user/user_dashboard/main_dashboard', requireLogin, (req, res) => {
-  // 세션에 pillboxId가 없으면 미등록 안내 페이지
-  if (!req.session.user.pillboxId) {
-    return res.render('user/user_service/no-pillbox', {
-      title: '약통 미등록 — 복약안심서비스',
-    });
-  }
-  res.render('user/user_dashboard/main_dashboard', {
-    title: '대시보드 — 복약안심서비스',
-    stats: { total: 12, completed: 9, warning: 2, rate: 75 },
-    patients: [
-      { name: '김순자', age: 78, status: 'ok',   time: '08:12', drug: '혈압약, 당뇨약' },
-      { name: '이철수', age: 82, status: 'ok',   time: '08:34', drug: '고지혈증약'      },
-      { name: '박영희', age: 75, status: 'warn', time: '—',     drug: '골다공증약'      },
-      { name: '최민수', age: 88, status: 'late', time: '—',     drug: '심장약, 혈압약'  },
-    ],
-    alerts: [
-      { type: 'late', message: '최민수 님이 오전 복약을 하지 않았습니다.', time: '09:01' },
-      { type: 'warn', message: '박영희 님 복약이 30분 지연되고 있습니다.',  time: '08:50' },
-      { type: 'ok',   message: '이철수 님 아침 복약 완료.',                 time: '08:34' },
-      { type: 'ok',   message: '김순자 님 아침 복약 완료.',                 time: '08:12' },
-    ],
-  });
+// 약 스케줄 get
+router.get("/user/user_service/schedule_register", (req, res) => {
+
+    if(!req.session.user){
+        return res.redirect("/");
+    }
+
+    const sql = `
+    SELECT *
+    FROM TB_SENIOR
+    WHERE MEM_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [req.session.user.id],
+        (err, rows) => {
+
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            res.render(
+                "user/user_service/schedule_register",
+                { seniors : rows }
+            );
+        }
+    );
 });
- 
+
+
+
+
+// 약 스케줄 post
+router.post("/user/user_service/schedule_register", (req, res) => {
+
+    const {
+        seniorId,
+        takingDate,
+        pillboxOrder,
+        takingType,
+        takingTime
+    } = req.body;
+
+    const sql = `
+    INSERT INTO TB_SCHEDULE
+    (
+        SENIOR_ID,
+        TAKING_DATE,
+        PILLBOX_ORDER,
+        TAKING_TYPE,
+        TAKING_TIME,
+        TAKING_YN
+    )
+    VALUES
+    (?, ?, ?, ?, ?, 'N')
+    `;
+
+    conn.query(
+        sql,
+        [
+            seniorId,
+            takingDate,
+            pillboxOrder,
+            takingType,
+            takingTime
+        ],
+        (err, result) => {
+
+            if(err){
+                console.log(err);
+
+                return res.send(
+                    "<script>alert('등록 실패');history.back();</script>"
+                );
+            }
+
+            res.send(
+                "<script>alert('복약 스케줄 등록 완료');location.href='/user/user_dashboard/main_dashboard';</script>"
+            );
+
+        }
+    );
+});
 // 약통 등록 페이지 (임시 — 실제 DB 연동 시 확장)
 router.get('/user/user_service/register-pillbox', requireLogin, (req, res) => {
-  res.render('user/user_service/register-pillbox', { title: '약통 등록 — 복약안심서비스', error: null });
-});
+    if(!req.session.user){
+        return res.redirect("/");
+    }
+
+    const sql = `
+    SELECT *
+    FROM TB_SENIOR
+    WHERE MEM_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [req.session.user.id],
+        (err, rows) => {
+
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            res.render(
+                "user/user_service/register-pillbox", {
+            title: "약통 등록",
+            user: req.session.user,
+            error: null,
+            seniors: rows
+          });
+        }
+    );});
  
 router.post('/user/user_service/register-pillbox', requireLogin, (req, res) => {
-  const { pillboxId } = req.body;
-  if (!pillboxId || pillboxId.trim() === '') {
-    return res.render('user/user_service/register-pillbox', {
-      title: '약통 등록 — 복약안심서비스',
-      error: '약통 번호를 입력해주세요.',
-    });
-  }
-  // 세션에 저장 (실제 서비스에서는 DB에 저장)
-  req.session.user.pillboxId = pillboxId.trim();
-  res.redirect('/user/user_dashboard/main_dashboard');
+    const {
+        seniorId,
+        pillboxId
+    } = req.body;
+
+    const sql = `
+    UPDATE TB_SENIOR
+    SET PILLBOX_NUM = ?
+    WHERE SENIOR_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [pillboxId, seniorId],
+        (err, result) => {
+
+            if(err){
+                console.log(err);
+
+                return res.send(
+                    "<script>alert('약통 등록 실패');history.back();</script>"
+                );
+            }
+            req.session.user.pillboxId = pillboxId;
+
+            res.send(
+                "<script>alert('약통 등록 완료');location.href='/user/user_service/schedule_register';</script>"
+            );
+        }
+    );
 });
  
+router.get('/join', (req, res) => {
+    res.render('login/join');
+});
+
+// 회원가입
+router.post("/join", async (req, res) => {
+    console.log(req.body);
+    const {role, id, pw, name, email, addr, phone} = req.body;
+    const hashedPw = await bcrypt.hash(pw, 10);
+
+    const sql = "insert into TB_MEMBER (MEM_ID, MEM_PW, MEM_NAME, MEM_EMAIL, MEM_CONTACT, MEM_ADDR, MEM_ST) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    conn.query(sql, [id, hashedPw, name, email, phone, addr || null, role], (err, result) => {
+        if (err) {
+            res.send("<script>alert('회원가입에 실패했습니다.'); location.href='/join'</script>");
+        } else {
+            res.redirect("/login");
+
+        }
+    })
+})
+
 // 로그인 GET
 router.get('/login', (req, res) => {
-  if (req.session.user) return res.redirect('/user/user_service/about');
+  if (req.session.user) return res.redirect('/user/user_service/schedule_register');
   res.render('login/login', { title: '로그인 — 복약안심서비스', error: null });
 });
  
 // 로그인 POST
-router.post('/login', (req, res) => {
-  const { userId, password } = req.body;
-  if (userId === 'admin' && password === '1234') {
-    req.session.user = { id: userId, name: '김성훈', role: '보호자', pillboxId: null };
-    return res.redirect('/user/user_service/about');
-  }
-  res.render('login/login', {
-    title: '로그인 — 복약안심서비스',
-    error: '아이디 또는 비밀번호가 올바르지 않습니다.',
-  });
+router.post("/login", (req, res) => {
+
+    const { userId, password  } = req.body;
+
+    const sql = `
+        SELECT *
+        FROM TB_MEMBER
+        WHERE MEM_ID = ?
+    `;
+    conn.query(sql, [userId], async (err, rows) => {
+
+        if(err){
+            console.log(err);
+            return res.send("DB 오류");
+        }
+        if(rows.length === 0){
+            return res.send("<script>alert('아이디가 존재하지 않습니다.'); location.href='/login';</script>");
+        }
+        const user = rows[0];
+        const isMatch = await bcrypt.compare(
+            password,
+            user.MEM_PW
+        );
+        if(isMatch){
+
+            req.session.user = {
+                id : user.MEM_ID,
+                name: user.MEM_NAME,
+                role : user.MEM_ST
+            };
+            if(user.MEM_ST === "P"){
+                return res.redirect("/user/user_service/about");
+            }
+            if(user.MEM_ST === "S"){
+                return res.redirect("/user/user_service/about");
+            }
+            if(user.MEM_ST === "A"){
+                return res.redirect("/admin/admin_dashboard/admin");
+            }
+        } else {
+            return res.send(
+                "<script>alert('비밀번호가 일치하지 않습니다.'); location.href='/login';</script>"
+            );
+        }
+    });
 });
- 
+
+
 // 로그아웃
 router.post('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
 });
 
+// 로그인 안 한 사람 접근 차단
+
+router.get("/admin/admin_dashboard/admin", (req, res) => {
+
+    if(!req.session.user){
+        return res.redirect("/");
+    }
+
+    res.render("admin/admin_dashboard/admin");
+});
+
+// 아이디 찾기
+router.post("/findId", (req, res) => {
+
+    const { name, email } = req.body;
+
+    const sql = `
+    SELECT MEM_ID
+    FROM TB_MEMBER
+    WHERE MEM_NAME = ?
+    AND MEM_EMAIL = ?
+    `;
+
+    conn.query(
+        sql,
+        [name, email],
+        (err, rows) => {
+
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            if(rows.length === 0){
+                return res.send(
+                    "<script>alert('일치하는 회원이 없습니다.');location.href='/findId';</script>"
+                );
+            }
+
+            res.send(`
+                <script>
+                alert('회원님의 아이디는 ${rows[0].MEM_ID} 입니다.');
+                location.href='/';
+                </script>
+            `);
+        }
+    );
+});
+
+// 비밀번호 재설정
+router.post("/resetPw", async (req, res) => {
+
+    const { id, email, newPw } = req.body;
+
+    const sql =
+    "SELECT * FROM TB_MEMBER WHERE MEM_ID=? AND MEM_EMAIL=?";
+
+    conn.query(
+        sql,
+        [id, email],
+        async (err, rows) => {
+
+            if(rows.length === 0){
+
+                return res.send(
+                    "<script>alert('회원정보가 일치하지 않습니다.');location.href='/resetPw';</script>"
+                );
+            }
+
+            const hashedPw =
+            await bcrypt.hash(newPw, 10);
+
+            const updateSql =
+            "UPDATE TB_MEMBER SET MEM_PW=? WHERE MEM_ID=?";
+
+            conn.query(
+                updateSql,
+                [hashedPw, id],
+                (err, result) => {
+
+                    if(err){
+                        console.log(err);
+                        return;
+                    }
+
+                    res.send(
+                        "<script>alert('비밀번호가 변경되었습니다.');location.href='/';</script>"
+                    );
+                }
+            );
+        }
+    );
+});
 
 router.get('/user/user_service/medicine_buy', (req, res) => {
   res.render('user/user_service/medicine_buy', { title: '약통 구매 — 복약안심서비스' });
@@ -274,328 +533,96 @@ router.get("/admin/members_update/", (req, res) => {
   });
 });
 
-router.get('/', (req, res) => {
-  res.render('index', {
-    title: '복약안심서비스',
-    stats: {
-      total: 12,
-      completed: 9,
-      warning: 2,
+
+router.get("/findId", (req, res) => {
+    res.render("login/findId");
+});
+
+router.get("/resetPw", (req, res) => {
+    res.render("login/resetPw");
+});
+
+
+
+
+
+function isLoggedIn(req, res, next) {
+  if (req.session && req.session.user) return next();
+  return res.redirect('/login');
+}
+
+
+
+router.get('/user/user_info/protected', isLoggedIn, (req, res) => {
+
+  // ── 샘플 보호대상 데이터 ────────────────
+  // 실제 서비스에서는 DB에서 req.session.user.id 기준으로 조회하세요.
+  const protectedPersons = [
+    {
+      id:             1,
+      name:           '김철수',
+      relation:       '부모님',
+      birthdate:      '1948.03.15',
+      gender:         '남성',
+      phone:          '010-1234-5678',
+      address:        '서울특별시 강남구 역삼동 123-45',
+      doctor:         '서울병원 내과 이영희 원장',
+      disease:        '고혈압, 당뇨',
+      complianceRate: 85,
     },
-    patients: [
-      { name: '김순자', status: 'ok',   label: '아침 복약 완료' },
-      { name: '이철수', status: 'ok',   label: '아침 복약 완료' },
-      { name: '박영희', status: 'warn', label: '복약 지연 중'   },
-      { name: '최민수', status: 'late', label: '미복약 경보'    },
-    ],
+    {
+      id:             2,
+      name:           '박순자',
+      relation:       '부모님',
+      birthdate:      '1950.07.22',
+      gender:         '여성',
+      phone:          '010-9876-5432',
+      address:        '서울특별시 강남구 역삼동 123-45',
+      doctor:         '연세병원 가정의학과 최민준 원장',
+      disease:        '골다공증',
+      complianceRate: 92,
+    },
+  ];
+
+  res.render('user/user_info/protected', {
+    title:            '보호대상 정보',
+    user:             req.session.user,
+    protectedPersons,
   });
 });
 
-router.get('/login', (req, res) => {
-  res.render('login', { title: '로그인 — 복약안심서비스' });
+
+router.get("/index/index_about", (req, res) => {
+    res.render("index/index_about", {
+        title: "소개 페이지"
+    });
 });
 
 
-router.get("/", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍춘순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        guardian: {
-            name: "김태현",
-            relation: "보호자",
-            phone: "010-1234-5678"
-        },
-        history: [
-            {
-                sentAt: "2025-05-21 08:05",
-                type: "미복용 감지",
-                tone: "danger",
-                message: "어제 시간(06:00)을 5분 경과하였으나 약통이 열리지 않았습니다."
-            },
-            {
-                sentAt: "2025-05-20 08:05",
-                type: "복용 완료",
-                tone: "success",
-                message: "약통이 열려 복용이 완료되었습니다."
-            },
-            {
-                sentAt: "2025-05-19 08:03",
-                type: "복용 완료",
-                tone: "success",
-                message: "약통이 열려 복용이 완료되었습니다."
-            }
-        ]
-    };
 
-    res.render("alerts", { data });
+
+router.get('/index/index_announce', (req, res) => {
+  // 실제 서비스에서는 DB에서 notices 배열을 조회해서 넘기세요.
+  const notices = [
+    { isNew: true,  category: '공지',    title: '복약안심서비스 정식 오픈 안내',                         date: '2025.06.01' },
+    { isNew: true,  category: '업데이트', title: 'v1.2 업데이트 – 복약 이력 리포트 기능 추가',           date: '2025.05.20' },
+    { isNew: false, category: '점검',    title: '서버 정기 점검 완료 안내 (5월 15일 02:00~04:00)',       date: '2025.05.15' },
+    { isNew: false, category: '공지',    title: '개인정보 처리방침 개정 안내 (2025년 5월)',              date: '2025.05.01' },
+    { isNew: false, category: '업데이트', title: 'v1.1 업데이트 – 알림 설정 세분화 및 UI 개선',          date: '2025.04.10' },
+    { isNew: false, category: '공지',    title: '스마트 약 보관함 펌웨어 업데이트 방법 안내',            date: '2025.03.28' },
+    { isNew: false, category: '공지',    title: '복약안심서비스 베타 테스트 참여자 모집 결과 안내',       date: '2025.03.01' },
+  ];
+
+  res.render('index/index_announce', {
+    title:   '공지사항',
+    notices
+  });
 });
 
-
-router.get("/dashboard_user", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍옥순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        alert: {
-            title: "저녁 복약 시간이 2시간 후입니다",
-            message: "오후 5시 저녁 약 복용 예정입니다. 고지혈증약, 당뇨약, 칼슘약을 어르신 기기 정상 작동 중."
-        },
-        metrics: [
-            { label: "오늘 복약률", value: "66", suffix: "%", note: "아침 · 점심 완료", icon: "check", tone: "success" },
-            { label: "이번주 평균 복약률", value: "82", suffix: "%", note: "지난주 대비 +8%", icon: "calendar", tone: "warning" },
-            { label: "연속 복약 일수", value: "5", suffix: "일", note: "최고기록 갱신 중", icon: "flame", tone: "success" },
-            { label: "이번달 누락 횟수", value: "3", suffix: "회", note: "지난달 7회 -> 개선됨", icon: "alert", tone: "danger" }
-        ],
-        todaySchedule: [
-            { time: "08:00", period: "아침", medicines: ["혈압약 (암로디핀)", "고지혈증약 (아토르바)"], status: "복약 완료", statusTime: "08:07", done: true },
-            { time: "12:00", period: "점심", medicines: ["당뇨약 (메트포르민)"], status: "복약 완료", statusTime: "12:14", done: true },
-            { time: "17:00", period: "저녁", medicines: ["혈압약 (암로디핀)", "고지혈증약 (아토르바)", "당뇨약 (메트포르민)"], status: "복약 예정", statusTime: "2h 후", done: false }
-        ],
-        weekly: [
-            { day: "일", states: ["success", "success", "success"], rate: "100%" },
-            { day: "월", states: ["success", "missed", "success"], rate: "67%" },
-            { day: "화", states: ["success", "success", "success"], rate: "100%" },
-            { day: "수", states: ["success", "success", "pending"], rate: "67%" },
-            { day: "목", states: ["empty", "empty", "empty"], rate: "-" },
-            { day: "금", states: ["empty", "empty", "empty"], rate: "-" },
-            { day: "토", states: ["empty", "empty", "empty"], rate: "-" }
-        ],
-        sensors: [
-            { key: "weight", label: "무게 센서", value: "318.4g", sub: "정상 범위", icon: "device" },
-            { key: "temperature", label: "온도", value: "24.8°C", sub: "보관 적정", icon: "temperature" },
-            { key: "humidity", label: "습도", value: "42%", sub: "보관 적정", icon: "humidity" },
-            { key: "door", label: "문 열림 상태", value: "닫힘", sub: "정상", icon: "door" }
-        ],
-        latestCheck: {
-            title: "오늘 12:14 · 점심 복약",
-            detail: "무게 변화 -3.2g 감지 -> 복약 확인"
-        },
-        alerts: [
-            { title: "미복약 감지 -- 화요일 점심", time: "화 12:31", tone: "danger" },
-            { title: "복약 완료 확인 -- 오늘 점심", time: "오늘 12:14", tone: "success" },
-            { title: "복약 완료 확인 -- 오늘 아침", time: "오늘 08:07", tone: "success" },
-            { title: "기기 연결 재개", time: "어제 22:05", tone: "neutral" }
-        ],
-        chart: {
-            labels: ["5/14", "5/15", "5/16", "5/17", "5/18", "5/19", "5/20", "5/21", "5/22", "5/23", "5/24", "5/25", "5/26", "5/27", "5/28", "5/29", "5/30", "5/31", "6/1", "6/2", "6/3", "6/4", "6/5", "6/6", "6/7", "6/8", "6/9", "6/10", "6/11"],
-            values: [66, 100, 100, 66, 66, 100, 100, 66, 100, 66, 100, 100, 66, 100, 100, 66, 100, 100, 100, 100, 66, 100, 100, 100, 66, 100, 100, 66, 66]
-        }
-    };
-
-    res.render("dashboard_user", { data });
+router.get('/index/index_HowToUse', (req, res) => {
+  res.render('index/index_HowToUse', {
+    title:   '이용 방법',
+  });
 });
-
-router.get("/records", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍춘순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        range: "2025-05-14 ~ 2025-05-20",
-        records: [
-            { date: "2025-05-20 (화)", plannedTime: "08:00", actualTime: "08:05", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-19 (월)", plannedTime: "08:00", actualTime: "08:03", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-18 (일)", plannedTime: "08:00", actualTime: "-", result: "미복용", resultTone: "danger", bottleState: "닫힘", bottleTone: "closed" },
-            { date: "2025-05-17 (토)", plannedTime: "08:00", actualTime: "08:02", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-16 (금)", plannedTime: "08:00", actualTime: "08:01", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-15 (목)", plannedTime: "08:00", actualTime: "08:04", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-14 (수)", plannedTime: "08:00", actualTime: "08:06", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" }
-        ],
-        pagination: {
-            current: 1,
-            pages: [1, 2, 3]
-        }
-    };
-
-    res.render("records", { data });
-});
-
-
-router.get("/settings", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍춘순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        version: "1.0.0",
-        items: [
-            {
-                title: "계정 정보",
-                description: "이름, 아이디, 비밀번호 변경",
-                icon: "👤",
-                tone: "blue"
-            },
-            {
-                title: "알림 설정",
-                description: "복약 알림, 미복용 감지 알림 설정",
-                icon: "🔔",
-                tone: "yellow"
-            },
-            {
-                title: "디스플레이",
-                description: "언어, 테마 등",
-                icon: "📱",
-                tone: "green"
-            },
-            {
-                title: "개인정보 관리",
-                description: "개인정보 처리방침, 데이터 삭제",
-                icon: "🔒",
-                tone: "pink"
-            },
-            {
-                title: "도움말",
-                description: "사용 가이드, 자주 묻는 질문",
-                icon: "?",
-                tone: "magenta"
-            },
-            {
-                title: "로그아웃",
-                description: "현재 계정에서 로그아웃",
-                icon: "🚪",
-                tone: "brown",
-                danger: true
-            }
-        ]
-    };
-
-    res.render("settings", { data });
-});
-
-
-router.get("/status", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍춘순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        summary: {
-            device: {
-                label: "센서 연결 상태",
-                value: "정상",
-                sub: "마지막 업데이트 14:25:13"
-            },
-            remaining: {
-                label: "잔여량 추정",
-                value: "약 17일분",
-                sub: "정상"
-            }
-        },
-        weightChart: {
-            labels: ["03:09", "03:15", "03:21", "03:27", "03:33", "03:39", "03:45"],
-            values: [28.9, 28.8, 27.2, 27.1, 27.1, 27.1, 27.2]
-        },
-        doseAmounts: [
-            { label: "아침 (2t)", value: 85, detail: "약 17일분 보유" },
-            { label: "점심 (2t)", value: 42, detail: "약 8일 보유" },
-            { label: "저녁 (2t)", value: 76, detail: "약 15일 보유" }
-        ],
-        weeklyTrend: [
-            { day: "월", value: 30 },
-            { day: "화", value: 29 },
-            { day: "수", value: 29 },
-            { day: "목", value: 28 },
-            { day: "금", value: 28 },
-            { day: "토", value: 28 },
-            { day: "일", value: 28 }
-        ],
-        logs: [
-            { date: "2025-05-20", time: "08:05", state: "열림", result: "복용 완료", tone: "success" },
-            { date: "2025-05-19", time: "08:03", state: "열림", result: "복용 완료", tone: "success" },
-            { date: "2025-05-18", time: "-", state: "닫힘", result: "미복용", tone: "danger" },
-            { date: "2025-05-17", time: "08:02", state: "열림", result: "복용 완료", tone: "success" },
-            { date: "2025-05-16", time: "08:01", state: "열림", result: "복용 완료", tone: "success" },
-            { date: "2025-05-15", time: "08:04", state: "열림", result: "이중 복용 의심", tone: "warning" },
-            { date: "2025-05-14", time: "08:06", state: "열림", result: "복용 완료", tone: "success" }
-        ],
-        events: [
-            {
-                title: "이중 복용 의심",
-                date: "2025-05-15 08:04",
-                detail: "1회 기준(1.6g)의 2배 감소가 감지되어 보호자에게 알림을 전송했습니다.",
-                tone: "warning"
-            },
-            {
-                title: "복약량 부족 예측",
-                date: "금요일 (2t)",
-                detail: "현재 용량 42%, 약 8일 후 소진 예상. 처방전 준비를 권장합니다.",
-                tone: "neutral"
-            },
-            {
-                title: "정상 복용 확인",
-                date: "2025-05-20 08:05",
-                detail: "아침 시간대 대비 1분 이내 복용. 무게 -1.6g 감소.",
-                tone: "success"
-            },
-            {
-                title: "미복용 감지",
-                date: "2025-05-18 종일",
-                detail: "무게 변화가 없어 보호자에게 SMS 전송을 완료했습니다.",
-                tone: "warning"
-            }
-        ]
-    };
-
-    res.render("status", { data });
-});
-
-router.get("/alerts", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍춘순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        guardian: {
-            name: "김태현",
-            relation: "보호자",
-            phone: "010-1234-5678"
-        },
-        history: [
-            {
-                sentAt: "2025-05-21 08:05",
-                type: "미복용 감지",
-                tone: "danger",
-                message: "어제 시간(06:00)을 5분 경과하였으나 약통이 열리지 않았습니다."
-            },
-            {
-                sentAt: "2025-05-20 08:05",
-                type: "복용 완료",
-                tone: "success",
-                message: "약통이 열려 복용이 완료되었습니다."
-            },
-            {
-                sentAt: "2025-05-19 08:03",
-                type: "복용 완료",
-                tone: "success",
-                message: "약통이 열려 복용이 완료되었습니다."
-            }
-        ]
-    };
-
-    res.render("alerts", { data });
-});
-
-
 
 module.exports = router;
