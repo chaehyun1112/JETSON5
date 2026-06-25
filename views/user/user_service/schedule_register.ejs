@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>복약 스케줄 등록</title>
+
+    <link rel="stylesheet" href="/user/user_service/style_register_schedule.css">
+</head>
+<body>
+
+    <main class="schedule-page">
+
+        <section class="schedule-box">
+
+            <h1>스마트 약상자</h1>
+            <p class="subtitle">
+                복약 스케줄을 등록해주세요
+            </p>
+
+            <div class="icon-box">
+                <div class="handle"></div>
+                <div class="case">
+                    💊
+                </div>
+            </div>
+
+            <h2>복약 스케줄 등록</h2>
+
+            <form action="/user/user_service/schedule_register"
+                  method="post"
+                  class="schedule-form">
+
+                <label>대상자</label>
+
+                <select name="seniorId" required>
+
+                    <% seniors.forEach(senior => { %>
+
+                        <option value="<%= senior.SENIOR_ID %>">
+                            <%= senior.SENIOR_NAME %>
+                        </option>
+
+                    <% }) %>
+
+                </select>
+
+                <label>약통 번호</label>
+
+                <select name="pillboxOrder" required>
+                    <option value="1">1번 칸</option>
+                    <option value="2">2번 칸</option>
+                    <option value="3">3번 칸</option>
+                    <option value="4">4번 칸</option>
+                </select>
+
+                <label>복용 구분</label>
+
+                <select name="takingType" required>
+                    <option value="아침">아침</option>
+                    <option value="점심">점심</option>
+                    <option value="저녁">저녁</option>
+                    <option value="취침 전">취침 전</option>
+                </select>
+
+                <label>복용 날짜</label>
+
+                <input
+                    type="date"
+                    name="takingDate"
+                    required>
+
+                <label>복용 시간</label>
+
+                <input
+                    type="time"
+                    name="takingTime"
+                    required>
+
+                <button type="submit"
+                        class="schedule-btn">
+                    등록하기
+                </button>
+
+            </form>
+
+            <div class="links">
+                <a href="/user/user_service/about">
+                    대시보드로 돌아가기
+                </a>
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

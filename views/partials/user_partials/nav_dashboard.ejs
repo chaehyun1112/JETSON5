@@ -2,7 +2,7 @@
   <div class="nav__inner">
 
     <!-- 로고 -->
-    <a href="<%= user ? '/dashboard' : '/' %>" class="nav__logo">
+    <a href="<%= user ? '/user/user_service/about' : '/' %>" class="nav__logo">
       <svg class="nav__logo-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <rect x="2" y="8" width="24" height="18" rx="3" fill="#2563eb" opacity="0.15"/>
         <rect x="2" y="8" width="24" height="18" rx="3" stroke="#2563eb" stroke-width="1.5"/>
@@ -62,7 +62,7 @@
 
   <div class="nav__dropdown-menu">
     <div class="nav__dropdown-menu-inner">
-      <a href="#">
+      <a href="/user/user_service/protected">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         보호자 정보
       </a>
