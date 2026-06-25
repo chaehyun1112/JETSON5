@@ -625,4 +625,26 @@ router.get('/index/index_HowToUse', (req, res) => {
   });
 });
 
+
+
+const account = {
+  name: '김민지',
+  email: 'silvercare@example.com',
+  birth: '1958-03-12',
+  phone: '010-1234-5678',
+  guardian: '박서준',
+  guardianPhone: '010-9876-5432',
+  address: '서울특별시 강남구 테헤란로 123',
+  joinedAt: '2026.06.25',
+  lastLogin: '오늘 09:42',
+  privacyNote: '병원 방문 전 보호자에게 주간 복약 리포트를 공유합니다.'
+};
+
+router.get('/user/user_info/settings', (req, res) => {
+  res.render('user/user_info/settings', {
+    pageTitle: '계정 관리',
+    account
+  });
+});
+
 module.exports = router;
