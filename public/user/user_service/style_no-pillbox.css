@@ -313,7 +313,7 @@ img, svg { display: block; }
 }
 
 /* =============================================
-   약통 미등록 / 등록 페이지 (no-pillbox, register-pillbox)
+  약통 미등록 / 등록 페이지 (no-pillbox, register-pillbox)
    ============================================= */
 .nopill-main {
   min-height: calc(100vh - 60px - 60px);

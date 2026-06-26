@@ -15,7 +15,7 @@
 
 <%- include('../../partials/user_partials/nav_about') %>
 
-<div class="protected-header">
+  <div class="protected-header">
     <div class="protected-header__inner">
         <p class="section-tag">보호대상 정보</p>
         <h1 class="protected-header__title">보호대상 정보 관리</h1>
@@ -242,6 +242,22 @@ function toggleSchedule(element){
     body.classList.toggle("active");
     arrow.classList.toggle("rotate");
 }
+</script>
+
+    <script>
+
+function toggleSchedule(header){
+
+    const body = header.nextElementSibling;
+
+    const arrow = header.querySelector(".pcard__schedule-arrow");
+
+    body.classList.toggle("active");
+
+    arrow.classList.toggle("rotate");
+
+}
+
 </script>
 
 </body>
