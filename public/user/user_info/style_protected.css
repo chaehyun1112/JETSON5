@@ -536,12 +536,105 @@ img, svg { display: block; }
   background: #f8fafc;
   gap: 16px;
 }
-
 .pcard__stat {
   display: flex;
   align-items: center;
   gap: 10px;
   flex: 1;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+}
+
+.pcard__stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.pcard__bar-wrap {
+  flex: 1;
+  height: 7px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.pcard__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+  border-radius: 10px;
+  transition: width .6s ease;
+}
+
+.pcard__stat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2563eb;
+  white-space: nowrap;
+}
+
+.pcard__link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  display: block;
+}
+
+.pcard__link:hover { text-decoration: underline; }
+
+/* ── 복약률 + 대시보드 한 줄 묶음 ── */
+.pcard__footer {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  padding: 0;
+}
+
+.pcard__footer .pcard__stat {
+  border-top: none;
+  background: transparent;
+  padding: 14px 24px;
+}
+
+.pcard__footer .pcard__link {
+  border-top: none;
+  background: transparent;
+  padding: 14px 24px;
+  border-left: 1px solid #e2e8f0;
+}
+
+/* ── 복약 스케줄 헤더 가운데 정렬 ── */
+.pcard__schedule-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pcard__schedule-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #183153;
+}
+
+.pcard__schedule-arrow {
+  font-size: 16px;
+  transition: .3s;
+}
+
+.pcard__schedule-arrow.rotate {
+  transform: rotate(180deg);
 }
 
 .pcard__stat-label {
@@ -621,4 +714,199 @@ img, svg { display: block; }
   .pcard__grid { grid-template-columns: 1fr; }
   .pcard__row:nth-child(odd) { border-right: none; }
   .pcard__footer { flex-direction: column; align-items: flex-start; }
+}
+
+
+/* =====================================================
+   기존 style_protected.css 파일 맨 아래에 추가하세요.
+===================================================== */
+.pcard__actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.pcard__edit {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  padding: 5px 12px;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.pcard__edit:hover {
+  background: #eff6ff;
+}
+
+.pcard__delete {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ef4444;
+  text-decoration: none;
+  padding: 5px 12px;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.pcard__delete:hover {
+  background: #fef2f2;
+}
+
+/* ── 복약 스케줄 섹션 ── */
+/* ============================= */
+
+.pcard__schedule{
+
+    margin-top:25px;
+
+    border-top:1px solid #e5e7eb;
+
+}
+
+.pcard__schedule-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:20px;
+
+    cursor:pointer;
+
+    user-select:none;
+
+}
+
+.pcard__schedule-title{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#183153;
+
+}
+
+.pcard__schedule-arrow{
+
+    font-size:18px;
+
+    transition:.3s;
+
+}
+
+.pcard__schedule-body{
+
+    display:none;
+
+    padding:0 20px 20px;
+
+}
+
+.pcard__schedule-body.active{
+
+    display:block;
+
+}
+
+.pcard__schedule-arrow.rotate{
+
+    transform:rotate(180deg);
+
+}
+
+/* ============================= */
+
+.schedule-date{
+
+    border:1px solid #edf2f7;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+}
+
+.schedule-date__title{
+
+    background:#f8fafc;
+
+    padding:14px 18px;
+
+    font-weight:700;
+
+}
+
+.schedule-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:16px 18px;
+
+    border-top:1px solid #edf2f7;
+
+}
+
+.schedule-item__left{
+
+    display:flex;
+
+    gap:20px;
+
+}
+
+.schedule-type{
+
+    width:50px;
+
+    color:#2563eb;
+
+    font-weight:700;
+
+}
+
+.schedule-result{
+
+    padding:7px 14px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+    font-weight:700;
+
+}
+
+.success{
+
+    background:#dcfce7;
+
+    color:#15803d;
+
+}
+
+.fail{
+
+    background:#fee2e2;
+
+    color:#dc2626;
+
+}
+
+.wait{
+
+    background:#e5e7eb;
+
+    color:#6b7280;
+
 }
