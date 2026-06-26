@@ -688,6 +688,47 @@ img, svg { display: block; }
 
 }
 
+/* =====================================================
+   기존 style_protected.css 파일 맨 아래에 추가하세요.
+===================================================== */
+.pcard__actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.pcard__edit {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  padding: 5px 12px;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.pcard__edit:hover {
+  background: #eff6ff;
+}
+
+.pcard__delete {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ef4444;
+  text-decoration: none;
+  padding: 5px 12px;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.pcard__delete:hover {
+  background: #fef2f2;
+}
+
+/* ============================= */
+
 .schedule-date{
 
     border:1px solid #edf2f7;
@@ -774,8 +815,4 @@ img, svg { display: block; }
 
     color:#6b7280;
 
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 7c4a39c9dc4700254be25527328f800a4a42d451
