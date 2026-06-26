@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= title %></title>
+  <title>admin</title>
   <link rel="stylesheet" href="/admin/admin_dashboard/style_admin.css" />
 </head>
 <body>
@@ -37,7 +37,11 @@
     <div class="admin-user-dropdown" id="adminUserDropdown">
       <a href="/admin/profile">개인정보 수정</a>
       <a href="/admin/members_update">회원정보 수정</a>
-      <a href="/">로그아웃</a>
+      <form action="/logout" method="POST" class="logout-form">
+          <button type="submit" class="admin-user-item">
+              로그아웃
+          </button>
+      </form>
     </div>
   </div>
 
