@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/admin_dashboard/style_members.css" />
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <strong>스마트 약상자</strong>
+        <span>관리자</span>
+      </div>
+
+      <nav class="admin-menu">
+        <a href="/admin">대시보드</a>
+        <a href="/admin/members" class="active">회원관리</a>
+        <a href="/admin/medicine_boxes">약상자 관리</a>
+        <a href="/admin/messages">알림 메시지</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1><%= pageTitle %></h1>
+          <p>보호자와 시니어 회원 정보를 확인하고 관리합니다.</p>
+        </div>
+      </header>
+
+      <section class="member-toolbar">
+        <input type="text" id="memberSearch" placeholder="이름 또는 아이디 검색" />
+
+        <select id="memberTypeFilter">
+          <option value="all">전체 회원</option>
+          <option value="P">보호자</option>
+          <option value="S">시니어</option>
+        </select>
+      </section>
+
+      <section class="member-management">
+        <div class="admin-panel member-list-panel">
+          <div class="panel-header">
+            <h2>회원 목록</h2>
+            <span>총 <%= members.length %>명</span>
+          </div>
+
+          <table class="admin-table member-table">
+            <thead>
+              <tr>
+                <th>회원 구분</th>
+                <th>이름</th>
+                <th>아이디</th>
+                <th>연락처</th>
+                <th>가입일</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% members.forEach((member, index) => { %>
+                <tr
+                  class="member-row"
+                  data-index="<%= index %>"
+                  data-type="<%= member.type %>"
+                  data-name="<%= member.name %>"
+                  data-id="<%= member.id %>"
+                  data-email="<%= member.email %>"
+                  data-contact="<%= member.contact %>"
+                  data-joined="<%= member.joinedAt %>"
+                  data-address="<%= member.address %>"
+                  data-memo="<%= member.memo %>"
+                >
+                  <td>
+                    <span class="member-badge <%= member.type === 'P' ? 'parent' : 'senior' %>">
+                      <%= member.type === "P" ? "보호자" : "시니어" %>
+                    </span>
+                  </td>
+                  <td>
+                    <button type="button" class="member-link"><%= member.name %></button>
+                  </td>
+                  <td>
+                    <button type="button" class="member-link"><%= member.id %></button>
+                  </td>
+                  <td><%= member.contact %></td>
+                  <td><%= member.joinedAt %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="admin-panel member-detail-panel">
+          <div class="panel-header">
+            <h2>회원 상세정보</h2>
+          </div>
+
+          <div id="emptyMemberDetail" class="empty-detail">
+            회원 이름 또는 아이디를 선택해주세요.
+          </div>
+
+          <div id="memberDetail" class="member-detail hidden">
+            <div class="detail-title">
+              <strong id="detailName"></strong>
+              <span id="detailType"></span>
+            </div>
+
+            <dl class="detail-list">
+              <div>
+                <dt>아이디</dt>
+                <dd id="detailId"></dd>
+              </div>
+              <div>
+                <dt>이메일</dt>
+                <dd id="detailEmail"></dd>
+              </div>
+              <div>
+                <dt>연락처</dt>
+                <dd id="detailContact"></dd>
+              </div>
+              <div>
+                <dt>가입일</dt>
+                <dd id="detailJoined"></dd>
+              </div>
+              <div>
+                <dt>주소</dt>
+                <dd id="detailAddress"></dd>
+              </div>
+              <div>
+                <dt>메모</dt>
+                <dd id="detailMemo"></dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const rows = document.querySelectorAll(".member-row");
+    const searchInput = document.querySelector("#memberSearch");
+    const typeFilter = document.querySelector("#memberTypeFilter");
+
+    const emptyDetail = document.querySelector("#emptyMemberDetail");
+    const memberDetail = document.querySelector("#memberDetail");
+
+    const detailName = document.querySelector("#detailName");
+    const detailType = document.querySelector("#detailType");
+    const detailId = document.querySelector("#detailId");
+    const detailEmail = document.querySelector("#detailEmail");
+    const detailContact = document.querySelector("#detailContact");
+    const detailJoined = document.querySelector("#detailJoined");
+    const detailAddress = document.querySelector("#detailAddress");
+    const detailMemo = document.querySelector("#detailMemo");
+
+    rows.forEach((row) => {
+      row.addEventListener("click", () => {
+        rows.forEach((item) => item.classList.remove("selected"));
+        row.classList.add("selected");
+
+        const typeText = row.dataset.type === "P" ? "보호자" : "시니어";
+
+        detailName.textContent = row.dataset.name;
+        detailType.textContent = typeText;
+        detailId.textContent = row.dataset.id;
+        detailEmail.textContent = row.dataset.email;
+        detailContact.textContent = row.dataset.contact;
+        detailJoined.textContent = row.dataset.joined;
+        detailAddress.textContent = row.dataset.address;
+        detailMemo.textContent = row.dataset.memo;
+
+        emptyDetail.classList.add("hidden");
+        memberDetail.classList.remove("hidden");
+      });
+    });
+
+    function filterMembers() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const selectedType = typeFilter.value;
+
+      rows.forEach((row) => {
+        const name = row.dataset.name.toLowerCase();
+        const id = row.dataset.id.toLowerCase();
+        const type = row.dataset.type;
+
+        const matchesKeyword = name.includes(keyword) || id.includes(keyword);
+        const matchesType = selectedType === "all" || selectedType === type;
+
+        row.style.display = matchesKeyword && matchesType ? "" : "none";
+      });
+    }
+
+    searchInput.addEventListener("input", filterMembers);
+    typeFilter.addEventListener("change", filterMembers);
+  </script>
+</body>
+</html>

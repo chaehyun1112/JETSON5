@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/admin_dashboard/style_messages.css" />
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <strong>스마트 약상자</strong>
+        <span>관리자</span>
+      </div>
+
+      <nav class="admin-menu">
+        <a href="/admin">대시보드</a>
+        <a href="/admin/members">회원관리</a>
+        <a href="/admin/medicine_boxes">약상자 관리</a>
+        <a href="/admin/messages" class="active">알림 메시지</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1><%= pageTitle %></h1>
+          <p>회원 문의와 약상자 이상사항 알림을 확인합니다.</p>
+        </div>
+      </header>
+
+      <section class="message-summary-grid">
+        <article class="stat-card">
+          <span>전체 메시지</span>
+          <strong><%= messages.length %></strong>
+          <p>문의 및 이상사항</p>
+        </article>
+
+        <article class="stat-card">
+          <span>문의</span>
+          <strong><%= messages.filter(message => message.type === "문의").length %></strong>
+          <p>회원 문의 메시지</p>
+        </article>
+
+        <article class="stat-card">
+          <span>이상사항</span>
+          <strong><%= messages.filter(message => message.type === "이상사항").length %></strong>
+          <p>센서 및 기기 알림</p>
+        </article>
+
+        <article class="stat-card">
+          <span>확인 필요</span>
+          <strong><%= messages.filter(message => message.status !== "완료").length %></strong>
+          <p>처리 대기 항목</p>
+        </article>
+      </section>
+
+      <section class="message-toolbar">
+        <input type="text" id="messageSearch" placeholder="제목, 작성자, 아이디 검색" />
+
+        <select id="messageTypeFilter">
+          <option value="all">전체</option>
+          <option value="문의">문의</option>
+          <option value="이상사항">이상사항</option>
+        </select>
+
+        <select id="messageStatusFilter">
+          <option value="all">전체 상태</option>
+          <option value="대기">대기</option>
+          <option value="확인 필요">확인 필요</option>
+          <option value="완료">완료</option>
+        </select>
+      </section>
+
+      <section class="message-layout">
+        <div class="admin-panel message-list-panel">
+          <div class="panel-header">
+            <h2>메시지 목록</h2>
+            <span>최근 수신순</span>
+          </div>
+
+          <ul class="message-list">
+            <% messages.forEach((message) => { %>
+              <li
+                class="message-item"
+                data-type="<%= message.type %>"
+                data-title="<%= message.title %>"
+                data-sender="<%= message.sender %>"
+                data-member-id="<%= message.memberId %>"
+                data-status="<%= message.status %>"
+                data-created-at="<%= message.createdAt %>"
+                data-content="<%= message.content %>"
+              >
+                <button type="button" class="message-title-button">
+                  <span class="message-title-row">
+                    <span class="message-title"><%= message.title %></span>
+                    <span class="message-badge <%= message.type === '문의' ? 'question' : 'alert' %>">
+                      <%= message.type %>
+                    </span>
+                  </span>
+
+                  <span class="message-meta">
+                    <span><%= message.sender %></span>
+                    <span><%= message.createdAt %></span>
+                    <span class="message-status"><%= message.status %></span>
+                  </span>
+                </button>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+
+        <aside class="admin-panel message-detail-panel">
+          <div class="panel-header">
+            <h2>상세내용</h2>
+          </div>
+
+          <div id="emptyMessageDetail" class="empty-detail">
+            메시지 제목을 선택해주세요.
+          </div>
+
+          <div id="messageDetail" class="message-detail hidden">
+            <div class="message-detail-heading">
+              <span id="detailMessageType"></span>
+              <strong id="detailMessageTitle"></strong>
+            </div>
+
+            <dl class="detail-list">
+              <div>
+                <dt>작성자</dt>
+                <dd id="detailSender"></dd>
+              </div>
+
+              <div>
+                <dt>회원/기기 ID</dt>
+                <dd id="detailMemberId"></dd>
+              </div>
+
+              <div>
+                <dt>상태</dt>
+                <dd id="detailStatus"></dd>
+              </div>
+
+              <div>
+                <dt>수신 시간</dt>
+                <dd id="detailCreatedAt"></dd>
+              </div>
+
+              <div>
+                <dt>내용</dt>
+                <dd id="detailContent" class="message-content"></dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const messageItems = document.querySelectorAll(".message-item");
+
+    const emptyMessageDetail = document.querySelector("#emptyMessageDetail");
+    const messageDetail = document.querySelector("#messageDetail");
+
+    const detailMessageType = document.querySelector("#detailMessageType");
+    const detailMessageTitle = document.querySelector("#detailMessageTitle");
+    const detailSender = document.querySelector("#detailSender");
+    const detailMemberId = document.querySelector("#detailMemberId");
+    const detailStatus = document.querySelector("#detailStatus");
+    const detailCreatedAt = document.querySelector("#detailCreatedAt");
+    const detailContent = document.querySelector("#detailContent");
+
+    const messageSearch = document.querySelector("#messageSearch");
+    const messageTypeFilter = document.querySelector("#messageTypeFilter");
+    const messageStatusFilter = document.querySelector("#messageStatusFilter");
+
+    messageItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        messageItems.forEach((target) => target.classList.remove("selected"));
+        item.classList.add("selected");
+
+        detailMessageType.textContent = item.dataset.type;
+        detailMessageTitle.textContent = item.dataset.title;
+        detailSender.textContent = item.dataset.sender;
+        detailMemberId.textContent = item.dataset.memberId;
+        detailStatus.textContent = item.dataset.status;
+        detailCreatedAt.textContent = item.dataset.createdAt;
+        detailContent.textContent = item.dataset.content;
+
+        emptyMessageDetail.classList.add("hidden");
+        messageDetail.classList.remove("hidden");
+      });
+    });
+
+    function filterMessages() {
+      const keyword = messageSearch.value.trim().toLowerCase();
+      const selectedType = messageTypeFilter.value;
+      const selectedStatus = messageStatusFilter.value;
+
+      messageItems.forEach((item) => {
+        const title = item.dataset.title.toLowerCase();
+        const sender = item.dataset.sender.toLowerCase();
+        const memberId = item.dataset.memberId.toLowerCase();
+        const type = item.dataset.type;
+        const status = item.dataset.status;
+
+        const matchesKeyword =
+          title.includes(keyword) ||
+          sender.includes(keyword) ||
+          memberId.includes(keyword);
+
+        const matchesType = selectedType === "all" || selectedType === type;
+        const matchesStatus =
+          selectedStatus === "all" || selectedStatus === status;
+
+        item.style.display =
+          matchesKeyword && matchesType && matchesStatus ? "" : "none";
+      });
+    }
+
+    messageSearch.addEventListener("input", filterMessages);
+    messageTypeFilter.addEventListener("change", filterMessages);
+    messageStatusFilter.addEventListener("change", filterMessages);
+  </script>
+</body>
+</html>

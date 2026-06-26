@@ -1,0 +1,578 @@
+/* =============================================
+   복약안심서비스 — style.css
+   ============================================= */
+
+/* ── 리셋 & 기본 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #1a2340;
+  background: #f0f4fa;
+}
+
+a { text-decoration: none; color: inherit; }
+img, svg { display: block; }
+
+/* ── 공통 컨테이너 ── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ── 공통 버튼 ── */
+.btn {
+  display: inline-block;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 28px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  text-align: center;
+}
+
+.btn--primary {
+  background: #2563eb;
+  color: #fff;
+}
+.btn--primary:hover { background: #1d4ed8; }
+
+.btn--outline {
+  background: #fff;
+  color: #2563eb;
+  border: 1.5px solid #2563eb;
+}
+.btn--outline:hover { background: #eff6ff; }
+
+.btn--white {
+  background: #fff;
+  color: #1e3a8a;
+  font-weight: 500;
+}
+.btn--white:hover { background: #eff6ff; }
+
+.btn--sm { padding: 8px 20px; font-size: 14px; }
+.btn--full { width: 100%; display: block; }
+
+
+/* =============================================
+   네비게이션
+   ============================================= */
+.nav {
+  background: #fff;
+  border-bottom: 0.5px solid #d8e2f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav__inner {
+  max-width: 960px;
+  margin: 0 auto;''
+  padding: 0 1.5rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.nav__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #1e3a8a;
+  white-space: nowrap;
+}
+
+.nav__logo-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.nav__links {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav__links a {
+  font-size: 14px;
+  color: #4b5a7a;
+  transition: color 0.2s;
+}
+.nav__links a:hover { color: #2563eb; }
+
+
+/* =============================================
+   히어로
+   ============================================= */
+.hero {
+  background: linear-gradient(135deg, #e8f0fd 0%, #dbeafe 60%, #eff6ff 100%);
+  padding: 5rem 1.5rem 4rem;
+}
+
+.hero__inner {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* 배지 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  margin-bottom: 1.5rem;
+}
+
+/* 타이틀 */
+.hero__title {
+  font-size: 38px;
+  font-weight: 700;
+  color: #1e3a8a;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+}
+.hero__title--accent { color: #2563eb; }
+
+.hero__desc {
+  font-size: 16px;
+  color: #4b5a7a;
+  margin-bottom: 2.5rem;
+}
+
+.hero__btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+/* ── 대시보드 미리보기 ── */
+.mockup {
+  background: #fff;
+  border-radius: 16px;
+  border: 0.5px solid #c8d8f0;
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.mockup__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 0.5px solid #e8eef8;
+}
+
+.mockup__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.mockup__dot--light  { background: #e8eef8; }
+.mockup__dot--mid   { background: #dbeafe; }
+.mockup__dot--dark  { background: #2563eb; }
+
+.mockup__label {
+  font-size: 13px;
+  color: #6b7a9a;
+  font-weight: 500;
+}
+
+/* 통계 카드 */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.stat-card {
+  background: #f0f7ff;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-card__num {
+  font-size: 24px;
+  font-weight: 700;
+}
+.stat-card__num--blue  { color: #2563eb; }
+.stat-card__num--green { color: #166534; }
+.stat-card__num--red   { color: #dc2626; }
+
+.stat-card__label {
+  font-size: 11px;
+  color: #6b7a9a;
+  margin-top: 2px;
+}
+
+/* 알약 알림 필 */
+.pill-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.pill {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.pill--ok   { background: #dcfce7; color: #166534; }
+.pill--warn { background: #fef9c3; color: #854d0e; }
+.pill--late { background: #fee2e2; color: #991b1b; }
+
+/* 프로그레스 바 */
+.progress-wrap { margin-top: 4px; }
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #6b7a9a;
+  margin-bottom: 4px;
+}
+.progress-labels__val { color: #2563eb; font-weight: 500; }
+
+.progress-bar {
+  background: #e8eef8;
+  border-radius: 6px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-bar__fill {
+  background: #2563eb;
+  height: 8px;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+
+/* =============================================
+   공통 섹션 헤더
+   ============================================= */
+.section-tag {
+  font-size: 13px;
+  color: #2563eb;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+.section-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e3a8a;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+.section-sub {
+  font-size: 15px;
+  color: #4b5a7a;
+  line-height: 1.8;
+  max-width: 520px;
+}
+
+
+/* =============================================
+   핵심 기능
+   ============================================= */
+.features {
+  background: #fff;
+  padding: 5rem 1.5rem;
+}
+
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 2.5rem;
+}
+
+.feature-card {
+  background: #f5f8ff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  border: 0.5px solid #dbe8f8;
+}
+
+.feature-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.feature-card__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.feature-card h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e3a8a;
+  margin-bottom: 6px;
+}
+
+.feature-card p {
+  font-size: 13px;
+  color: #6b7a9a;
+  line-height: 1.7;
+}
+
+
+/* =============================================
+   이용 방법
+   ============================================= */
+.how {
+  background: #f0f4fa;
+  padding: 5rem 1.5rem;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 2.5rem;
+}
+
+.step { text-align: center; }
+
+.step__num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+}
+
+.step h4 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e3a8a;
+  margin-bottom: 4px;
+}
+
+.step p {
+  font-size: 12px;
+  color: #6b7a9a;
+  line-height: 1.6;
+}
+
+
+/* =============================================
+   CTA
+   ============================================= */
+.cta {
+  background: #1e3a8a;
+  padding: 5rem 1.5rem;
+  text-align: center;
+}
+
+.cta__inner h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.cta__inner p {
+  font-size: 15px;
+  color: #93c5fd;
+  margin-bottom: 2rem;
+}
+
+
+/* =============================================
+   푸터
+   ============================================= */
+.footer {
+  background: #0f1f4a;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.footer p {
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
+
+/* =============================================
+   로그인 페이지
+   ============================================= */
+.login-page {
+  background: linear-gradient(135deg, #e8f0fd 0%, #dbeafe 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-wrap {
+  width: 100%;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 0.5px solid #c8d8f0;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 360px;
+}
+
+.login-card__logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 1.25rem;
+}
+
+.login-card__service {
+  font-size: 13px;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.login-card__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e3a8a;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.login-card__sub {
+  font-size: 13px;
+  color: #6b7a9a;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* 로그인 폼 */
+.login-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 1rem;
+}
+
+.login-form__group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5a7a;
+}
+
+.login-form__group input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #d8e2f0;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1a2340;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.login-form__group input:focus {
+  border-color: #2563eb;
+}
+
+.login-form__group input::placeholder {
+  color: #b0bdd0;
+}
+
+.login-form__options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.login-form__find {
+  color: #2563eb;
+  transition: opacity 0.2s;
+}
+.login-form__find:hover { opacity: 0.7; }
+
+.login-card__footer {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
+.login-card__footer a:hover { color: #2563eb; }
+
+
+/* =============================================
+   반응형
+   ============================================= */
+@media (max-width: 640px) {
+  .nav__links { display: none; }
+
+  .hero__title { font-size: 28px; }
+
+  .stat-row { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .stat-card__num { font-size: 20px; }
+
+  .section-title { font-size: 22px; }
+
+  .features__grid { grid-template-columns: 1fr 1fr; }
+  .steps { grid-template-columns: 1fr 1fr; }
+}

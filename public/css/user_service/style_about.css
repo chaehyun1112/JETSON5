@@ -1,0 +1,108 @@
+/* =============================================
+   복약안심서비스 — user service about page
+   ============================================= */
+
+.about-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.about-action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.about-action-card--primary {
+  background: #2563eb;
+  color: #fff;
+}
+.about-action-card--primary:hover { background: #1d4ed8; }
+
+.about-action-card--outline {
+  background: #fff;
+  color: #1e3a8a;
+  border-color: #d8e2f0;
+}
+.about-action-card--outline:hover { border-color: #2563eb; background: #eff6ff; }
+
+.about-action-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+.about-action-card__icon--outline {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.about-action-card__title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.about-action-card__desc {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.about-action-card__arrow {
+  margin-left: auto;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.about-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.about-section {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem 0;
+  border-bottom: 0.5px solid #e8eef8;
+}
+.about-section:last-child { border-bottom: none; }
+
+.about-section__num {
+  font-size: 36px;
+  font-weight: 700;
+  color: #dbeafe;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.about-section__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 10px;
+}
+
+.about-section__text {
+  font-size: 14px;
+  color: #4b5a7a;
+  line-height: 1.9;
+}
+
+@media (max-width: 560px) {
+  .about-actions { grid-template-columns: 1fr; }
+  .about-section { flex-direction: column; gap: 0.5rem; }
+  .about-section__num { font-size: 24px; width: auto; }
+}

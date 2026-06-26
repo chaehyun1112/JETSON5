@@ -1,0 +1,161 @@
+/* =============================================
+   관리자 약상자 관리 페이지 전용
+   ============================================= */
+
+.admin-panel {
+  padding: 22px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e1e6ef;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.panel-header button {
+  border: none;
+  background: #eef4ff;
+  color: #1f4fbf;
+  padding: 7px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 13px 10px;
+  border-bottom: 1px solid #edf0f5;
+  text-align: left;
+}
+
+.admin-table th {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.notice-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notice-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.notice-list li:last-child {
+  border-bottom: none;
+}
+
+.notice-list strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.notice-list span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.box-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.medicine-box-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 18px;
+}
+
+.medicine-box-list-panel {
+  min-width: 0;
+}
+
+.medicine-box-table tbody tr {
+  cursor: pointer;
+}
+
+.medicine-box-table tbody tr:hover,
+.medicine-box-table tbody tr.selected {
+  background: #f2f6ff;
+}
+
+.status-badge {
+  display: inline-block;
+  min-width: 52px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-badge.on {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.status-badge.off {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.status-badge.warning {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.status-badge.normal {
+  background: #eef4ff;
+  color: #1f4fbf;
+}
+
+.medicine-box-detail-panel {
+  align-self: start;
+}
+
+.medicine-box-detail .detail-title span {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+@media (max-width: 900px) {
+  .box-summary-grid,
+  .medicine-box-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.member-link{
+  min-width: 80px;
+  text-align: center;
+}
+
+.admin-table {
+  table-layout: fixed;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: center;
+}

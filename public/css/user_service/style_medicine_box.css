@@ -1,0 +1,190 @@
+/* =============================================
+   약상자 구매 / 구매 완료 페이지 전용
+   ============================================= */
+
+.buy-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 0.5px solid #d8e2f0;
+  padding: 3rem 2.5rem;
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.buy-card__name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.buy-card__img-wrap {
+  width: 100%;
+  min-height: 260px;
+  border-radius: 18px;
+  background: #f8fbff;
+  padding: 1.75rem;
+  display: grid;
+  place-items: center;
+}
+
+.buy-card__img-wrap img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+}
+
+.buy-card__img-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: #2563eb;
+  text-align: center;
+}
+
+.buy-card__img-placeholder p {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.buy-card__img-placeholder span {
+  font-size: 12px;
+  color: #6b7a9a;
+  line-height: 1.6;
+}
+
+.buy-card__info {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.buy-card__feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #1e3a8a;
+  font-size: 14px;
+}
+
+.buy-card__purchase {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buy-card__price-wrap {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.buy-card__price-label {
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
+.buy-card__price {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.buy-card__price span {
+  font-size: 16px;
+  font-weight: 500;
+  color: #6b7a9a;
+}
+
+.buy-card__btn {
+  min-width: 180px;
+}
+
+/* 구매 완료 카드 */
+.buy-complete-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 0.5px solid #d8e2f0;
+  padding: 3rem 2.5rem;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.buy-complete__icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 24px;
+  background: #2563eb;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.buy-complete__code-wrap {
+  width: 100%;
+  text-align: left;
+}
+
+.buy-complete__code-label {
+  display: block;
+  font-size: 13px;
+  color: #6b7a9a;
+  margin-bottom: 0.5rem;
+}
+
+.buy-complete__code {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f8fbff;
+  border: 1px solid #d8e2f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.buy-complete__code span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7a9a;
+}
+
+.buy-complete__copy-btn {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buy-complete__copy-btn:hover { color: #1d4ed8; }
+
+.buy-complete__code-hint {
+  font-size: 13px;
+  color: #6b7a9a;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .buy-card {
+    padding: 2rem 1.5rem;
+  }
+  .buy-complete-card {
+    padding: 2rem 1.5rem;
+  }
+}
