@@ -209,14 +209,9 @@ body {
   color: #6b7280;
 }
 
-.logout-btn {
-  padding: 10px 16px;
-  border-radius: 5px;
-  background: #fff;
-  color: #1f4fbf;
-  text-decoration: none;
-  font-size: 14px;
-  border: 1px solid #d7ddea;
+
+.logout-form button:hover{
+    background:#f3f4f6;
 }
 
 .stats-grid {
@@ -389,16 +384,24 @@ body {
   display: block;
 }
 
-.admin-user-dropdown a {
+.admin-user-dropdown a,
+.admin-user-dropdown button {
   display: block;
+  width: 100%;
   padding: 10px 9px;
   border-radius: 4px;
   color: #1f2d3d;
   text-decoration: none;
   font-size: 13px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-.admin-user-dropdown a:hover {
+.admin-user-dropdown a:hover,
+.admin-user-dropdown button:hover {
   background: #f2f6ff;
   color: #1f4fbf;
 }
