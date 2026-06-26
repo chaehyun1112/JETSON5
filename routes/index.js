@@ -59,8 +59,13 @@ router.get("/user/user_service/schedule_register", (req, res) => {
     );
 });
 
-
-
+// user 대시보드, 현재 태헌님 코드에 있음 병합 필요 (라우터만 만들어 놓은거에요, 박건희)
+router.get("/user/user_dashboard/main_dashboard", isLoggedIn, (req, res) => {
+  res.render("user/user_dashboard/main_dashboard", {
+    title: "대시보드",
+    user: req.session.user
+  });
+});
 
 // 약 스케줄 post
 router.post("/user/user_service/schedule_register", (req, res) => {
@@ -367,7 +372,47 @@ router.post('/user/user_service/medicine_buy', (req, res) => {
   });
 });
 
-router.get("/admin/members", (req, res) => {
+    // admin 주소 접속  (박건희)
+router.get("/admin", (req, res) => {
+    // 로그인 안 됐을 시 메인으로 이동
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+
+  // 관리자 (회원 구분 'A') 인지 확인
+  if (req.session.user.role !== "A") {
+    return res.redirect("/");
+  }
+  // 로그인 성공시 관리자 대시보드 화면 출력
+  res.render("admin/admin_dashboard/admin");
+});
+
+// admin의 개인정보 수정 (박건희)
+router.get("/admin/profile", (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+
+  res.render("admin/profile", {
+    title: "개인정보 수정",
+    pageTitle: "개인정보 수정",
+    user: req.session.user
+  });
+});
+
+// admin 설정 페이지 (박건희)
+router.get("/admin/settings", (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+
+  res.render("admin/settings", {
+    title: "설정페이지",
+    pageTitle: "설정페이지"
+  });
+});
+
+router.get("/admin/admin_dashboard/members", (req, res) => {
   const members = [
     {
       id: "parent01",
@@ -401,7 +446,7 @@ router.get("/admin/members", (req, res) => {
     },
   ];
 
-  res.render("admin/members", {
+  res.render("admin/admin_dashboard/members", {
     title: "회원관리",
     pageTitle: "회원관리",
     members,
@@ -409,7 +454,7 @@ router.get("/admin/members", (req, res) => {
 });
 
 
-router.get("/admin/medicine_boxes", (req, res) => {
+router.get("/admin/admin_dashboard/medicine_boxes", (req, res) => {
   const medicineBoxes = [
     {
       id: "BOX-001",
@@ -446,7 +491,7 @@ router.get("/admin/medicine_boxes", (req, res) => {
     },
   ];
 
-  res.render("admin/medicine_boxes", {
+  res.render("admin/admin_dashboard/medicine_boxes", {
     title: "약상자 관리",
     pageTitle: "약상자 관리",
     medicineBoxes,
@@ -454,7 +499,7 @@ router.get("/admin/medicine_boxes", (req, res) => {
 });
 
 
-router.get("/admin/messages", (req, res) => {
+router.get("/admin/admin_dashboard/messages", (req, res) => {
   const messages = [
     {
       id: 1,
@@ -502,7 +547,7 @@ router.get("/admin/messages", (req, res) => {
     },
   ];
 
-  res.render("admin/messages", {
+  res.render("admin/admin_dashboard/messages", {
     title: "알림메시지",
     pageTitle: "알림메시지",
     messages,
@@ -580,7 +625,7 @@ router.get('/user/user_info/protected', isLoggedIn, (req, res) => {
             return res.send("DB 오류");
         }
 
-        res.render("user/user_info/protected", {
+        res.render("/user/user_info/protected", {
             title: "보호대상 정보",
             user: req.session.user,
             protectedPersons: rows
@@ -589,6 +634,8 @@ router.get('/user/user_info/protected', isLoggedIn, (req, res) => {
     });
 
 });
+
+
 
 // 시니어 정보 입력
 router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
@@ -657,6 +704,14 @@ router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
             );
         }
     );
+});
+
+// 특정 보호대상 수정 페이지 (박건희)
+router.get("/user/user_info/protected/edit/:id", isLoggedIn, (req, res) => {
+  const seniorId = req.params.id;
+
+  // seniorId로 DB에서 해당 보호대상 정보 조회
+  // 수정 화면 render
 });
 
 router.get("/user/user_info/seniorRegister", isLoggedIn, (req, res) => {
