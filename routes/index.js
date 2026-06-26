@@ -200,9 +200,21 @@ router.post("/join", async (req, res) => {
 })
 
 // 로그인 GET
-router.get('/login', (req, res) => {
-  if (req.session.user) return res.redirect('/user/user_service/schedule_register');
-  res.render('login/login', { title: '로그인 — 복약안심서비스', error: null });
+router.get("/login", (req, res) => {
+
+    if (req.session.user) {
+
+        if (req.session.user.role === "A") {
+            return res.redirect("/admin/admin_dashboard/admin");
+        }
+
+        return res.redirect("/user/user_dashboard/schedule_register");
+    }
+
+    res.render("login/login", {
+        title: "로그인 - 복약안심서비스",
+        error: null
+    });
 });
  
 // 로그인 POST
@@ -255,8 +267,17 @@ router.post("/login", (req, res) => {
 
 
 // 로그아웃
-router.post('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/'));
+router.post("/logout", (req, res) => {
+    req.session.destroy((err) => {
+
+        if (err) {
+            console.log(err);
+            return res.redirect("/");
+        }
+        res.clearCookie("connect.sid");
+        res.redirect("/");
+    });
+
 });
 
 // 로그인 안 한 사람 접근 차단
@@ -606,11 +627,6 @@ router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
     const memId =
         req.session.user.id;
 
-    console.log(req.session.user);
-
-
-    console.log("로그인 사용자:", memId);
-
     const hashedPw =
         await bcrypt.hash(seniorPw, 10);
 
@@ -659,6 +675,119 @@ router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
     );
 });
 
+// 시니어 정보 수정
+router.get("/user/user_info/protected/edit/:id", (req, res) => {
+
+    const seniorId = req.params.id;
+
+    const sql = `
+        SELECT *
+        FROM TB_SENIOR
+        WHERE SENIOR_ID = ?
+    `;
+
+    conn.query(sql, [seniorId], (err, result) => {
+
+        if(err){
+            console.log(err);
+            return res.redirect("/user/user_info/protected");
+        }
+
+        res.render("user/user_info/protected_edit",{
+            title:"보호대상 수정",
+            person:result[0]
+        });
+
+    });
+
+});
+
+// 시니어 정보 수정 완료
+router.post("/user/user_info/protected/update/:id",(req,res)=>{
+
+    const seniorId=req.params.id;
+
+    const{
+
+        SENIOR_NAME,
+        SENIOR_EMAIL,
+        SENIOR_CONTACT,
+        SENIOR_ADDR,
+        PILLBOX_NUM
+
+    }=req.body;
+
+
+    const sql=`
+    UPDATE TB_SENIOR
+    SET
+    SENIOR_NAME=?,
+    SENIOR_EMAIL=?,
+    SENIOR_CONTACT=?,
+    SENIOR_ADDR=?,
+    PILLBOX_NUM=?
+    WHERE SENIOR_ID=?
+    `;
+
+    conn.query(sql,[
+        SENIOR_NAME,
+        SENIOR_EMAIL,
+        SENIOR_CONTACT,
+        SENIOR_ADDR,
+        PILLBOX_NUM,
+        seniorId
+    ],(err)=>{
+
+        if(err){
+
+            console.log(err);
+            return res.redirect("back");
+        }
+        res.redirect("/user/user_info/protected");
+    });
+});
+
+// 시니어 정보 삭제
+router.get("/user/user_info/protected/delete/:seniorId", isLoggedIn, (req, res) => {
+
+    const seniorId = req.params.seniorId;
+    const memId = req.session.user.id;
+
+    // 1. 스케줄 삭제
+    const deleteSchedule = `
+        DELETE FROM TB_SCHEDULE
+        WHERE SENIOR_ID = ?
+    `;
+
+    conn.query(deleteSchedule, [seniorId], (err) => {
+
+        if(err){
+            console.log(err);
+            return res.send("<script>alert('스케줄 삭제 실패');history.back();</script>");
+        }
+
+        // 2. 시니어 삭제
+        const deleteSenior = `
+            DELETE FROM TB_SENIOR
+            WHERE SENIOR_ID = ?
+            AND MEM_ID = ?
+        `;
+
+        conn.query(deleteSenior, [seniorId, memId], (err, result) => {
+
+            if(err){
+                console.log(err);
+                return res.send("<script>alert('삭제 실패');history.back();</script>");
+            }
+
+            res.send("<script>alert('삭제되었습니다.');location.href='/user/user_info/protected';</script>");
+
+        });
+
+    });
+
+});
+
 router.get("/user/user_info/seniorRegister", isLoggedIn, (req, res) => {
 
     res.render("user/user_info/seniorRegister", {
@@ -696,8 +825,6 @@ router.get('/index/index_HowToUse', (req, res) => {
     title:   '이용 방법',
   });
 });
-
-
 
 const account = {
   name: '김민지',

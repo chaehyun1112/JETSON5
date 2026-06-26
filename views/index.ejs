@@ -11,29 +11,8 @@
 </head>
 <body>
 
-  <!-- ===== 네비게이션 ===== -->
-  <header class="nav">
-    <div class="nav__inner">
-      <a href="/" class="nav__logo">
-        <svg class="nav__logo-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect x="2" y="8" width="24" height="18" rx="3" fill="#2563eb" opacity="0.15"/>
-          <rect x="2" y="8" width="24" height="18" rx="3" stroke="#2563eb" stroke-width="1.5"/>
-          <path d="M10 8V6a4 4 0 018 0v2" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M14 14v4M12 16h4" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        복약안심서비스
-      </a>
-
-      <nav class="nav__links" aria-label="주요 메뉴">
-        <a href="/index/index_about">서비스 소개</a>
-        <a href="/index/index_HowToUse">이용 방법</a>
-        <a href="/index/index_announce">공지사항</a>
-      </nav>
-
-      <a href="/login" class="btn btn--primary btn--sm">로그인</a>
-    </div>
-  </header>
-
+    <%- include('partials/user_partials/nav_index') %>
+    
   <!-- ===== 히어로 ===== -->
   <section class="hero">
     <div class="hero__inner">
