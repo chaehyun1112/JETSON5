@@ -2,7 +2,6 @@ const express = require('express');
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const conn = require('../config/db');
-
 const mysql = require('mysql2');
 
 // 로그인 체크 미들웨어
@@ -261,7 +260,6 @@ router.post('/logout', (req, res) => {
 });
 
 // 로그인 안 한 사람 접근 차단
-
 router.get("/admin/admin_dashboard/admin", (req, res) => {
 
     if(!req.session.user){
@@ -551,55 +549,129 @@ function isLoggedIn(req, res, next) {
   return res.redirect('/login');
 }
 
-
-
 router.get('/user/user_info/protected', isLoggedIn, (req, res) => {
 
-  // ── 샘플 보호대상 데이터 ────────────────
-  // 실제 서비스에서는 DB에서 req.session.user.id 기준으로 조회하세요.
-  const protectedPersons = [
-    {
-      id:             1,
-      name:           '김철수',
-      relation:       '부모님',
-      birthdate:      '1948.03.15',
-      gender:         '남성',
-      phone:          '010-1234-5678',
-      address:        '서울특별시 강남구 역삼동 123-45',
-      doctor:         '서울병원 내과 이영희 원장',
-      disease:        '고혈압, 당뇨',
-      complianceRate: 85,
-    },
-    {
-      id:             2,
-      name:           '박순자',
-      relation:       '부모님',
-      birthdate:      '1950.07.22',
-      gender:         '여성',
-      phone:          '010-9876-5432',
-      address:        '서울특별시 강남구 역삼동 123-45',
-      doctor:         '연세병원 가정의학과 최민준 원장',
-      disease:        '골다공증',
-      complianceRate: 92,
-    },
-  ];
+    const sql = `
+    SELECT
+        S.*,
 
-  res.render('user/user_info/protected', {
-    title:            '보호대상 정보',
-    user:             req.session.user,
-    protectedPersons,
-  });
+        ROUND(
+            IFNULL(
+                (
+                    SELECT
+                        SUM(CASE WHEN SC.TAKING_YN='Y' THEN 1 ELSE 0 END)
+                        / COUNT(*) * 100
+                    FROM TB_SCHEDULE SC
+                    WHERE SC.SENIOR_ID = S.SENIOR_ID
+                    AND YEAR(SC.TAKING_DATE)=YEAR(CURDATE())
+                    AND MONTH(SC.TAKING_DATE)=MONTH(CURDATE())
+                ),
+            0)
+        ) AS complianceRate
+
+    FROM TB_SENIOR S
+    WHERE S.MEM_ID = ?
+    `;
+
+    conn.query(sql, [req.session.user.id], (err, rows) => {
+
+        if(err){
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        res.render("user/user_info/protected", {
+            title: "보호대상 정보",
+            user: req.session.user,
+            protectedPersons: rows
+        });
+
+    });
+
 });
 
+// 시니어 정보 입력
+router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
+
+    const {
+        seniorId,
+        seniorPw,
+        name,
+        email,
+        contact,
+        addr,
+        pillboxNum
+    } = req.body;
+
+    const memId =
+        req.session.user.id;
+
+    console.log(req.session.user);
+
+
+    console.log("로그인 사용자:", memId);
+
+    const hashedPw =
+        await bcrypt.hash(seniorPw, 10);
+
+    const sql = `
+    INSERT INTO TB_SENIOR
+    (
+        SENIOR_ID,
+        SENIOR_PW,
+        MEM_ID,
+        SENIOR_NAME,
+        SENIOR_EMAIL,
+        SENIOR_CONTACT,
+        SENIOR_ADDR,
+        PILLBOX_NUM  
+    )
+    VALUES
+    (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    conn.query(
+        sql,
+        [
+            seniorId,
+            hashedPw,
+            memId,
+            name,
+            email,
+            contact,
+            addr,
+            pillboxNum || null
+        ],
+        (err, result) => {
+
+            if(err){
+                console.log(err);
+
+                return res.send(
+                    "<script>alert('등록 실패');history.back();</script>"
+                );
+            }
+
+            res.send(
+                "<script>alert('대상자 등록 완료');location.href='/user/user_info/protected';</script>"
+            );
+        }
+    );
+});
+
+router.get("/user/user_info/seniorRegister", isLoggedIn, (req, res) => {
+
+    res.render("user/user_info/seniorRegister", {
+        title: "대상자 등록",
+        user: req.session.user
+    });
+});
 
 router.get("/index/index_about", (req, res) => {
     res.render("index/index_about", {
         title: "소개 페이지"
     });
 });
-
-
-
 
 router.get('/index/index_announce', (req, res) => {
   // 실제 서비스에서는 DB에서 notices 배열을 조회해서 넘기세요.
