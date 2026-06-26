@@ -1,5 +1,5 @@
 /* =============================================
-복약안심서비스 — style.css
+   복약안심서비스 — style.css
    ============================================= */
 
 /* ── 리셋 & 기본 ── */
@@ -17,6 +17,19 @@ body {
 
 a { text-decoration: none; color: inherit; }
 img, svg { display: block; }
+
+
+.footer {
+  background: #0f1f4a;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.footer p {
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
 
 /* ── 공통 컨테이너 ── */
 .container {
@@ -116,12 +129,6 @@ img, svg { display: block; }
 
 
 
-
-
-/* =============================================
-  네비게이션 — 드롭다운 & 로그인 후 메뉴
-   ============================================= */
-
 /* 대시보드 드롭다운 */
 .nav__dropdown {
   position: relative;
@@ -144,12 +151,11 @@ img, svg { display: block; }
 }
 
 .nav__dropdown-menu {
-
   display: none;
   position: absolute;
   top: 100%;
-  left: 0;
-  transform: none;
+  left: 50%;
+  transform: translateX(-50%);
   padding-top: 14px;
   min-width: 160px;
   z-index: 200;
@@ -182,9 +188,6 @@ img, svg { display: block; }
   background: #eff6ff;
   color: #2563eb;
 }
-
-
-
 
 /* 우측 액션 영역 */
 .nav__actions {
@@ -315,335 +318,110 @@ img, svg { display: block; }
 
 
 /* =============================================
-   대시보드 페이지
+   약통 미등록 / 등록 페이지 (no-pillbox, register-pillbox)
    ============================================= */
-.db-page {
+.nopill-main {
+  min-height: calc(100vh - 60px - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
   background: #f0f4fa;
 }
 
-/* 헤더 배너 */
-.db-header {
-  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-  padding: 2.5rem 1.5rem;
-}
-
-.db-header__inner {
-  max-width: 1000px;
-  margin: 0 auto;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.db-header__greeting {
-  font-size: 14px;
-  color: #93c5fd;
-  margin-bottom: 4px;
-}
-.db-header__greeting strong { color: #fff; }
-
-.db-header__title {
-  font-size: 26px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
-.db-header__date {
-  font-size: 13px;
-  color: #93c5fd;
-}
-
-/* 실시간 배지 */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
+.nopill-card {
+  background: #fff;
   border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 13px;
-  border: 0.5px solid rgba(255,255,255,0.25);
-}
-
-.status-badge__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #4ade80;
-  animation: pulse 1.6s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-/* 본문 레이아웃 */
-.db-main { padding: 2rem 1.5rem 3rem; }
-
-.db-container {
-  max-width: 1000px;
-  margin: 0 auto;
+  border: 0.5px solid #d8e2f0;
+  padding: 3rem 2.5rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-}
-
-/* 통계 카드 4개 */
-.db-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-}
-
-.db-stat-card {
-  background: #fff;
-  border-radius: 14px;
-  border: 0.5px solid #d8e2f0;
-  padding: 1.25rem 1.5rem;
-  display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.db-stat-card__icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+.nopill-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: #dbeafe;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-}
-.db-stat-card__icon svg { width: 22px; height: 22px; }
-
-.db-stat-card__icon--blue   { background: #dbeafe; color: #2563eb; }
-.db-stat-card__icon--green  { background: #dcfce7; color: #166534; }
-.db-stat-card__icon--red    { background: #fee2e2; color: #dc2626; }
-.db-stat-card__icon--purple { background: #ede9fe; color: #6d28d9; }
-
-.db-stat-card__label {
-  font-size: 12px;
-  color: #6b7a9a;
-  margin-bottom: 2px;
+  margin-bottom: 0.5rem;
 }
 
-.db-stat-card__num {
-  font-size: 26px;
+.nopill-card__title {
+  font-size: 22px;
   font-weight: 700;
   color: #1e3a8a;
-  line-height: 1;
-}
-.db-stat-card__num span { font-size: 14px; font-weight: 400; margin-left: 2px; color: #6b7a9a; }
-.db-stat-card__num--green  { color: #166534; }
-.db-stat-card__num--red    { color: #dc2626; }
-.db-stat-card__num--purple { color: #6d28d9; }
-
-/* 공통 카드 */
-.db-card {
-  background: #fff;
-  border-radius: 14px;
-  border: 0.5px solid #d8e2f0;
-  padding: 1.5rem;
 }
 
-.db-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
+.nopill-card__desc {
+  font-size: 14px;
+  color: #6b7a9a;
+  line-height: 1.8;
 }
 
-.db-card__title {
-  font-size: 15px;
-  font-weight: 500;
-  color: #1e3a8a;
-}
-
-.db-card__more {
+.nopill-card__link {
   font-size: 13px;
   color: #2563eb;
+  margin-top: 0.5rem;
   transition: opacity 0.2s;
 }
-.db-card__more:hover { opacity: 0.7; }
+.nopill-card__link:hover { opacity: 0.7; }
 
-/* 복약률 카드 */
-.db-rate-card .db-card__header {
-  margin-bottom: 0.75rem;
-}
-.db-rate-card__val {
-  font-size: 20px;
-  font-weight: 700;
-  color: #2563eb;
-}
-.db-rate-card__sub {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #6b7a9a;
-}
-
-.db-progress {
-  background: #e8eef8;
-  border-radius: 8px;
-  height: 10px;
-  overflow: hidden;
-}
-.db-progress__fill {
-  background: linear-gradient(90deg, #2563eb, #60a5fa);
-  height: 10px;
-  border-radius: 8px;
-  transition: width 0.6s ease;
-}
-
-/* 2열 그리드 */
-.db-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-/* 환자 테이블 */
-.db-table {
+/* 약통 등록 폼 */
+.pillbox-form {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.db-table th {
-  text-align: left;
-  font-size: 11px;
-  font-weight: 500;
-  color: #6b7a9a;
-  padding: 0 8px 10px;
-  border-bottom: 0.5px solid #e8eef8;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.db-table td {
-  padding: 10px 8px;
-  color: #2d3a5a;
-  border-bottom: 0.5px solid #f0f4fa;
-  vertical-align: middle;
-}
-
-.db-table tr:last-child td { border-bottom: none; }
-
-.db-table__name {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.db-table__drug {
-  color: #6b7a9a;
-  font-size: 12px;
-}
-
-.db-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-size: 12px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-/* 상태 배지 */
-.db-status {
-  display: inline-block;
-  border-radius: 20px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 500;
-}
-.db-status--ok   { background: #dcfce7; color: #166534; }
-.db-status--warn { background: #fef9c3; color: #854d0e; }
-.db-status--late { background: #fee2e2; color: #991b1b; }
-
-/* 알림 리스트 */
-.db-alert-list {
-  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1rem;
+  text-align: left;
+  margin-top: 0.25rem;
 }
 
-.db-alert {
+.pillbox-form__group {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 8px;
-  border-radius: 8px;
-  transition: background 0.15s;
+  flex-direction: column;
+  gap: 6px;
 }
-.db-alert:hover { background: #f5f8ff; }
 
-.db-alert__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-.db-alert--ok   .db-alert__dot { background: #4ade80; }
-.db-alert--warn .db-alert__dot { background: #facc15; }
-.db-alert--late .db-alert__dot { background: #f87171; }
-
-.db-alert__body { flex: 1; }
-
-.db-alert__msg {
+.pillbox-form__group label {
   font-size: 13px;
-  color: #2d3a5a;
-  line-height: 1.5;
+  font-weight: 500;
+  color: #4b5a7a;
 }
 
-.db-alert__time {
-  font-size: 11px;
-  color: #6b7a9a;
-  margin-top: 2px;
-}
-
-/* 로그인 에러 메시지 */
-.login-error {
-  background: #fee2e2;
-  color: #991b1b;
+.pillbox-form__group input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #d8e2f0;
   border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 13px;
-  margin-bottom: 1rem;
-  border: 0.5px solid #fca5a5;
+  padding: 0 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1a2340;
+  outline: none;
+  transition: border-color 0.2s;
+  letter-spacing: 0.05em;
+}
+.pillbox-form__group input:focus { border-color: #2563eb; }
+.pillbox-form__group input::placeholder { color: #b0bdd0; letter-spacing: 0; }
+
+.pillbox-form__hint {
+  font-size: 12px;
+  color: #9baabb;
 }
 
-
-/* =============================================
-   대시보드 반응형
-   ============================================= */
-@media (max-width: 768px) {
-  .db-grid-2 {
-    grid-template-columns: 1fr;
-  }
-  .db-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-  .btn--ghost { display: none; }
+@media (max-width: 560px) {
+  .about-actions { grid-template-columns: 1fr; }
+  .about-section { flex-direction: column; gap: 0.5rem; }
+  .about-section__num { font-size: 24px; width: auto; }
 }
-
-@media (max-width: 480px) {
-  .db-stats { grid-template-columns: 1fr 1fr; }
-  .db-table__drug { display: none; }
-}
-
 
 
 
