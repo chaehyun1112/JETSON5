@@ -31,12 +31,6 @@ img, svg { display: block; }
 }
 
 
-/* ── 공통 컨테이너 ── */
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
 
 /* ── 공통 버튼 ── */
 .btn {
