@@ -269,6 +269,7 @@ img, svg { display: block; }
 
 .nav__user-dropdown.is-open {
   display: block;
+  transform: none !important;
   animation: fadeDown 0.15s ease;
 }
 
@@ -327,7 +328,6 @@ img, svg { display: block; }
 @keyframes fadeDown {
   from {
     opacity: 0;
-    /* ⭐ 기존 정렬인 translateX(-50%)를 반드시 같이 적어주어야 합니다! */
     transform: translateX(-50%) translateY(-10px); 
   }
   to {
