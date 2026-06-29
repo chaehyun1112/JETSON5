@@ -4,21 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
+  
   <link rel="stylesheet" href="/user/user_dashboard/style_main_dashboard.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body class="db-page">
 
   <%- include('../../partials/user_partials/nav_dashboard') %>
 
-<!-- ===== 대시보드 헤더 ===== -->
-<div class="db-header">
+  <div class="db-header">
     <div class="db-header__inner">
-<div>
+      <div>
         <p class="db-header__greeting">안녕하세요, <strong><%= user.name %></strong> 님 👋</p>
-        <h1 class="db-header__title">오늘의 복약 현황</h1>
+        <h1 class="db-header__title"><strong><%= user.name %></strong> 님의 오늘의 복약 인지 현황</h1>
         <p class="db-header__date">
           <%= new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }) %>
         </p>
@@ -32,105 +33,164 @@
     </div>
   </div>
 
-  <!-- ===== 본문 ===== -->
   <main class="db-main">
     <div class="db-container">
 
-      <!-- 통계 카드 4개 -->
-      <div class="db-stats">
-        <div class="db-stat-card">
-          <div class="db-stat-card__icon db-stat-card__icon--blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <section class="db-section">
+        <h2 class="db-section__title">오늘 복용현황</h2>
+        <div class="db-today-grid">
+          <% const mealLabels = ['아침', '점심', '저녁'];
+             const mealIcons  = ['🌅', '☀️', '🌙'];
+             const mealColors = ['blue', 'yellow', 'purple'];
+             [today.morning, today.lunch, today.dinner].forEach((rate, i) => { %>
+          <div class="db-meal-card db-meal-card--<%= mealColors[i] %>">
+            <span class="db-meal-card__icon"><%= mealIcons[i] %></span>
+            <p class="db-meal-card__label"><%= mealLabels[i] %></p>
+            <p class="db-meal-card__rate"><%= rate %></p>
+            <div class="db-mini-bar">
+              <div class="db-mini-bar__fill" style="width: <%= rate %>"></div>
+            </div>
           </div>
-          <div>
-            <p class="db-stat-card__label">총 등록 보호대상</p>
-            <p class="db-stat-card__num"><%= stats.total %><span>명</span></p>
-          </div>
+          <% }) %>
         </div>
-        <div class="db-stat-card">
-          <div class="db-stat-card__icon db-stat-card__icon--green">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <div>
-            <p class="db-stat-card__label">복약 완료</p>
-            <p class="db-stat-card__num db-stat-card__num--green"><%= stats.completed %><span>명</span></p>
-          </div>
-        </div>
-        <div class="db-stat-card">
-          <div class="db-stat-card__icon db-stat-card__icon--red">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          </div>
-          <div>
-            <p class="db-stat-card__label">미복약 경보</p>
-            <p class="db-stat-card__num db-stat-card__num--red"><%= stats.warning %><span>명</span></p>
-          </div>
-        </div>
-        <div class="db-stat-card">
-          <div class="db-stat-card__icon db-stat-card__icon--purple">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <div>
-            <p class="db-stat-card__label">오늘 복약률</p>
-            <p class="db-stat-card__num db-stat-card__num--purple"><%= stats.rate %><span>%</span></p>
-          </div>
-        </div>
-      </div>
+      </section>
 
-      <!-- 복약률 프로그레스 -->
-      <div class="db-card db-rate-card">
-        <div class="db-card__header">
-          <h2 class="db-card__title">오늘 전체 복약률</h2>
-          <span class="db-rate-card__val"><%= stats.rate %>%</span>
+      <section class="db-section">
+        <h2 class="db-section__title">이번 주 요약</h2>
+        <div class="db-stats">
+          <div class="db-stat-card">
+            <div class="db-stat-card__icon db-stat-card__icon--green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <p class="db-stat-card__label">이번주 평균 복약률</p>
+              <p class="db-stat-card__num db-stat-card__num--green"><%= weekly.avgRate %><span>%</span></p>
+            </div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-card__icon db-stat-card__icon--blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+              <p class="db-stat-card__label">복약 일수</p>
+              <p class="db-stat-card__num"><%= weekly.takenDays %><span>일</span></p>
+            </div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-card__icon db-stat-card__icon--red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <p class="db-stat-card__label">복약 누락 횟수</p>
+              <p class="db-stat-card__num db-stat-card__num--red"><%= weekly.missedCount %><span>회</span></p>
+            </div>
+          </div>
+          <div class="db-stat-card">
+            <div class="db-stat-card__icon db-stat-card__icon--purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <p class="db-stat-card__label">총 등록 보호대상</p>
+              <p class="db-stat-card__num db-stat-card__num--purple"><%= stats.total %><span>명</span></p>
+            </div>
+          </div>
         </div>
-        <div class="db-progress">
-          <div class="db-progress__fill" style="width: <%= stats.rate %>%;"></div>
-        </div>
-        <p class="db-rate-card__sub">전체 <%= stats.total %>명 중 <%= stats.completed %>명 복약 완료 · <%= stats.warning %>명 미복약</p>
-      </div>
+      </section>
 
-      <!-- 환자 목록 + 알림 -->
       <div class="db-grid-2">
 
-        <!-- 환자 목록 -->
+<div class="db-card">
+  <div class="db-card__header">
+    <h2 class="db-card__title">복약 일정</h2>
+    <span class="db-card__sub">오늘 기준</span>
+  </div>
+
+  <ul class="db-schedule-list">
+    <% schedule.forEach(s => { %>
+    <li class="db-schedule-item">
+      <div class="db-schedule-item__time-col">
+        <span class="db-schedule-item__time"><%= s.time %></span>
+        <span class="db-schedule-item__meal"><%= s.meal %></span>
+      </div>
+      <span class="db-status db-status--<%= s.status %>">
+        <% if (s.status === 'ok') { %>완료
+        <% } else if (s.status === 'warn') { %>지연
+        <% } else { %>예정<% } %>
+      </span>
+    </li>
+    <% }) %>
+  </ul>
+</div>
+        
+
         <div class="db-card">
           <div class="db-card__header">
-            <h2 class="db-card__title">보호자별 복약 현황</h2>
-            <a href="#" class="db-card__more">전체 보기 →</a>
+            <h2 class="db-card__title">감지 현황</h2>
+            <span class="db-sensor-updated">최근 업데이트 <strong><%= sensor.updatedAt %></strong></span>
           </div>
-          <table class="db-table">
-            <thead>
-              <tr>
-                <th>이름</th>
-                <th>나이</th>
-                <th>복약 시간</th>
-                <th>상태</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% patients.forEach(p => { %>
-              <tr>
-                <td class="db-table__name">
-                  <span class="db-avatar"><%= p.name.charAt(0) %></span>
-                  <%= p.name %>
-                </td>
-                <td><%= p.age %>세</td>
-                <td><%= p.time %></td>
-                <td>
-                  <span class="db-status db-status--<%= p.status %>">
-                    <% if (p.status === 'ok') { %>완료<% } else if (p.status === 'warn') { %>지연<% } else { %>미복약<% } %>
-                  </span>
-                </td>
-              </tr>
-              <% }) %>
-            </tbody>
-          </table>
+          <ul class="db-sensor-list">
+            <li class="db-sensor-item">
+              <div class="db-sensor-item__icon-wrap db-sensor-item__icon-wrap--<%= sensor.lidOpen ? 'warn' : 'ok' %>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/></svg>              </div>
+              
+              <div class="db-sensor-item__body">
+                <p class="db-sensor-item__name">개폐 센서</p>
+                <p class="db-sensor-item__val">약상자 <%= sensor.lidOpen ? '열림' : '닫힘' %></p>
+              </div>
+
+              <span class="db-sensor-badge db-sensor-badge--<%= sensor.lidOpen ? 'warn' : 'ok' %>">
+                <%= sensor.lidOpen ? '열림' : '정상' %>
+              </span>
+            </li>
+            <li class="db-sensor-item">
+              <div class="db-sensor-item__icon-wrap db-sensor-item__icon-wrap--<%= sensor.dbSync ? 'ok' : 'error' %>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+              </div>
+              <div class="db-sensor-item__body">
+                <p class="db-sensor-item__name">최근 업데이트</p>
+                <p class="db-sensor-item__val">마지막 동기화 : <%= sensor.lastSync %></p>
+              </div>
+              <span class="db-sensor-badge db-sensor-badge--<%= sensor.dbSync ? 'ok' : 'error' %>">
+                <%= sensor.dbSync ? '업데이트됨' : '오류' %>
+              </span>
+            </li>
+            <li class="db-sensor-item">
+              <div class="db-sensor-item__icon-wrap db-sensor-item__icon-wrap--blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="db-sensor-item__body">
+                <p class="db-sensor-item__name">마지막 복약 감지</p>
+                <p class="db-sensor-item__val"><%= sensor.lastDetected %></p>
+              </div>
+              <span class="db-sensor-badge db-sensor-badge--blue">감지됨</span>
+            </li>
+          </ul>
         </div>
 
-        <!-- 알림 피드 -->
+      </div>
+      <section class="db-section">
         <div class="db-card">
           <div class="db-card__header">
-            <h2 class="db-card__title">최근 알림</h2>
-            <a href="#" class="db-card__more">알림 관리 →</a>
+            <h2 class="db-card__title">이번주 복약 현황</h2>
+            <div class="db-chart-legend">
+              <span><span class="db-legend-dot" style="background:#4f8ef7"></span><span style="color: #4f8ef7";">아침</span></span>
+              <span><span class="db-legend-dot" style="background:#f7c94f"></span><span style="color: #f7c94f"";">점심</span></span>
+              <span><span class="db-legend-dot" style="background:#7c5cbf"></span><span style="color: #7c5cbf";">저녁</span></span>
+            </div>
+          </div>
+          <div class="db-chart-wrap">
+            <canvas id="weeklyChart" role="img" aria-label="이번주 아침·점심·저녁 복약률 막대 차트">
+              이번주 복약 현황 데이터
+            </canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="db-section">
+        <div class="db-card">
+          <div class="db-card__header">
+            <h2 class="db-card__title">최근 알림 이력</h2>
+            <a href="#" class="db-card__more">전체 보기 →</a>
           </div>
           <ul class="db-alert-list">
             <% alerts.forEach(a => { %>
@@ -144,19 +204,70 @@
             <% }) %>
           </ul>
         </div>
-
-      </div>
-      <!-- /db-grid-2 -->
+      </section>
 
     </div>
   </main>
 
-  <!-- ===== 푸터 ===== -->
   <footer class="footer">
     <div class="container">
       <p>© 2025 복약안심서비스 &nbsp;|&nbsp; Team Jetson5 &nbsp;|&nbsp; 스마트 약상자 기반 복약 관리 플랫폼</p>
     </div>
   </footer>
+
+  <script>
+    const weeklyData = <%- JSON.stringify(weekly.chartData) %>;
+
+    new Chart(document.getElementById('weeklyChart'), {
+      type: 'bar',
+      data: {
+        labels: weeklyData.labels,
+        datasets: [
+          {
+            label: '아침',
+            data: weeklyData.morning,
+            backgroundColor: '#4f8ef7',
+            borderRadius: 5,
+            barPercentage: 0.6,
+          },
+          {
+            label: '점심',
+            data: weeklyData.lunch,
+            backgroundColor: '#f7c94f',
+            borderRadius: 5,
+            barPercentage: 0.6,
+          },
+          {
+            label: '저녁',
+            data: weeklyData.dinner,
+            backgroundColor: '#7c5cbf',
+            borderRadius: 5,
+            barPercentage: 0.6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%',
+            },
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: 'Noto Sans KR', size: 12 } } },
+          y: {
+            min: 0, max: 100,
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: { callback: v => v + '%', font: { family: 'Noto Sans KR', size: 11 } },
+          },
+        },
+      },
+    });
+  </script>
 
 </body>
 </html>
