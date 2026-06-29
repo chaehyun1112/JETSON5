@@ -40,6 +40,22 @@
           <a href="#notifications"><span class="nav-icon">ON</span>알림 설정</a>
           <a href="#privacy"><span class="nav-icon">PW</span>개인정보 관리</a>
         </nav>
+
+
+<script>
+  // 사이드바의 모든 링크를 가져옵니다.
+  const navLinks = document.querySelectorAll('.side-nav a');
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', function() {
+      // 1. 기존에 'is-current'가 붙어있던 메뉴에서 클래스 제거
+      document.querySelector('.side-nav a.is-current')?.classList.remove('is-current');
+      
+      // 2. 방금 내가 클릭한 메뉴에 'is-current' 클래스 추가
+      this.classList.add('is-current');
+    });
+  });
+</script>
       </aside>
 
       <div class="content-panel">
