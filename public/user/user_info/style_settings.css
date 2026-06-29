@@ -71,9 +71,8 @@ img, svg { display: block; }
 .btn--full { width: 100%; display: block; }
 
 
-/* =============================================
-   네비게이션
-   ============================================= */
+/* nav css */
+
 .nav {
   background: #fff;
   border-bottom: 0.5px solid #d8e2f0;
@@ -123,11 +122,6 @@ img, svg { display: block; }
 }
 .nav__links a:hover { color: #2563eb; }
 
-
-
-/* =============================================
-   공통 섹션 헤더
-   ============================================= */
 .section-tag {
   font-size: 13px;
   color: #2563eb;
@@ -151,12 +145,6 @@ img, svg { display: block; }
 }
 
 
-
-/* =============================================
-   네비게이션 — 드롭다운 & 로그인 후 메뉴
-   ============================================= */
-
-/* 대시보드 드롭다운 */
 .nav__dropdown {
   position: relative;
 }
@@ -216,7 +204,6 @@ img, svg { display: block; }
   color: #2563eb;
 }
 
-/* 우측 액션 영역 */
 .nav__actions {
   display: flex;
   align-items: center;
@@ -237,7 +224,7 @@ img, svg { display: block; }
   border-color: #bfdbfe;
 }
 
-/* 유저 아이콘 버튼 */
+
 .nav__user-menu {
   position: relative;
 }
@@ -266,7 +253,6 @@ img, svg { display: block; }
 }
 .nav__user-btn:hover .nav__avatar { opacity: 0.85; }
 
-/* 유저 드롭다운 */
 .nav__user-dropdown {
   display: none;
   position: absolute;
@@ -339,77 +325,17 @@ img, svg { display: block; }
 }
 
 @keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    /* ⭐ 기존 정렬인 translateX(-50%)를 반드시 같이 적어주어야 합니다! */
+    transform: translateX(-50%) translateY(-10px); 
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
-
-button, input, select, textarea { font: inherit; }
-button { cursor: pointer; border: 0; }
-a { color: inherit; text-decoration: none; }
-
-.nav {
-  background: #fff;
-  border-bottom: 0.5px solid #d8e2f0;
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-.nav__inner {
-  max-width: 1080px;
-  height: 60px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.nav__logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #1e3a8a;
-  font-size: 17px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.logo-mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: #2563eb;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-weight: 700;
-  line-height: 1;
-}
-.nav__links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.75rem;
-  flex: 1;
-}
-.nav__links a {
-  font-size: 14px;
-  color: #4b5a7a;
-  transition: color 0.2s;
-}
-.nav__links a:hover,
-.nav__links a.is-active { color: #2563eb; }
-.nav__profile {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #dbeafe;
-  color: #1d4ed8;
-  display: grid;
-  place-items: center;
-  font-size: 13px;
-  font-weight: 700;
-  flex: 0 0 auto;
-}
+/*  nav css */
 
 .page {
   max-width: 1080px;
@@ -557,6 +483,8 @@ a { color: inherit; text-decoration: none; }
   background: #eff6ff;
   color: #2563eb;
 }
+
+
 .nav-icon {
   width: 26px;
   height: 26px;

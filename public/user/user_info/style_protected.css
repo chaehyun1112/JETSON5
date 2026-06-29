@@ -354,9 +354,16 @@ img, svg { display: block; }
 }
 
 @keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px); 
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
+/*  nav css 
 
 /* ── 섹션 태그 ── */
 .section-tag {

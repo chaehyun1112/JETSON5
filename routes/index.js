@@ -67,55 +67,120 @@ router.get("/user/user_service/schedule_register", (req, res) => {
 });
 
 // 약 스케줄 post
+// 복약 스케줄 등록
 router.post("/user/user_service/schedule_register", (req, res) => {
 
     const {
         seniorId,
-        takingDate,
-        pillboxOrder,
-        takingType,
-        takingTime
+        startDate,
+
+        morningPillbox,
+        morningTime,
+        morningType,
+
+        lunchPillbox,
+        lunchTime,
+        lunchType,
+
+        dinnerPillbox,
+        dinnerTime,
+        dinnerType,
+
+        nightPillbox,
+        nightTime,
+        nightType
+
     } = req.body;
 
+    const schedules = [];
+
+    if (morningPillbox && morningTime) {
+        schedules.push({
+            pillbox: morningPillbox,
+            type: morningType,
+            time: morningTime
+        });
+    }
+
+    if (lunchPillbox && lunchTime) {
+        schedules.push({
+            pillbox: lunchPillbox,
+            type: lunchType,
+            time: lunchTime
+        });
+    }
+
+    if (dinnerPillbox && dinnerTime) {
+        schedules.push({
+            pillbox: dinnerPillbox,
+            type: dinnerType,
+            time: dinnerTime
+        });
+    }
+
+    if (nightPillbox && nightTime) {
+        schedules.push({
+            pillbox: nightPillbox,
+            type: nightType,
+            time: nightTime
+        });
+    }
+
+    if (schedules.length === 0) {
+        return res.send("<script>alert('최소 1개의 복약 스케줄을 입력해주세요.');history.back();</script>");
+    }
+
     const sql = `
-    INSERT INTO TB_SCHEDULE
-    (
-        SENIOR_ID,
-        TAKING_DATE,
-        PILLBOX_ORDER,
-        TAKING_TYPE,
-        TAKING_TIME,
-        TAKING_YN
-    )
-    VALUES
-    (?, ?, ?, ?, ?, 'N')
+        INSERT INTO TB_MEDICINE_SCHEDULE
+        (
+            SENIOR_ID,
+            PILLBOX_ORDER,
+            TAKING_TYPE,
+            TAKING_TIME,
+            START_DATE
+        )
+        VALUES
+        (?, ?, ?, ?, ?)
     `;
 
-    conn.query(
-        sql,
-        [
-            seniorId,
-            takingDate,
-            pillboxOrder,
-            takingType,
-            takingTime
-        ],
-        (err, result) => {
+    let count = 0;
 
-            if(err){
-                console.log(err);
+    schedules.forEach(schedule => {
 
-                return res.send(
-                    "<script>alert('등록 실패');history.back();</script>"
-                );
+        conn.query(
+            sql,
+            [
+                seniorId,
+                schedule.pillbox,
+                schedule.type,
+                schedule.time,
+                startDate
+            ],
+            (err) => {
+
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+
+                count++;
+
+                if (count === schedules.length) {
+
+                    res.send(`
+                        <script>
+                            alert("복약 스케줄 등록 완료");
+                            location.href="/user/user_dashboard/main_dashboard";
+                        </script>
+                    `);
+
+                }
+
             }
+        );
 
-            res.send(
-                "<script>alert('복약 스케줄 등록 완료');location.href='/user/user_dashboard/main_dashboard';</script>"
-            );
+    });
 
-        }
-    );
 });
 
 // 약통 등록 페이지
@@ -642,42 +707,81 @@ router.get("/resetPw", (req, res) => {
 router.get('/user/user_info/protected', isLoggedIn, (req, res) => {
 
     const sql = `
-    SELECT
-        S.*,
+        SELECT
+            S.*,
 
-        ROUND(
-            IFNULL(
-                (
-                    SELECT
-                        SUM(CASE WHEN SC.TAKING_YN='Y' THEN 1 ELSE 0 END)
-                        / COUNT(*) * 100
-                    FROM TB_SCHEDULE SC
-                    WHERE SC.SENIOR_ID = S.SENIOR_ID
-                    AND YEAR(SC.TAKING_DATE)=YEAR(CURDATE())
-                    AND MONTH(SC.TAKING_DATE)=MONTH(CURDATE())
-                ),
-            0)
-        ) AS complianceRate
+            ROUND(
+                IFNULL(
+                    (
+                        SELECT
+                            SUM(CASE WHEN SC.TAKING_YN='Y' THEN 1 ELSE 0 END)
+                            / COUNT(*) * 100
+                        FROM TB_SCHEDULE SC
+                        WHERE SC.SENIOR_ID = S.SENIOR_ID
+                        AND YEAR(SC.TAKING_DATE)=YEAR(CURDATE())
+                        AND MONTH(SC.TAKING_DATE)=MONTH(CURDATE())
+                    ),
+                0)
+            ) AS complianceRate
 
-    FROM TB_SENIOR S
-    WHERE S.MEM_ID = ?
+        FROM TB_SENIOR S
+        WHERE S.MEM_ID = ?
     `;
 
-    conn.query(sql, [req.session.user.id], (err, rows) => {
+    conn.query(sql,[req.session.user.id],(err,rows)=>{
 
         if(err){
             console.log(err);
             return res.send("DB 오류");
         }
 
-        res.render("user/user_info/protected", {
-            title: "보호대상 정보",
-            user: req.session.user,
-            protectedPersons: rows
+        if(rows.length===0){
+
+            return res.render("user/user_info/protected",{
+
+                title:"보호대상 정보",
+                user:req.session.user,
+                protectedPersons:[]
+
+            });
+
+        }
+
+        const scheduleSql=`
+            SELECT *
+            FROM TB_MEDICINE_SCHEDULE
+            WHERE USE_YN='Y'
+            ORDER BY TAKING_TIME
+        `;
+
+        conn.query(scheduleSql,(err2,scheduleRows)=>{
+
+            if(err2){
+
+                console.log(err2);
+                return res.send("DB 오류");
+
+            }
+
+            rows.forEach(person=>{
+
+                person.scheduleList=scheduleRows.filter(schedule=>{
+
+                    return schedule.SENIOR_ID===person.SENIOR_ID;
+
+                });
+
+            });
+
+            res.render("user/user_info/protected",{
+
+                title:"보호대상 정보",
+                user:req.session.user,
+                protectedPersons:rows
+
+            });
         });
-
     });
-
 });
 
 // 시니어 정보 입력
@@ -749,75 +853,243 @@ router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
 });
 
 // 시니어 정보 수정
-router.get("/user/user_info/protected/edit/:id", (req, res) => {
+// 시니어 정보 수정 페이지 GET
+// 시니어 정보 수정 화면
+router.get("/user/user_info/user_update/:id", (req, res) => {
 
     const seniorId = req.params.id;
 
-    const sql = `
+    const seniorSql = `
         SELECT *
         FROM TB_SENIOR
         WHERE SENIOR_ID = ?
     `;
 
-    conn.query(sql, [seniorId], (err, result) => {
+    const scheduleSql = `
+        SELECT *
+        FROM TB_MEDICINE_SCHEDULE
+        WHERE SENIOR_ID = ?
+        AND USE_YN = 'Y'
+    `;
 
-        if(err){
+    conn.query(seniorSql, [seniorId], (err, seniorResult) => {
+
+        if (err) {
             console.log(err);
             return res.redirect("/user/user_info/protected");
         }
 
-        res.render("user/user_info/protected_edit",{
-            title:"보호대상 수정",
-            person:result[0]
+        if (seniorResult.length === 0) {
+            return res.redirect("/user/user_info/protected");
+        }
+
+        conn.query(scheduleSql, [seniorId], (err2, scheduleResult) => {
+
+            if (err2) {
+                console.log(err2);
+                return res.redirect("/user/user_info/protected");
+            }
+
+            const morning = scheduleResult.find(s => s.TAKING_TYPE === "아침");
+            const lunch   = scheduleResult.find(s => s.TAKING_TYPE === "점심");
+            const dinner  = scheduleResult.find(s => s.TAKING_TYPE === "저녁");
+            const night   = scheduleResult.find(s => s.TAKING_TYPE === "취침 전");
+
+            res.render("user/user_info/user_update", {
+                title: "보호대상 수정",
+                person: seniorResult[0],
+
+                morning,
+                lunch,
+                dinner,
+                night
+            });
         });
-
     });
-
 });
 
+// 시니어 정보 수정 완료 POST
 // 시니어 정보 수정 완료
-router.post("/user/user_info/protected/update/:id",(req,res)=>{
+router.post("/user/user_info/protected/update/:id", (req, res) => {
 
-    const seniorId=req.params.id;
+    const seniorId = req.params.id;
 
-    const{
-
-        SENIOR_NAME,
-        SENIOR_EMAIL,
-        SENIOR_CONTACT,
-        SENIOR_ADDR,
-        PILLBOX_NUM
-
-    }=req.body;
-
-
-    const sql=`
-    UPDATE TB_SENIOR
-    SET
-    SENIOR_NAME=?,
-    SENIOR_EMAIL=?,
-    SENIOR_CONTACT=?,
-    SENIOR_ADDR=?,
-    PILLBOX_NUM=?
-    WHERE SENIOR_ID=?
-    `;
-
-    conn.query(sql,[
+    const {
         SENIOR_NAME,
         SENIOR_EMAIL,
         SENIOR_CONTACT,
         SENIOR_ADDR,
         PILLBOX_NUM,
-        seniorId
-    ],(err)=>{
 
-        if(err){
+        morningPillbox,
+        morningTime,
+        morningType,
 
-            console.log(err);
-            return res.redirect("back");
+        lunchPillbox,
+        lunchTime,
+        lunchType,
+
+        dinnerPillbox,
+        dinnerTime,
+        dinnerType,
+
+        nightPillbox,
+        nightTime,
+        nightType
+
+    } = req.body;
+
+    // -----------------------------
+    // 1. 시니어 정보 수정
+    // -----------------------------
+    const seniorSql = `
+        UPDATE TB_SENIOR
+        SET
+            SENIOR_NAME=?,
+            SENIOR_EMAIL=?,
+            SENIOR_CONTACT=?,
+            SENIOR_ADDR=?,
+            PILLBOX_NUM=?
+        WHERE SENIOR_ID=?
+    `;
+
+    conn.query(
+        seniorSql,
+        [
+            SENIOR_NAME,
+            SENIOR_EMAIL,
+            SENIOR_CONTACT,
+            SENIOR_ADDR,
+            PILLBOX_NUM,
+            seniorId
+        ],
+        (err) => {
+
+            if(err){
+                console.log(err);
+                return res.redirect("back");
+            }
+
+            // -----------------------------
+            // 2. 기존 스케줄 종료
+            // -----------------------------
+            const endSql = `
+                UPDATE TB_MEDICINE_SCHEDULE
+                SET
+                    USE_YN='N',
+                    END_DATE=CURDATE(),
+                    UPDATED_AT=NOW()
+                WHERE SENIOR_ID=?
+                AND USE_YN='Y'
+            `;
+
+            conn.query(endSql,[seniorId],(err2)=>{
+
+                if(err2){
+                    console.log(err2);
+                    return res.redirect("back");
+                }
+
+                const schedules=[];
+
+                if(morningPillbox && morningTime){
+
+                    schedules.push([
+                        seniorId,
+                        morningPillbox,
+                        morningType,
+                        morningTime
+                    ]);
+
+                }
+
+                if(lunchPillbox && lunchTime){
+
+                    schedules.push([
+                        seniorId,
+                        lunchPillbox,
+                        lunchType,
+                        lunchTime
+                    ]);
+
+                }
+
+                if(dinnerPillbox && dinnerTime){
+
+                    schedules.push([
+                        seniorId,
+                        dinnerPillbox,
+                        dinnerType,
+                        dinnerTime
+                    ]);
+
+                }
+
+                if(nightPillbox && nightTime){
+
+                    schedules.push([
+                        seniorId,
+                        nightPillbox,
+                        nightType,
+                        nightTime
+                    ]);
+
+                }
+
+                // 스케줄이 하나도 없으면 종료
+                if(schedules.length===0){
+
+                    return res.redirect("/user/user_info/protected");
+
+                }
+
+                const insertSql=`
+                    INSERT INTO TB_MEDICINE_SCHEDULE
+                    (
+                        SENIOR_ID,
+                        PILLBOX_ORDER,
+                        TAKING_TYPE,
+                        TAKING_TIME,
+                        START_DATE
+                    )
+                    VALUES
+                    (
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        CURDATE()
+                    )
+                `;
+
+                let count=0;
+
+                schedules.forEach(schedule=>{
+
+                    conn.query(
+                        insertSql,
+                        schedule,
+                        (err3)=>{
+
+                            if(err3){
+
+                                console.log(err3);
+
+                            }
+
+                            count++;
+
+                            if(count===schedules.length){
+
+                                res.redirect("/user/user_info/protected");
+
+                            }
+                        }
+                    );
+                });
+            });
         }
-        res.redirect("/user/user_info/protected");
-    });
+    );
 });
 
 // 시니어 정보 삭제

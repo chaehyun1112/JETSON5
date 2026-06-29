@@ -306,11 +306,17 @@ img, svg { display: block; }
   background: #fee2e2;
   color: #b91c1c;
 }
-
 @keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px); 
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
+/*  nav css 
 
 /* =============================================
   약통 미등록 / 등록 페이지 (no-pillbox, register-pillbox)

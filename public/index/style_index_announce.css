@@ -409,8 +409,14 @@ footer span {
 }
 
 @keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px); 
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 /*  nav css */
 
@@ -431,6 +437,8 @@ main {
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 16px rgba(59, 91, 219, .08);
+  width: 800px;
+  margin: 0 auto;
 }
 
 .notice-item {
