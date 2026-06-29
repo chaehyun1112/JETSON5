@@ -37,9 +37,11 @@
 
                     <% seniors.forEach(senior => { %>
 
-                        <option value="<%= senior.SENIOR_ID %>">
-                            <%= senior.SENIOR_NAME %>
-                        </option>
+                <option
+                    value="<%= senior.SENIOR_ID %>"
+                    <%= selectedSenior == senior.SENIOR_ID ? "selected" : "" %>>
+                    <%= senior.SENIOR_NAME %>
+                </option>
 
                     <% }) %>
 
