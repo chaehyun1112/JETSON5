@@ -345,7 +345,7 @@ img, svg { display: block; }
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
+/*  nav css */
 /* =============================================
    서비스 소개 페이지 (about)
    ============================================= */

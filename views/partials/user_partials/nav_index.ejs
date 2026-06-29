@@ -22,12 +22,33 @@
 
       <a href="/index/index_HowToUse">이용 방법</a>
       <% if (user) { %>
-    <div class="nav__dropdown">
+      <div class="nav__dropdown">
         <a href="<%= user ? '/user/user_dashboard/main_dashboard' : '/login' %>" class="nav__dropdown-trigger">
-        대시보드
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-        </svg>
+          대시보드
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
         </a>
+        <div class="nav__dropdown-menu">
+          <div class="nav__dropdown-menu-inner">
+            <a href="/user/user_dashboard/main_dashboard">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              메인 대시보드
+            </a>
+            <a href="/user/user_dashboard/dashboard_record">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+              복약 기록
+            </a>
+            <a href="/user/user_dashboard/dashboard_stat">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+              실시간 상태
+            </a>
+            <a href="/user/user_dashboard/dashboard_call">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+              알림 관리
+            </a>
+          </div>
+        </div>
       </div>
        <% } else { %>
       <% } %>

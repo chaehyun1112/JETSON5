@@ -4,94 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>복약 스케줄 등록</title>
-
     <link rel="stylesheet" href="/user/user_service/style_register_schedule.css">
 </head>
 <body>
 
     <main class="schedule-page">
-
         <section class="schedule-box">
 
-            <h1>스마트 약상자</h1>
-            <p class="subtitle">
-                복약 스케줄을 등록해주세요
+            <h2 class="box-title">복약 스케줄 등록</h2>
+            <p class="box-desc">
+                복용 시간과 약통 칸 번호를 각각 지정해주세요.<br>
+                칸 번호를 선택하지 않은 시간대는 등록되지 않습니다.
             </p>
-
-            <div class="icon-box">
-                <div class="handle"></div>
-                <div class="case">
-                    💊
-                </div>
-            </div>
-
-            <h2>복약 스케줄 등록</h2>
 
             <form action="/user/user_service/schedule_register"
                   method="post"
                   class="schedule-form">
 
-                <label>대상자</label>
+                <!-- 시니어 선택 -->
+                <div class="form-group">
+                    <label class="form-label">시니어 선택</label>
+                    <select name="seniorId" required class="form-select">
+                        <option value="" disabled selected>시니어를 선택하세요</option>
+                        <% seniors.forEach(function(senior) { %>
+                            <option value="<%= senior.SENIOR_ID %>">
+                                <%= senior.SENIOR_NAME %>
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
 
-                <select name="seniorId" required>
+                <!-- 스케줄 시작일 -->
+                <div class="form-group">
+                    <label class="form-label">스케줄 시작일</label>
+                    <input type="date" name="startDate" required class="form-input">
+                </div>
 
-                    <% seniors.forEach(senior => { %>
+                <!-- 4개 시간 카드 -->
+                <div class="time-grid">
 
-                        <option value="<%= senior.SENIOR_ID %>">
-                            <%= senior.SENIOR_NAME %>
-                        </option>
+                    <div class="time-card">
+                        <h3 class="time-card-title">아침 복용</h3>
+                        <div class="card-row">
+                            <div class="card-field">
+                                <label class="time-label">약통 칸 번호</label>
+                                <select name="morningPillbox" class="can-select">
+                                    <option value="">선택 안 함</option>
+                                    <option value="1">1번 칸</option>
+                                    <option value="2">2번 칸</option>
+                                    <option value="3">3번 칸</option>
+                                    <option value="4">4번 칸</option>
+                                </select>
+                            </div>
+                            <div class="card-field">
+                                <label class="time-label">복용 예정 시간</label>
+                                <input type="time" name="morningTime" class="time-input">
+                            </div>
+                        </div>
+                        <input type="hidden" name="morningType" value="아침">
+                    </div>
 
-                    <% }) %>
+                    <div class="time-card">
+                        <h3 class="time-card-title">점심 복용</h3>
+                        <div class="card-row">
+                            <div class="card-field">
+                                <label class="time-label">약통 칸 번호</label>
+                                <select name="lunchPillbox" class="can-select">
+                                    <option value="">선택 안 함</option>
+                                    <option value="1">1번 칸</option>
+                                    <option value="2">2번 칸</option>
+                                    <option value="3">3번 칸</option>
+                                    <option value="4">4번 칸</option>
+                                </select>
+                            </div>
+                            <div class="card-field">
+                                <label class="time-label">복용 예정 시간</label>
+                                <input type="time" name="lunchTime" class="time-input">
+                            </div>
+                        </div>
+                        <input type="hidden" name="lunchType" value="점심">
+                    </div>
 
-                </select>
+                    <div class="time-card">
+                        <h3 class="time-card-title">저녁 복용</h3>
+                        <div class="card-row">
+                            <div class="card-field">
+                                <label class="time-label">약통 칸 번호</label>
+                                <select name="dinnerPillbox" class="can-select">
+                                    <option value="">선택 안 함</option>
+                                    <option value="1">1번 칸</option>
+                                    <option value="2">2번 칸</option>
+                                    <option value="3">3번 칸</option>
+                                    <option value="4">4번 칸</option>
+                                </select>
+                            </div>
+                            <div class="card-field">
+                                <label class="time-label">복용 예정 시간</label>
+                                <input type="time" name="dinnerTime" class="time-input">
+                            </div>
+                        </div>
+                        <input type="hidden" name="dinnerType" value="저녁">
+                    </div>
 
-                <label>약통 번호</label>
+                    <div class="time-card">
+                        <h3 class="time-card-title">취침 전 복용</h3>
+                        <div class="card-row">
+                            <div class="card-field">
+                                <label class="time-label">약통 칸 번호</label>
+                                <select name="nightPillbox" class="can-select">
+                                    <option value="">선택 안 함</option>
+                                    <option value="1">1번 칸</option>
+                                    <option value="2">2번 칸</option>
+                                    <option value="3">3번 칸</option>
+                                    <option value="4">4번 칸</option>
+                                </select>
+                            </div>
+                            <div class="card-field">
+                                <label class="time-label">복용 예정 시간</label>
+                                <input type="time" name="nightTime" class="time-input">
+                            </div>
+                        </div>
+                        <input type="hidden" name="nightType" value="취침 전">
+                    </div>
 
-                <select name="pillboxOrder" required>
-                    <option value="1">1번 칸</option>
-                    <option value="2">2번 칸</option>
-                    <option value="3">3번 칸</option>
-                    <option value="4">4번 칸</option>
-                </select>
+                </div>
 
-                <label>복용 구분</label>
-
-                <select name="takingType" required>
-                    <option value="아침">아침</option>
-                    <option value="점심">점심</option>
-                    <option value="저녁">저녁</option>
-                    <option value="취침 전">취침 전</option>
-                </select>
-
-                <label>복용 날짜</label>
-
-                <input
-                    type="date"
-                    name="takingDate"
-                    required>
-
-                <label>복용 시간</label>
-
-                <input
-                    type="time"
-                    name="takingTime"
-                    required>
-
-                <button type="submit"
-                        class="schedule-btn">
-                    등록하기
-                </button>
+                <!-- 버튼 -->
+                <div class="btn-row">
+                    <a href="/user/user_service/about" class="btn-cancel">취소</a>
+                    <button type="submit" class="btn-submit">스케줄 등록</button>
+                </div>
 
             </form>
 
-            <div class="links">
-                <a href="/user/user_service/about">
-                    대시보드로 돌아가기
-                </a>
-            </div>
-
         </section>
-
     </main>
 
 </body>
