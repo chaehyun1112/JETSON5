@@ -31,6 +31,7 @@ router.get('/user/user_service/about', (req, res) => {
 
 // 약 스케줄 get
 router.get("/user/user_service/schedule_register", (req, res) => {
+    const selectedSenior = req.query.seniorId;
 
     if(!req.session.user){
         return res.redirect("/");
@@ -52,9 +53,14 @@ router.get("/user/user_service/schedule_register", (req, res) => {
                 return;
             }
 
+
             res.render(
                 "user/user_service/schedule_register",
-                { seniors : rows }
+                { 
+                    seniors : rows,
+                    selectedSenior
+                 }
+                
             );
         }
     );
@@ -726,14 +732,18 @@ router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
             if(err){
                 console.log(err);
 
-                return res.send(
-                    "<script>alert('등록 실패');history.back();</script>"
-                );
+            return res.send(`
+                <h2>등록 실패</h2>
+                <pre>${err.sqlMessage}</pre>
+            `);
             }
 
-            res.send(
-                "<script>alert('대상자 등록 완료');location.href='/user/user_info/protected';</script>"
-            );
+            res.send(`
+            <script>
+                alert('대상자 등록이 완료되었습니다. 복약 스케줄을 등록해주세요.');
+                location.href='/user/user_service/schedule_register?seniorId=${seniorId}';
+            </script>
+            `);
         }
     );
 });
