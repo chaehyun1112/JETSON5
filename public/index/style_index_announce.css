@@ -431,6 +431,8 @@ main {
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 16px rgba(59, 91, 219, .08);
+  width: 800px;
+  margin: 0 auto;
 }
 
 .notice-item {
