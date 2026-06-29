@@ -271,6 +271,7 @@ img, svg { display: block; }
 
 .nav__user-dropdown.is-open {
   display: block;
+  transform: none !important;
   animation: fadeDown 0.15s ease;
 }
 
@@ -336,6 +337,8 @@ img, svg { display: block; }
     transform: translateX(-50%) translateY(0);
   }
 }
+
+
 /*  nav css 
 
 /* =============================================

@@ -219,22 +219,42 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+/* 시간 입력창 컨테이너 또는 커스텀 스타일 */
 .time-input {
     width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: #111827;
+    padding: 10px 14px;              /* 상하좌우 여백을 넓혀서 터치/클릭하기 편하게 */
+    border: 1px solid #e5e7eb;        /* 선을 좀 더 연하고 부드러운 회색으로 변경 */
+    border-radius: 10px;              /* 라운딩을 살짝 더 주어 트렌디하게 */
+    font-size: 0.9rem;                /* 글자 크기를 살짝 키워 가독성 확보 */
+    font-weight: 500;                 /* 글자 두께를 주어 직관적으로 변경 */
+    color: #1f2937;
     background: #ffffff;
     outline: none;
-    transition: border-color 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* 은은한 하단 그림자 추가 */
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
 }
 
+/* 포커스(클릭) 되었을 때 효과 체감 업그레이드 */
 .time-input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: #3b82f6;            /* 좀 더 밝고 선명한 브랜드 블루 */
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); /* 부드러운 하이라이트 링 */
+    background-color: #f8fafc;        /* 클릭 시 미세하게 배경색을 바꿔 피드백 제공 */
 }
+
+/* 💡 브라우저 기본 시계 아이콘 스타일링 (크롬, 엣지용) */
+.time-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+/* 시계 아이콘에 마우스 올렸을 때 회색 음영 피드백 */
+.time-input::-webkit-calendar-picker-indicator:hover {
+    background: #f1f5f9;
+}
+
 
 /* ── 하단 버튼 ── */
 .btn-row {
