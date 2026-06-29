@@ -5,9 +5,9 @@ const conn = require('../config/db');
 const mysql = require('mysql2');
 
 // 로그인 체크 미들웨어
-function requireLogin(req, res, next) {
-  if (req.session.user) return next();
-  res.redirect('/login');
+function isLoggedIn(req, res, next) {
+  if (req.session && req.session.user) return next();
+  return res.redirect('/login');
 }
  
 // 비로그인 메인
@@ -28,6 +28,7 @@ router.get('/', (req, res) => {
 router.get('/user/user_service/about', (req, res) => {
   res.render('user/user_service/about', { title: '서비스 소개 — 복약안심서비스' });
 });
+
 // 약 스케줄 get
 router.get("/user/user_service/schedule_register", (req, res) => {
 
@@ -58,9 +59,6 @@ router.get("/user/user_service/schedule_register", (req, res) => {
         }
     );
 });
-
-
-
 
 // 약 스케줄 post
 router.post("/user/user_service/schedule_register", (req, res) => {
@@ -113,8 +111,9 @@ router.post("/user/user_service/schedule_register", (req, res) => {
         }
     );
 });
-// 약통 등록 페이지 (임시 — 실제 DB 연동 시 확장)
-router.get('/user/user_service/register-pillbox', requireLogin, (req, res) => {
+
+// 약통 등록 페이지
+router.get('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
     if(!req.session.user){
         return res.redirect("/");
     }
@@ -144,8 +143,8 @@ router.get('/user/user_service/register-pillbox', requireLogin, (req, res) => {
           });
         }
     );});
- 
-router.post('/user/user_service/register-pillbox', requireLogin, (req, res) => {
+
+router.post('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
     const {
         seniorId,
         pillboxId
@@ -177,14 +176,14 @@ router.post('/user/user_service/register-pillbox', requireLogin, (req, res) => {
         }
     );
 });
- 
+
+// 회원가입 get
 router.get('/join', (req, res) => {
     res.render('login/join');
 });
 
-// 회원가입
+// 회원가입 post
 router.post("/join", async (req, res) => {
-    console.log(req.body);
     const {role, id, pw, name, email, addr, phone} = req.body;
     const hashedPw = await bcrypt.hash(pw, 10);
 
@@ -208,7 +207,7 @@ router.get("/login", (req, res) => {
             return res.redirect("/admin/admin_dashboard/admin");
         }
 
-        return res.redirect("/user/user_dashboard/schedule_register");
+        return res.redirect("/user/user_service/schedule_register");
     }
 
     res.render("login/login", {
@@ -265,7 +264,6 @@ router.post("/login", (req, res) => {
     });
 });
 
-
 // 로그아웃
 router.post("/logout", (req, res) => {
     req.session.destroy((err) => {
@@ -283,7 +281,7 @@ router.post("/logout", (req, res) => {
 // 로그인 안 한 사람 접근 차단
 router.get("/admin/admin_dashboard/admin", (req, res) => {
 
-    if(!req.session.user){
+    if (!req.session.user || req.session.user.role !== "A") {
         return res.redirect("/");
     }
 
@@ -388,7 +386,82 @@ router.post('/user/user_service/medicine_buy', (req, res) => {
   });
 });
 
-router.get("/admin/members", (req, res) => {
+// 기존 코드를 이렇게 교체하세요 (37번째 줄 근처)
+router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
+    const sql = `
+        SELECT PILLBOX_NUM
+        FROM TB_SENIOR
+        WHERE MEM_ID = ?
+    `;
+
+    conn.query(sql, [req.session.user.id], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        // 시니어가 등록되지 않았거나 약통번호가 없는 경우
+        if (rows.length === 0 || !rows[0].PILLBOX_NUM) {
+            return res.render('user/user_service/no-pillbox', {
+                title: '약통 미등록 — 복약안심서비스'
+            });
+        }
+
+        res.render('user/user_dashboard/main_dashboard', {
+            title: '대시보드 — 복약안심서비스',
+            user: req.session.user,
+
+            stats: {
+            total: 12,
+            completed: 9,
+            warning: 3,
+            rate: 75,
+            },
+
+            today: {
+            morning: "✅ (❌,✔ 선택)",
+            lunch: "❌",
+            dinner: "❌",
+            },
+
+            weekly: {
+            avgRate: 76,
+            takenDays: 5,
+            missedCount: 4,
+            chartData: {
+                labels:  ['21일 (월)', '22일 (화)', '23일 (수)', '24일 (목)', '25일 (금)', '26일 (토)', '27일 (일)'],
+                morning: [100, 83, 67, 100, 83, 50, 0],
+                lunch:   [83,  67, 83,  83, 50, 67, 0],
+                dinner:  [67,  50, 67,  83, 67, 33, 0],
+            },
+            },
+
+            schedule: [
+            { time: '08:00', meal: '아침', medicineName: '아스피린 100mg',    dose: '1정', status: 'ok'   },
+            { time: '12:30', meal: '점심', medicineName: '혈압약 (암로디핀)', dose: '1정', status: 'warn' },
+            { time: '19:00', meal: '저녁', medicineName: '당뇨약 (메트포민)', dose: '2정', status: 'plan' },
+            ],
+
+            sensor: {
+            lidOpen:      false,
+            dbSync:       true,
+            lastSync:     '2분 전',
+            lastDetected: '오늘 08:03',
+            updatedAt:    '09:15',
+            },
+
+            alerts: [
+            { type: 'warn',    message: '김영희 님이 오늘 점심 복약을 아직 하지 않았습니다.', time: '12:45'       },
+            { type: 'missed',  message: '이철수 님 — 3일 연속 저녁 복약 누락 감지.',          time: '어제 20:10' },
+            { type: 'ok',      message: '박순자 님 아침 복약 완료 확인.',                      time: '오늘 08:03' },
+            { type: 'warn',    message: '스마트 약상자 펌웨어 업데이트 완료.',                 time: '2일 전 14:22'},
+            ],
+        });
+    });
+});
+
+router.get("/admin/admin_dashboard/members", (req, res) => {
   const members = [
     {
       id: "parent01",
@@ -422,15 +495,14 @@ router.get("/admin/members", (req, res) => {
     },
   ];
 
-  res.render("admin/members", {
+  res.render("admin/admin_dashboard/members", {
     title: "회원관리",
     pageTitle: "회원관리",
     members,
   });
 });
 
-
-router.get("/admin/medicine_boxes", (req, res) => {
+router.get("/admin/admin_dashboard/medicine_boxes", (req, res) => {
   const medicineBoxes = [
     {
       id: "BOX-001",
@@ -467,7 +539,7 @@ router.get("/admin/medicine_boxes", (req, res) => {
     },
   ];
 
-  res.render("admin/medicine_boxes", {
+  res.render("admin/admin_dashboard/medicine_boxes", {
     title: "약상자 관리",
     pageTitle: "약상자 관리",
     medicineBoxes,
@@ -475,7 +547,7 @@ router.get("/admin/medicine_boxes", (req, res) => {
 });
 
 
-router.get("/admin/messages", (req, res) => {
+router.get("/admin/admin_dashboard/messages", (req, res) => {
   const messages = [
     {
       id: 1,
@@ -523,7 +595,7 @@ router.get("/admin/messages", (req, res) => {
     },
   ];
 
-  res.render("admin/messages", {
+  res.render("admin/admin_dashboard/messages", {
     title: "알림메시지",
     pageTitle: "알림메시지",
     messages,
@@ -532,7 +604,7 @@ router.get("/admin/messages", (req, res) => {
 
 
 
-router.get("/admin/members_update/", (req, res) => {
+router.get("/admin/members_update", (req, res) => {
   const memberId = req.params.id;
 
   const member = {
@@ -560,15 +632,6 @@ router.get("/findId", (req, res) => {
 router.get("/resetPw", (req, res) => {
     res.render("login/resetPw");
 });
-
-
-
-
-
-function isLoggedIn(req, res, next) {
-  if (req.session && req.session.user) return next();
-  return res.redirect('/login');
-}
 
 router.get('/user/user_info/protected', isLoggedIn, (req, res) => {
 
@@ -843,6 +906,380 @@ router.get('/user/user_info/settings', (req, res) => {
   res.render('user/user_info/settings', {
     pageTitle: '계정 관리',
     account
+  });
+});
+
+
+// 태헌님 router 코드
+router.get("/records", (req, res) => {
+    const data = {
+        resident: {
+            name: "홍춘순 어르신",
+            age: 74,
+            careLevel: "관리 4구역",
+            status: "정상"
+        },
+        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
+        range: "2025-05-14 ~ 2025-05-20",
+        records: [
+            { date: "2025-05-20 (화)", plannedTime: "08:00", actualTime: "08:05", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
+            { date: "2025-05-19 (월)", plannedTime: "08:00", actualTime: "08:03", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
+            { date: "2025-05-18 (일)", plannedTime: "08:00", actualTime: "-", result: "미복용", resultTone: "danger", bottleState: "닫힘", bottleTone: "closed" },
+            { date: "2025-05-17 (토)", plannedTime: "08:00", actualTime: "08:02", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
+            { date: "2025-05-16 (금)", plannedTime: "08:00", actualTime: "08:01", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
+            { date: "2025-05-15 (목)", plannedTime: "08:00", actualTime: "08:04", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
+            { date: "2025-05-14 (수)", plannedTime: "08:00", actualTime: "08:06", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" }
+        ],
+        pagination: {
+            current: 1,
+            pages: [1, 2, 3]
+        }
+    };
+
+    res.render("records", { data });
+});
+
+
+router.get("/settings", (req, res) => {
+    const data = {
+        resident: {
+            name: "홍춘순 어르신",
+            age: 74,
+            careLevel: "관리 4구역",
+            status: "정상"
+        },
+        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
+        version: "1.0.0",
+        items: [
+            {
+                title: "계정 정보",
+                description: "이름, 아이디, 비밀번호 변경",
+                icon: "👤",
+                tone: "blue"
+            },
+            {
+                title: "알림 설정",
+                description: "복약 알림, 미복용 감지 알림 설정",
+                icon: "🔔",
+                tone: "yellow"
+            },
+            {
+                title: "디스플레이",
+                description: "언어, 테마 등",
+                icon: "📱",
+                tone: "green"
+            },
+            {
+                title: "개인정보 관리",
+                description: "개인정보 처리방침, 데이터 삭제",
+                icon: "🔒",
+                tone: "pink"
+            },
+            {
+                title: "도움말",
+                description: "사용 가이드, 자주 묻는 질문",
+                icon: "?",
+                tone: "magenta"
+            },
+            {
+                title: "로그아웃",
+                description: "현재 계정에서 로그아웃",
+                icon: "🚪",
+                tone: "brown",
+                danger: true
+            }
+        ]
+    };
+    res.render("settings", { data });
+});
+
+
+router.get("/status", (req, res) => {
+    const data = {
+        resident: {
+            name: "홍춘순 어르신",
+            age: 74,
+            careLevel: "관리 4구역",
+            status: "정상"
+        },
+        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
+        summary: {
+            device: {
+                label: "센서 연결 상태",
+                value: "정상",
+                sub: "마지막 업데이트 14:25:13"
+            },
+            remaining: {
+                label: "잔여량 추정",
+                value: "약 17일분",
+                sub: "정상"
+            }
+        },
+        weightChart: {
+            labels: ["03:09", "03:15", "03:21", "03:27", "03:33", "03:39", "03:45"],
+            values: [28.9, 28.8, 27.2, 27.1, 27.1, 27.1, 27.2]
+        },
+        doseAmounts: [
+            { label: "아침 (2t)", value: 85, detail: "약 17일분 보유" },
+            { label: "점심 (2t)", value: 42, detail: "약 8일 보유" },
+            { label: "저녁 (2t)", value: 76, detail: "약 15일 보유" }
+        ],
+        weeklyTrend: [
+            { day: "월", value: 30 },
+            { day: "화", value: 29 },
+            { day: "수", value: 29 },
+            { day: "목", value: 28 },
+            { day: "금", value: 28 },
+            { day: "토", value: 28 },
+            { day: "일", value: 28 }
+        ],
+        logs: [
+            { date: "2025-05-20", time: "08:05", state: "열림", result: "복용 완료", tone: "success" },
+            { date: "2025-05-19", time: "08:03", state: "열림", result: "복용 완료", tone: "success" },
+            { date: "2025-05-18", time: "-", state: "닫힘", result: "미복용", tone: "danger" },
+            { date: "2025-05-17", time: "08:02", state: "열림", result: "복용 완료", tone: "success" },
+            { date: "2025-05-16", time: "08:01", state: "열림", result: "복용 완료", tone: "success" },
+            { date: "2025-05-15", time: "08:04", state: "열림", result: "이중 복용 의심", tone: "warning" },
+            { date: "2025-05-14", time: "08:06", state: "열림", result: "복용 완료", tone: "success" }
+        ],
+        events: [
+            {
+                title: "이중 복용 의심",
+                date: "2025-05-15 08:04",
+                detail: "1회 기준(1.6g)의 2배 감소가 감지되어 보호자에게 알림을 전송했습니다.",
+                tone: "warning"
+            },
+            {
+                title: "복약량 부족 예측",
+                date: "금요일 (2t)",
+                detail: "현재 용량 42%, 약 8일 후 소진 예상. 처방전 준비를 권장합니다.",
+                tone: "neutral"
+            },
+            {
+                title: "정상 복용 확인",
+                date: "2025-05-20 08:05",
+                detail: "아침 시간대 대비 1분 이내 복용. 무게 -1.6g 감소.",
+                tone: "success"
+            },
+            {
+                title: "미복용 감지",
+                date: "2025-05-18 종일",
+                detail: "무게 변화가 없어 보호자에게 SMS 전송을 완료했습니다.",
+                tone: "warning"
+            }
+        ]
+    };
+
+    res.render("status", { data });
+});
+
+router.get("/alerts", (req, res) => {
+    const data = {
+        resident: {
+            name: "홍춘순 어르신",
+            age: 74,
+            careLevel: "관리 4구역",
+            status: "정상"
+        },
+        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
+        guardian: {
+            name: "김태현",
+            relation: "보호자",
+            phone: "010-1234-5678"
+        },
+        history: [
+            {
+                sentAt: "2025-05-21 08:05",
+                type: "미복용 감지",
+                tone: "danger",
+                message: "어제 시간(06:00)을 5분 경과하였으나 약통이 열리지 않았습니다."
+            },
+            {
+                sentAt: "2025-05-20 08:05",
+                type: "복용 완료",
+                tone: "success",
+                message: "약통이 열려 복용이 완료되었습니다."
+            },
+            {
+                sentAt: "2025-05-19 08:03",
+                type: "복용 완료",
+                tone: "success",
+                message: "약통이 열려 복용이 완료되었습니다."
+            }
+        ]
+    };
+
+    res.render("alerts", { data });
+});
+
+// 복약 기록 페이지 - DB 없이 화면 확인용
+router.get("/user/user_dashboard/dashboard_record", isLoggedIn, (req, res) => {
+  const selectedDate = req.query.date || "2026-06-26";
+
+  const schedules = [
+    {
+      seniorId: "senior01",
+      seniorName: "이민수",
+      takingDate: selectedDate,
+      takingTime: "08:00",
+      takenTime: "08:03",
+      pillboxOrder: 1,
+      takingType: "아침",
+      status: "done",
+      statusLabel: "복용 완료",
+    },
+    {
+      seniorId: "senior02",
+      seniorName: "박영희",
+      takingDate: selectedDate,
+      takingTime: "12:30",
+      takenTime: "",
+      pillboxOrder: 2,
+      takingType: "점심",
+      status: "miss",
+      statusLabel: "미복용",
+    },
+    {
+      seniorId: "senior03",
+      seniorName: "정순자",
+      takingDate: selectedDate,
+      takingTime: "18:30",
+      takenTime: "",
+      pillboxOrder: 3,
+      takingType: "저녁",
+      status: "pending",
+      statusLabel: "복용 예정",
+    },
+  ];
+
+  const summary = {
+    total: schedules.length,
+    done: schedules.filter((item) => item.status === "done").length,
+    miss: schedules.filter((item) => item.status === "miss").length,
+    pending: schedules.filter((item) => item.status === "pending").length,
+  };
+
+  res.render("user/user_dashboard/dashboard_record", {
+    title: "복약 일정",
+    user: req.session.user,
+    selectedDate,
+    schedules,
+    summary,
+  });
+});
+
+// 실시간 상태 페이지 - DB 없이 화면 확인용
+router.get("/user/user_dashboard/dashboard_stat", isLoggedIn, (req, res) => {
+  const statuses = [
+    {
+      seniorId: "senior01",
+      seniorName: "이민수",
+      seniorContact: "010-1111-2222",
+      pillboxNum: "PB-001",
+      todayTotal: 3,
+      todayDone: 3,
+      todayMissed: 0,
+      latestLogType: "SLOT_OPEN",
+      latestSlotNum: 1,
+      latestLoggedAt: "2026-06-26 08:03:00",
+      state: "ok",
+      stateLabel: "정상",
+    },
+    {
+      seniorId: "senior02",
+      seniorName: "박영희",
+      seniorContact: "010-3333-4444",
+      pillboxNum: "PB-002",
+      todayTotal: 2,
+      todayDone: 0,
+      todayMissed: 1,
+      latestLogType: "NO_ACTION",
+      latestSlotNum: 2,
+      latestLoggedAt: "2026-06-26 12:40:00",
+      state: "late",
+      stateLabel: "확인 필요",
+    },
+    {
+      seniorId: "senior03",
+      seniorName: "정순자",
+      seniorContact: "010-5555-6666",
+      pillboxNum: "PB-003",
+      todayTotal: 2,
+      todayDone: 1,
+      todayMissed: 0,
+      latestLogType: "BOX_CLOSED",
+      latestSlotNum: 3,
+      latestLoggedAt: "2026-06-26 09:15:00",
+      state: "warn",
+      stateLabel: "대기",
+    },
+  ];
+
+  const summary = {
+    total: statuses.length,
+    ok: statuses.filter((item) => item.state === "ok").length,
+    warn: statuses.filter((item) => item.state === "warn").length,
+    late: statuses.filter((item) => item.state === "late").length,
+  };
+
+  res.render("user/user_dashboard/dashboard_stat", {
+    title: "실시간 상태",
+    user: req.session.user,
+    statuses,
+    summary,
+  });
+});
+
+// 알림 관리 페이지 - DB 없이 화면 확인용
+router.get("/user/user_dashboard/dashboard_call", isLoggedIn, (req, res) => {
+  const alerts = [
+    {
+      alertCd: 1,
+      seniorId: "senior02",
+      seniorName: "박영희",
+      alertType: "MISSED_MEDICINE",
+      alertMsg: "[복약안심서비스] 박영희님 복약 미확인. 12:30 약통 2번 칸을 확인해주세요.",
+      alertTime: "2026-06-26 12:40:00",
+      createdAt: "2026-06-26 12:40:00",
+      isReceived: "Y",
+      className: "late",
+    },
+    {
+      alertCd: 2,
+      seniorId: "senior01",
+      seniorName: "이민수",
+      alertType: "TAKEN",
+      alertMsg: "이민수님이 아침 복약을 완료했습니다.",
+      alertTime: "2026-06-26 08:03:00",
+      createdAt: "2026-06-26 08:03:00",
+      isReceived: "Y",
+      className: "ok",
+    },
+    {
+      alertCd: 3,
+      seniorId: "senior03",
+      seniorName: "정순자",
+      alertType: "WARN",
+      alertMsg: "저녁 복약 시간이 30분 후 시작됩니다.",
+      alertTime: "2026-06-26 18:00:00",
+      createdAt: "2026-06-26 18:00:00",
+      isReceived: "N",
+      className: "warn",
+    },
+  ];
+
+  const summary = {
+    total: alerts.length,
+    missed: alerts.filter((item) => item.className === "late").length,
+    warn: alerts.filter((item) => item.className === "warn").length,
+    received: alerts.filter((item) => item.isReceived === "Y").length,
+  };
+
+  res.render("user/user_dashboard/dashboard_call", {
+    title: "알림 관리",
+    user: req.session.user,
+    alerts,
+    summary,
   });
 });
 
