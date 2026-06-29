@@ -186,6 +186,11 @@ body {
   color: #fff;
 }
 
+.side-nav a:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
 .admin-main {
   flex: 1;
   padding: 32px;

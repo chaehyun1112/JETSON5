@@ -1,5 +1,5 @@
 /* =============================================
-   복약 스케줄 등록 - style_register_schedule.css
+   보호대상자 수정 페이지 - style_edit_senior.css
    ============================================= */
 
 * {
@@ -13,19 +13,19 @@ body {
     background-color: #f0f4ff;
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 40px 16px;
+    padding: 48px 16px;
 }
 
 /* ── 메인 카드 ── */
-.schedule-page {
+.edit-page {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.schedule-box {
+.edit-box {
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
@@ -34,75 +34,142 @@ body {
     max-width: 900px;
 }
 
-/* ── 제목 / 설명 ── */
-.box-title {
-    font-size: 1.6rem;
+/* ── 프로필 헤더 ── */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    font-size: 1.4rem;
     font-weight: 700;
     color: #111827;
-    margin-bottom: 10px;
 }
 
-.box-desc {
-    font-size: 0.875rem;
-    color: #2563eb;
-    line-height: 1.6;
-    margin-bottom: 32px;
-}
-
-/* ── 폼 공통 ── */
-.schedule-form {
+/* ── 폼 ── */
+.edit-form {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
+}
+
+/* ── 섹션 블록 ── */
+.section-block {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.section-desc {
+    font-size: 0.8rem;
+    color: #2563eb;
+    margin-top: -10px;
+}
+
+.divider {
+    height: 1px;
+    background: #e5e7eb;
+}
+
+/* ── 기본 정보 그리드 ── */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .form-label {
-    font-size: 0.95rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    color: #111827;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
-.form-select,
 .form-input {
     width: 100%;
-    padding: 12px 16px;
+    padding: 11px 14px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 0.95rem;
     color: #111827;
     background: #ffffff;
-    appearance: auto;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.form-select:focus,
 .form-input:focus {
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 읽기 전용 필드 */
+.readonly-input {
+    background: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.readonly-input:focus {
+    border-color: #d1d5db;
+    box-shadow: none;
+}
+
+/* ── 스케줄 시작일 ── */
+.schedule-date-group {
+    max-width: 260px;
+}
+
+.date-input {
+    padding: 10px 14px;
+    font-size: 0.9rem;
 }
 
 /* ── 4개 시간 카드 그리드 ── */
 .time-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 16px;
 }
 
 .time-card {
     border: 1px solid #e5e7eb;
     border-radius: 12px;
-    padding: 20px 18px;
+    padding: 18px 16px;
     background: #fafafa;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     transition: box-shadow 0.2s;
 }
 
@@ -111,43 +178,40 @@ body {
 }
 
 .time-card-title {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #2563eb;
 }
 
-/* ── 카드 내부: 칸 번호 + 시간 가로 배치 ── */
 .card-row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
 }
 
 .card-field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
     flex: 1;
 }
 
 .time-label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #374151;
 }
 
-/* ── 칸 번호 드롭다운 ── */
 .can-select {
     width: 100%;
-    padding: 9px 12px;
+    padding: 8px 10px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     color: #111827;
     background: #ffffff;
-    appearance: auto;
     outline: none;
-    transition: border-color 0.2s;
     cursor: pointer;
+    transition: border-color 0.2s;
 }
 
 .can-select:focus {
@@ -155,18 +219,12 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* 선택 안 함 상태 회색 처리 */
-.can-select:has(option[value=""]:checked) {
-    color: #9ca3af;
-}
-
-/* ── 시간 입력 ── */
 .time-input {
     width: 100%;
-    padding: 9px 12px;
+    padding: 8px 10px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     color: #111827;
     background: #ffffff;
     outline: none;
@@ -178,16 +236,17 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* ── 하단 버튼 행 ── */
+/* ── 하단 버튼 ── */
 .btn-row {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e5e7eb;
 }
 
 .btn-cancel {
-    padding: 12px 28px;
+    padding: 11px 28px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     background: #ffffff;
@@ -207,7 +266,7 @@ body {
 }
 
 .btn-submit {
-    padding: 12px 28px;
+    padding: 11px 28px;
     border: none;
     border-radius: 8px;
     background: #2563eb;
@@ -224,8 +283,12 @@ body {
 
 /* ── 반응형 ── */
 @media (max-width: 640px) {
-    .schedule-box {
+    .edit-box {
         padding: 28px 20px 36px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
     }
 
     .time-grid {
@@ -234,6 +297,10 @@ body {
 
     .card-row {
         flex-direction: column;
+    }
+
+    .schedule-date-group {
+        max-width: 100%;
     }
 
     .btn-row {

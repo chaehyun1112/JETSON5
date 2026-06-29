@@ -69,7 +69,7 @@
             </h2>
         </div>
 
-        <a href="/user/user_info/protected/edit/<%= person.SENIOR_ID %>"
+        <a href="/user/user_info/user_update/<%= person.SENIOR_ID %>"
            class="pcard__edit">
             수정
         </a>
@@ -167,38 +167,40 @@
             <div class="schedule-date">
 
                 <div class="schedule-date__title">
-                    2026-06-26 (금)
+                    현재 등록된 복약 스케줄
                 </div>
 
-                <div class="schedule-item">
-                    <div class="schedule-item__left">
-                        <div class="schedule-type">아침</div>
-                        <div class="schedule-time">08:00</div>
-                    </div>
-                    <div class="schedule-result success">
-                        ✔ 복용 완료
-                    </div>
-                </div>
+                <% if(person.scheduleList.length===0){ %>
 
-                <div class="schedule-item">
-                    <div class="schedule-item__left">
-                        <div class="schedule-type">점심</div>
-                        <div class="schedule-time">12:00</div>
-                    </div>
-                    <div class="schedule-result fail">
-                        ✘ 미복용
-                    </div>
-                </div>
+                    <div class="schedule-item">
 
-                <div class="schedule-item">
-                    <div class="schedule-item__left">
-                        <div class="schedule-type">저녁</div>
-                        <div class="schedule-time">18:00</div>
+                        <div class="schedule-item__left">
+                            등록된 복약 스케줄이 없습니다.
+                        </div>
+
                     </div>
-                    <div class="schedule-result wait">
-                        대기중
+
+                <% } %>
+
+                <% person.scheduleList.forEach(function(schedule){ %>
+
+                    <div class="schedule-item">
+
+                        <div class="schedule-item__left">
+
+                            <div class="schedule-type">
+                                <%= schedule.TAKING_TYPE %>
+                            </div>
+
+                            <div class="schedule-time">
+                                <%= schedule.TAKING_TIME.toString().substring(0,5) %>
+                            </div>
+
+                        </div>
+
                     </div>
-                </div>
+
+                <% }) %>
 
             </div>
 
