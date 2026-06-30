@@ -632,4 +632,176 @@ router.get("/alerts", (req, res) => {
 });
 
 
+// 복약 일정 페이지 - DB 없이 화면 확인용
+router.get("/user/user_dashboard/records", requireLogin, (req, res) => {
+  const selectedDate = req.query.date || "2026-06-26";
+
+  const schedules = [
+    {
+      seniorId: "senior01",
+      seniorName: "이민수",
+      takingDate: selectedDate,
+      takingTime: "08:00",
+      takenTime: "08:03",
+      pillboxOrder: 1,
+      takingType: "아침",
+      status: "done",
+      statusLabel: "복용 완료",
+    },
+    {
+      seniorId: "senior02",
+      seniorName: "박영희",
+      takingDate: selectedDate,
+      takingTime: "12:30",
+      takenTime: "",
+      pillboxOrder: 2,
+      takingType: "점심",
+      status: "miss",
+      statusLabel: "미복용",
+    },
+    {
+      seniorId: "senior03",
+      seniorName: "정순자",
+      takingDate: selectedDate,
+      takingTime: "18:30",
+      takenTime: "",
+      pillboxOrder: 3,
+      takingType: "저녁",
+      status: "pending",
+      statusLabel: "복용 예정",
+    },
+  ];
+
+  const summary = {
+    total: schedules.length,
+    done: schedules.filter((item) => item.status === "done").length,
+    miss: schedules.filter((item) => item.status === "miss").length,
+    pending: schedules.filter((item) => item.status === "pending").length,
+  };
+
+  res.render("user/user_dashboard/dashboard_record", {
+    title: "복약 일정",
+    user: req.session.user,
+    selectedDate,
+    schedules,
+    summary,
+  });
+});
+
+// 실시간 상태 페이지 - DB 없이 화면 확인용
+router.get("/main_dashboard/status", requireLogin, (req, res) => {
+  const statuses = [
+    {
+      seniorId: "senior01",
+      seniorName: "이민수",
+      seniorContact: "010-1111-2222",
+      pillboxNum: "PB-001",
+      todayTotal: 3,
+      todayDone: 3,
+      todayMissed: 0,
+      latestLogType: "SLOT_OPEN",
+      latestSlotNum: 1,
+      latestLoggedAt: "2026-06-26 08:03:00",
+      state: "ok",
+      stateLabel: "정상",
+    },
+    {
+      seniorId: "senior02",
+      seniorName: "박영희",
+      seniorContact: "010-3333-4444",
+      pillboxNum: "PB-002",
+      todayTotal: 2,
+      todayDone: 0,
+      todayMissed: 1,
+      latestLogType: "NO_ACTION",
+      latestSlotNum: 2,
+      latestLoggedAt: "2026-06-26 12:40:00",
+      state: "late",
+      stateLabel: "확인 필요",
+    },
+    {
+      seniorId: "senior03",
+      seniorName: "정순자",
+      seniorContact: "010-5555-6666",
+      pillboxNum: "PB-003",
+      todayTotal: 2,
+      todayDone: 1,
+      todayMissed: 0,
+      latestLogType: "BOX_CLOSED",
+      latestSlotNum: 3,
+      latestLoggedAt: "2026-06-26 09:15:00",
+      state: "warn",
+      stateLabel: "대기",
+    },
+  ];
+
+  const summary = {
+    total: statuses.length,
+    ok: statuses.filter((item) => item.state === "ok").length,
+    warn: statuses.filter((item) => item.state === "warn").length,
+    late: statuses.filter((item) => item.state === "late").length,
+  };
+
+  res.render("user/user_dashboard/main_dashboard/dashboard_stat", {
+    title: "실시간 상태",
+    user: req.session.user,
+    statuses,
+    summary,
+  });
+});
+
+// 알림 관리 페이지 - DB 없이 화면 확인용
+router.get("/user/user_dashboard/alerts", requireLogin, (req, res) => {
+  const alerts = [
+    {
+      alertCd: 1,
+      seniorId: "senior02",
+      seniorName: "박영희",
+      alertType: "MISSED_MEDICINE",
+      alertMsg: "[복약안심서비스] 박영희님 복약 미확인. 12:30 약통 2번 칸을 확인해주세요.",
+      alertTime: "2026-06-26 12:40:00",
+      createdAt: "2026-06-26 12:40:00",
+      isReceived: "Y",
+      className: "late",
+    },
+    {
+      alertCd: 2,
+      seniorId: "senior01",
+      seniorName: "이민수",
+      alertType: "TAKEN",
+      alertMsg: "이민수님이 아침 복약을 완료했습니다.",
+      alertTime: "2026-06-26 08:03:00",
+      createdAt: "2026-06-26 08:03:00",
+      isReceived: "Y",
+      className: "ok",
+    },
+    {
+      alertCd: 3,
+      seniorId: "senior03",
+      seniorName: "정순자",
+      alertType: "WARN",
+      alertMsg: "저녁 복약 시간이 30분 후 시작됩니다.",
+      alertTime: "2026-06-26 18:00:00",
+      createdAt: "2026-06-26 18:00:00",
+      isReceived: "N",
+      className: "warn",
+    },
+  ];
+
+  const summary = {
+    total: alerts.length,
+    missed: alerts.filter((item) => item.className === "late").length,
+    warn: alerts.filter((item) => item.className === "warn").length,
+    received: alerts.filter((item) => item.isReceived === "Y").length,
+  };
+
+  res.render("user/user_dashboard/main_dashboard/dashboard_call", {
+    title: "알림 관리",
+    user: req.session.user,
+    alerts,
+    summary,
+  });
+});
+
 module.exports = router;
+
