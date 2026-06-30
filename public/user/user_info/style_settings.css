@@ -611,39 +611,69 @@ input:focus, select:focus, textarea:focus {
   line-height: 1.55;
   margin-top: 2px;
 }
+/* 1. 스위치 전체 틀 (체크박스가 밀어내지 못하도록 block/flex 처리) */
 .switch {
   position: relative;
-  width: 48px;
-  height: 28px;
-  flex: 0 0 auto;
+  display: inline-flex;             /* inline-block 대신 inline-flex로 정렬 안정성 확보 */
+  align-items: center;
+  justify-content: center;
+  width: 60px;                      
+  height: 34px;                     
+  box-sizing: border-box;
 }
+
+/* 숨겨진 실제 체크박스가 공간을 차지하지 않도록 완전히 숨김 */
 .switch input {
-  position: absolute;
   opacity: 0;
-  width: 1px;
-  height: 1px;
+  width: 0;
+  height: 0;
+  position: absolute;
 }
+
+/* 2. 스위치 바깥 배경 틀 */
 .slider {
   position: absolute;
-  inset: 0;
-  background: #d8e2f0;
+  inset: 0;                         /* top, right, bottom, left를 모두 0으로 꽉 채움 */
+  background: #f1f5f9;
+  border: 3px solid #b4c6e4;       
   border-radius: 999px;
-  transition: background 0.2s;
+  box-sizing: border-box;           
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
 }
+
+/* 3. 내부의 흰색 동그라미 버튼 (위치 이탈 방지 수정) */
 .slider::before {
   content: "";
   position: absolute;
-  width: 22px;
+  
+  /* 💡 34px 높이에서 테두리 빼고 쏙 들어가도록 크기 밸런스 조정 */
+  width: 22px;                      
   height: 22px;
+  
+  /* 💡 수직/수평 중앙 정렬을 위해 top 값을 명확히 계산 */
+  top: 50%;
   left: 3px;
-  top: 3px;
+  transform: translateY(-50%);      /* 위아래로 쏠리지 않고 정확히 세로 중앙에 위치 */
+  
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(26, 35, 64, 0.18);
-  transition: transform 0.2s;
+  background: #fff;                 
+  box-shadow: 0 2px 5px rgba(26, 35, 64, 0.2); 
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.switch input:checked + .slider { background: #2563eb; }
-.switch input:checked + .slider::before { transform: translateX(20px); }
+
+/* ⭐ 스위치가 ON 되었을 때 바깥 배경 틀 변화 */
+.switch input:checked + .slider { 
+  background: #2563eb;              
+  border-color: #2563eb;            
+}
+
+/* ⭐ 스위치가 ON 되었을 때 흰색 원 이동 (수직 중앙 유지하면서 X축만 이동) */
+.switch input:checked + .slider::before { 
+  /* 💡 세로 중앙(-50%)을 유지한 상태에서 오른쪽으로 26px 이동 */
+  transform: translateY(-50%) translateX(26px);      
+}
+
 
 .time-grid {
   display: grid;
