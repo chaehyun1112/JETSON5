@@ -36,6 +36,7 @@ img, svg { display: block; }
   border: none;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
   text-align: center;
+  text-decoration: none;
 }
 
 .btn--primary {
@@ -91,6 +92,7 @@ img, svg { display: block; }
   font-weight: 500;
   color: #1e3a8a;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .nav__logo-icon {
@@ -110,6 +112,7 @@ img, svg { display: block; }
   font-size: 14px;
   color: #4b5a7a;
   transition: color 0.2s;
+  text-decoration: none;
 }
 .nav__links a:hover { color: #2563eb; }
 
@@ -128,6 +131,7 @@ img, svg { display: block; }
   color: #4b5a7a;
   transition: color 0.2s;
   cursor: pointer;
+  text-decoration: none;
 }
 .nav__dropdown-trigger:hover { color: #2563eb; }
 .nav__dropdown-trigger svg { transition: transform 0.2s; }
@@ -169,6 +173,7 @@ img, svg { display: block; }
   color: #4b5a7a;
   border-radius: 8px;
   transition: background 0.15s, color 0.15s;
+  text-decoration: none;
 }
 .nav__dropdown-menu a:hover {
   background: #eff6ff;
