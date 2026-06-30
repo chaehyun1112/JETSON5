@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>복약 스케줄 등록</title>
     <link rel="stylesheet" href="/user/user_service/style_register_schedule.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
 
@@ -13,7 +17,7 @@
 
             <h2 class="box-title">복약 스케줄 등록</h2>
             <p class="box-desc">
-                복용 시간과 약통 칸 번호를 각각 지정해주세요.<br>
+                복약 시간과 약통 칸 번호를 각각 지정해주세요.<br>
                 칸 번호를 선택하지 않은 시간대는 등록되지 않습니다.
             </p>
 
@@ -44,7 +48,7 @@
                 <div class="time-grid">
 
                     <div class="time-card">
-                        <h3 class="time-card-title">아침 복용</h3>
+                        <h3 class="time-card-title">아침 복약</h3>
                         <div class="card-row">
                             <div class="card-field">
                                 <label class="time-label">약통 칸 번호</label>
@@ -57,7 +61,7 @@
                                 </select>
                             </div>
                             <div class="card-field">
-                                <label class="time-label">복용 예정 시간</label>
+                                <label class="time-label">복약 예정 시간</label>
                                 <input type="time" name="morningTime" class="time-input">
                             </div>
                         </div>
@@ -65,7 +69,7 @@
                     </div>
 
                     <div class="time-card">
-                        <h3 class="time-card-title">점심 복용</h3>
+                        <h3 class="time-card-title">점심 복약</h3>
                         <div class="card-row">
                             <div class="card-field">
                                 <label class="time-label">약통 칸 번호</label>
@@ -78,7 +82,7 @@
                                 </select>
                             </div>
                             <div class="card-field">
-                                <label class="time-label">복용 예정 시간</label>
+                                <label class="time-label">복약 예정 시간</label>
                                 <input type="time" name="lunchTime" class="time-input">
                             </div>
                         </div>
@@ -86,7 +90,7 @@
                     </div>
 
                     <div class="time-card">
-                        <h3 class="time-card-title">저녁 복용</h3>
+                        <h3 class="time-card-title">저녁 복약</h3>
                         <div class="card-row">
                             <div class="card-field">
                                 <label class="time-label">약통 칸 번호</label>
@@ -99,7 +103,7 @@
                                 </select>
                             </div>
                             <div class="card-field">
-                                <label class="time-label">복용 예정 시간</label>
+                                <label class="time-label">복약 예정 시간</label>
                                 <input type="time" name="dinnerTime" class="time-input">
                             </div>
                         </div>
@@ -107,7 +111,7 @@
                     </div>
 
                     <div class="time-card">
-                        <h3 class="time-card-title">취침 전 복용</h3>
+                        <h3 class="time-card-title">취침 전 복약</h3>
                         <div class="card-row">
                             <div class="card-field">
                                 <label class="time-label">약통 칸 번호</label>
@@ -120,7 +124,7 @@
                                 </select>
                             </div>
                             <div class="card-field">
-                                <label class="time-label">복용 예정 시간</label>
+                                <label class="time-label">복약 예정 시간</label>
                                 <input type="time" name="nightTime" class="time-input">
                             </div>
                         </div>
@@ -139,6 +143,58 @@
 
         </section>
     </main>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 
+
+<script>
+flatpickr(".time-input", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    altInput: true,
+    altFormat: "K h:i",
+    locale: flatpickr.l10ns.ko,
+    time_24hr: false,
+    minuteIncrement: 1,
+    
+    // 💡 팝업창이 열릴 때 꾹 누르기 기능 심기
+    onOpen: function(selectedDates, dateStr, instance) {
+        // Flatpickr 내부의 위/아래 화살표 버튼들 다 찾아오기
+        const upButtons = instance.calendarContainer.querySelectorAll('.flatpickr-time-action-btn.flatpickr-am-pm, .arrowUp');
+        const downButtons = instance.calendarContainer.querySelectorAll('.arrowDown');
+        
+        let pressInterval;
+
+        
+        const makeLongPress = (btn, isUp) => {
+            
+            btn.addEventListener('mousedown', () => {
+
+                if(btn.classList.contains('flatpickr-am-pm')) return; // 오전/오후 버튼은 연타 제외
+                
+                pressInterval = setInterval(() => {
+                    if (isUp) {
+                        btn.parentElement.querySelector('input').stepUp();
+                    } else {
+                        btn.parentElement.querySelector('input').stepDown();
+                    }
+
+                    btn.parentElement.querySelector('input').dispatchEvent(new Event('input'));
+                }, 100);
+            });
+
+
+            const stopPress = () => clearInterval(pressInterval);
+            btn.addEventListener('mouseup', stopPress);
+            btn.addEventListener('mouseleave', stopPress);
+        };
+
+        
+        upButtons.forEach(btn => makeLongPress(btn, true));
+        downButtons.forEach(btn => makeLongPress(btn, false));
+    }
+});
+</script>
 </body>
 </html>

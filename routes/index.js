@@ -455,7 +455,7 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
             { type: 'warn',    message: '김영희 님이 오늘 점심 복약을 아직 하지 않았습니다.', time: '12:45'       },
             { type: 'missed',  message: '이철수 님 — 3일 연속 저녁 복약 누락 감지.',          time: '어제 20:10' },
             { type: 'ok',      message: '박순자 님 아침 복약 완료 확인.',                      time: '오늘 08:03' },
-            { type: 'warn',    message: '스마트 약상자 펌웨어 업데이트 완료.',                 time: '2일 전 14:22'},
+            { type: 'warn',    message: '스마트 약 상자 펌웨어 업데이트 완료.',                 time: '2일 전 14:22'},
             ],
         });
     });
@@ -491,7 +491,7 @@ router.get("/admin/admin_dashboard/members", (req, res) => {
       contact: "010-5555-6666",
       joinedAt: "2026-06-20",
       address: "전라남도 나주시",
-      memo: "약상자 연결 대기",
+      memo: "약 상자 연결 대기",
     },
   ];
 
@@ -540,8 +540,8 @@ router.get("/admin/admin_dashboard/medicine_boxes", (req, res) => {
   ];
 
   res.render("admin/admin_dashboard/medicine_boxes", {
-    title: "약상자 관리",
-    pageTitle: "약상자 관리",
+    title: "약 상자 관리",
+    pageTitle: "약 상자 관리",
     medicineBoxes,
   });
 });
@@ -552,24 +552,24 @@ router.get("/admin/admin_dashboard/messages", (req, res) => {
     {
       id: 1,
       type: "문의",
-      title: "약상자 알림 시간이 변경되지 않습니다.",
+      title: "약 상자 알림 시간이 변경되지 않습니다.",
       sender: "김보호",
       memberId: "parent01",
       status: "대기",
       createdAt: "2026-06-22 09:12",
       content:
-        "보호자 앱에서 복약 알림 시간을 변경했는데 약상자에 반영되지 않습니다. 확인 부탁드립니다.",
+        "보호자 앱에서 복약 알림 시간을 변경했는데 약 상자에 반영되지 않습니다. 확인 부탁드립니다.",
     },
     {
       id: 2,
       type: "이상사항",
-      title: "BOX-003 약상자 개폐 감지 상태가 오래 유지됩니다.",
+      title: "BOX-003 약 상자 개폐 감지 상태가 오래 유지됩니다.",
       sender: "시스템",
       memberId: "BOX-003",
       status: "확인 필요",
       createdAt: "2026-06-22 10:03",
       content:
-        "BOX-003 약상자가 10분 이상 열림 상태로 유지되고 있습니다. 사용자 확인이 필요합니다.",
+        "BOX-003 약 상자가 10분 이상 열림 상태로 유지되고 있습니다. 사용자 확인이 필요합니다.",
     },
     {
       id: 3,

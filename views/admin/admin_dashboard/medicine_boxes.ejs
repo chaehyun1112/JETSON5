@@ -10,14 +10,14 @@
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="admin-logo">
-        <strong>스마트 약상자</strong>
+        <strong>스마트 약 상자</strong>
         <span>관리자</span>
       </div>
 
       <nav class="admin-menu">
         <a href="/admin/admin_dashboard/admin">대시보드</a>
         <a href="/admin/admin_dashboard/members">회원관리</a>
-        <a href="/admin/admin_dashboard/medicine_boxes" class="active">약상자 관리</a>
+        <a href="/admin/admin_dashboard/medicine_boxes" class="active">약 상자 관리</a>
         <a href="/admin/admin_dashboard/messages">알림 메시지</a>
       </nav>
     </aside>
@@ -26,29 +26,29 @@
       <header class="admin-header">
         <div>
           <h1><%= pageTitle %></h1>
-          <p>약상자의 전원 상태와 센서 데이터를 확인합니다.</p>
+          <p>약 상자의 전원 상태와 센서 데이터를 확인합니다.</p>
         </div>
       </header>
 
       <section class="box-summary-grid">
         <article class="stat-card">
-          <span>전체 약상자</span>
+          <span>전체 약 상자</span>
           <strong><%= medicineBoxes.length %></strong>
-          <p>등록된 약상자 수</p>
+          <p>등록된 약 상자 수</p>
         </article>
       </section>
 
       <section class="medicine-box-layout">
         <div class="admin-panel medicine-box-list-panel">
           <div class="panel-header">
-            <h2>약상자 목록</h2>
+            <h2>약 상자 목록</h2>
             <span>실시간 상태</span>
           </div>
 
           <table class="admin-table medicine-box-table">
             <thead>
               <tr>
-                <th>약상자 ID</th>
+                <th>약 상자 ID</th>
                 <th>사용자</th>
                 <th>전원</th>
                 <th>개폐</th>
@@ -98,7 +98,7 @@
           </div>
 
           <div id="emptyBoxDetail" class="empty-detail">
-            약상자 ID를 선택해주세요.
+            약 상자 ID를 선택해주세요.
           </div>
 
           <div id="boxDetail" class="medicine-box-detail hidden">
