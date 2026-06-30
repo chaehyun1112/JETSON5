@@ -10,14 +10,14 @@
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="admin-logo">
-        <strong>스마트 약상자</strong>
+        <strong>스마트 약 상자</strong>
         <span>관리자</span>
       </div>
 
       <nav class="admin-menu">
         <a href="/admin/admin_dashboard/admin" class="active">대시보드</a>
         <a href="/admin/admin_dashboard/members">회원관리</a>
-        <a href="/admin/admin_dashboard/medicine_boxes">약상자 관리</a>
+        <a href="/admin/admin_dashboard/medicine_boxes">약 상자 관리</a>
         <a href="/admin/admin_dashboard/messages">알림 메시지</a>
       </nav>
     </aside>
@@ -26,7 +26,7 @@
       <header class="admin-header">
         <div>
           <h1>관리자 대시보드</h1>
-          <p>스마트 약상자 서비스 현황을 확인할 수 있습니다.</p>
+          <p>스마트 약 상자 서비스 현황을 확인할 수 있습니다.</p>
         </div>
           <div class="admin-user-menu">
     <button type="button" class="admin-user-button" id="adminUserButton">
@@ -35,8 +35,10 @@
     </button>
 
     <div class="admin-user-dropdown" id="adminUserDropdown">
-      <a href="/admin/profile">개인정보 수정</a>
+      <a href="/admin/admin_update">개인정보 수정</a>
       <a href="/admin/members_update">회원정보 수정</a>
+      <a href="/index/index_announce">공지사항 수정</a>
+      <a href="/admin/send_message">메시지 보내기</a>
       <form action="/logout" method="POST" class="logout-form">
           <button type="submit" class="admin-user-item">
               로그아웃
@@ -125,7 +127,7 @@
             </li>
             <li>
               <strong>기기 연결 상태</strong>
-              <span>오프라인 약상자 2대</span>
+              <span>오프라인 약 상자 2대</span>
             </li>
             <li>
               <strong>신규 문의</strong>

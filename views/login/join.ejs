@@ -7,6 +7,7 @@
   <title>회원가입</title>
   <link rel="stylesheet" href="/login/join.css">
 </head>
+
 <body>
   <main class="join-page">
     <section class="join-box">
@@ -34,7 +35,11 @@
     </select>
 
     <label>아이디</label>
-    <input type="text" name="id" placeholder="아이디를 입력해주세요" required>
+      <div class="input-row">
+        <input type="text" name="id" id="id" placeholder="아이디를 입력하세요">
+        <button type="button" id="checkIdBtn"> 중복확인 </button>
+      </div>
+      <p id="idCheckMessage"></p>
 
     <label>비밀번호</label>
     <input type="password" name="pw" placeholder="비밀번호를 입력해주세요" required>
@@ -43,7 +48,18 @@
     <input type="text" name="name" placeholder="이름을 입력해주세요" required>
 
     <label>이메일</label>
-    <input type="email" name="email" placeholder="이메일을 입력해주세요" required>
+    <div class="input-row">
+      <input type="email" id="email" name="email" placeholder="이메일을 입력해주세요" required>
+      <button type="button" id="sendEmailBtn">인증번호 보내기</button>
+    </div>
+    <p id="emailMessage"></p>
+
+    <label>인증번호</label>
+    <div class="input-row">
+      <input type="text" id="emailCode"  placeholder="인증번호 입력">
+      <button type="button" id="verifyEmailBtn"> 인증하기 </button>
+    </div>
+    <p id="verifyMessage"></p>
 
     <label>연락처</label>
     <input type="text" name="phone" placeholder="연락처를 입력해주세요" required>
@@ -60,5 +76,162 @@
 </section>
 
   </main>
-</body>
+    <script>
+
+    let idChecked = false;
+    let checkedId = "";
+    let emailVerified = false;
+
+    // 아이디 중복 확인
+    document.getElementById("checkIdBtn").addEventListener("click", () => {
+
+        const id = document.getElementById("id").value.trim();
+
+        if (id === "") {
+            alert("아이디를 입력하세요.");
+            return;
+        }
+
+        fetch("/checkId", {
+
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id
+            })
+        })
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            const msg = document.getElementById("idCheckMessage");
+
+            if (data.available) {
+                msg.innerHTML = "✔ 사용 가능한 아이디입니다.";
+                msg.style.color = "green";
+
+                idChecked = true;
+                checkedId = id;
+            } else {
+
+                msg.innerHTML = "❌ 이미 사용중인 아이디입니다.";
+                msg.style.color = "red";
+
+                idChecked = false;
+                checkedId = "";
+            }
+        });
+    });
+
+    // 아이디 변경 시 다시 중복확인
+    document.getElementById("id").addEventListener("input", () => {
+
+        idChecked = false;
+        checkedId = "";
+
+        document.getElementById("idCheckMessage").innerHTML = "";
+    });
+
+    // 이메일 인증번호 발송
+    document.getElementById("sendEmailBtn").addEventListener("click", () => {
+
+        const email = document.getElementById("email").value.trim();
+
+        if(email === ""){
+            alert("이메일을 입력하세요.");
+            return;
+        }
+
+        fetch("/sendEmailCode",{
+
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                email
+            })
+        })
+
+        .then(res=>res.json())
+
+        .then(data=>{
+            const msg=document.getElementById("emailMessage");
+
+            if(data.success){
+                msg.innerHTML="✔ 인증번호를 발송했습니다.";
+                msg.style.color="green";
+            }else{
+                msg.innerHTML="❌ 메일 발송 실패";
+                msg.style.color="red";
+            }
+        });
+    });
+
+    // 이메일 인증번호 확인
+    document.getElementById("verifyEmailBtn").addEventListener("click",()=>{
+
+        const code=document.getElementById("emailCode").value.trim();
+
+        if(code===""){
+            alert("인증번호를 입력하세요.");
+            return;
+        }
+
+        fetch("/verifyEmailCode",{
+
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                code
+            })
+        })
+
+        .then(res=>res.json())
+
+        .then(data=>{
+
+            const msg=document.getElementById("verifyMessage");
+
+            if(data.success){
+                emailVerified=true;
+
+                msg.innerHTML="✔ 이메일 인증이 완료되었습니다.";
+                msg.style.color="green";
+            }else{
+                emailVerified=false;
+
+                msg.innerHTML="❌ 인증번호가 올바르지 않습니다.";
+                msg.style.color="red";
+            }
+        });
+    });
+
+    // 회원가입 전 검사
+    document.querySelector(".join-form").addEventListener("submit",(e)=>{
+
+        const currentId=document.getElementById("id").value.trim();
+
+        if(!idChecked || checkedId!==currentId){
+            e.preventDefault();
+
+            alert("아이디 중복확인을 먼저 해주세요.");
+            return;
+        }
+
+        if(!emailVerified){
+            e.preventDefault();
+
+            alert("이메일 인증을 완료해주세요.");
+            return;
+        }
+    });
+    </script>
+
+  </body>
 </html>
