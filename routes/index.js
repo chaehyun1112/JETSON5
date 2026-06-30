@@ -857,8 +857,8 @@ router.get("/index/index_about", (req, res) => {
 });
 
 router.get('/index/index_announce', (req, res) => {
-  // 실제 서비스에서는 DB에서 notices 배열을 조회해서 넘기세요.
-  const notices = [
+  // 1. 현재 로그인한 유저의 세션 정보 가져오기 (로그인 안 되어 있으면 null이나 빈 객체)
+const notices = [
     { isNew: true,  category: '공지',    title: '복약안심서비스 정식 오픈 안내',                         date: '2025.06.01' },
     { isNew: true,  category: '업데이트', title: 'v1.2 업데이트 – 복약 이력 리포트 기능 추가',           date: '2025.05.20' },
     { isNew: false, category: '점검',    title: '서버 정기 점검 완료 안내 (5월 15일 02:00~04:00)',       date: '2025.05.15' },
@@ -866,12 +866,45 @@ router.get('/index/index_announce', (req, res) => {
     { isNew: false, category: '업데이트', title: 'v1.1 업데이트 – 알림 설정 세분화 및 UI 개선',          date: '2025.04.10' },
     { isNew: false, category: '공지',    title: '스마트 약 보관함 펌웨어 업데이트 방법 안내',            date: '2025.03.28' },
     { isNew: false, category: '공지',    title: '복약안심서비스 베타 테스트 참여자 모집 결과 안내',       date: '2025.03.01' },
-  ];
+];
 
-  res.render('index/index_announce', {
-    title:   '공지사항',
-    notices
-  });
+if (!req.session.user) {
+        return res.render('index/index_announce', {
+            title: '공지사항',
+            notices,
+            member: null
+        });
+    }
+
+    // 로그인 안 한 경우
+    if (!req.session.user) {
+        return res.render('index/index_announce', {
+            title: '공지사항',
+            notices,
+            member: null
+        });
+    }
+
+    // 로그인한 경우에만 DB 조회
+    const sql = `
+        SELECT MEM_ST
+        FROM TB_MEMBER
+        WHERE MEM_ID = ?
+    `;
+
+    conn.query(sql, [req.session.user.id], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        res.render('index/index_announce', {
+            title: '공지사항',
+            notices,
+            member: rows[0]
+        });
+    });
 });
 
 router.get('/index/index_HowToUse', (req, res) => {
@@ -1074,5 +1107,73 @@ router.get("/user/user_dashboard/dashboard_call", isLoggedIn, (req, res) => {
     summary,
   });
 });
+
+
+
+// 김성훈 6월 30일 추가한 router (admin_update, send_message)
+
+
+let tempAdminData = {
+    MEM_ID: 'admin',
+    MEM_NM: '김성훈',
+    MEM_ST: 'A',
+    REG_DATE: '2026.03.15', // 수정 불가 항목
+    MGR_NM: '홍길동',
+    MGR_EMAIL: 'manager@example.com',
+    MGR_PHONE: '010-1234-5678',
+    MGR_ADDR: '광주광역시 북구 용봉동'
+};
+
+
+router.get('/admin/admin_update', (req, res) => {
+
+    res.render('admin/admin_update', {
+        title: '관리자 정보 설정 (데모 버전)',
+        member: tempAdminData
+    });
+});
+
+let tempHistory = [
+    { date: '2026.06.30 09:15', target: '전체 회원', type: '일반 안내', title: '정기 서버 점검 안내 사항입니다.' },
+    { date: '2026.06.29 14:20', target: '미복약 유저', type: '🔔 복약 독려', title: '점심 약 복약 시간이 경과되었습니다.' }
+];
+
+/**
+ * 1️⃣ [GET] 메시지 발송 페이지 로드
+ * URL: /admin/send_message
+ */
+router.get('/admin/send_message', (req, res) => {
+    res.render('admin/send_message', {
+        title: '회원 메시지 발송',
+        history: tempHistory // 최신 임시 이력 데이터를 표에 뿌려주기 위해 전달
+    });
+});
+
+/**
+ * 2️⃣ [POST] 메시지 전송 요청 처리 (이력 누적)
+ * URL: /admin/send_message
+ */
+router.post('/admin/send_message', (req, res) => {
+    const { target, type, title, content } = req.body;
+
+    // 현재 날짜 및 시각 생성 (YYYY.MM.DD HH:MM)
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    // 새 이력 데이터 객체 생성 후 배열 맨 앞에 추가(최신순 정렬)
+    const newLog = {
+        date: formattedDate,
+        target: target,
+        type: type,
+        title: title
+    };
+    tempHistory.unshift(newLog);
+
+    // 실제 서비스 환경이라면 여기서 외부 SMS API나 Firebase Push API를 트리거하게 됩니다.
+    console.log(`[메시지 발송 로그] 대상: ${target} | 유형: ${type} | 제목: ${title}`);
+
+    res.json({ success: true });
+});
+
 
 module.exports = router;

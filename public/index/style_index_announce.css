@@ -487,3 +487,77 @@ main {
   white-space: nowrap;
 }
 
+/* ==========================================================================
+   관리자 전용 기능 바 (수정/삭제 버튼 영역)
+   ========================================================================== */
+
+/* 버튼들을 감싸는 전체 행 상자 */
+.notice-admin-bar {
+    max-width: 800px;         /* 공지사항 목록 박스의 가로 넓이와 일치시킵니다 */
+    margin: 0 auto 20px auto; /* 가운데 정렬 및 아래 공지사항 목록과의 간격(20px) */
+    display: flex;            /* 가로 배열 */
+    justify-content: flex-end;/* 오른쪽 정렬 */
+    gap: 10px;                /* 버튼 사이의 간격 */
+    padding: 0 10px;          /* 화면이 줄어들었을 때 최소한의 여백 보호 */
+}
+
+/* 관리자 버튼 공통 스타일 */
+.notice-admin-bar button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;       /* 복약안심서비스 특유의 부드러운 라운드 반영 */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out; /* 마우스 올렸을 때 부드러운 전환 효과 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 약간의 입체감 주는 그림자 */
+}
+
+/* 수정하기 버튼 디자인 */
+.notice-admin-bar .btn-edit {
+    background-color: #e8f0fe; /* 연한 블루톤 배경 */
+    color: #1a73e8;            /* 신뢰감을 주는 블루 */
+}
+
+/* 수정하기 버튼 마우스 오버 시 */
+.notice-admin-bar .btn-edit:hover {
+    background-color: #1a73e8; /* 배경이 짙은 블루로 변경 */
+    color: #ffffff;            /* 글자는 흰색으로 */
+    transform: translateY(-1px); /* 살짝 위로 떠오르는 효과 */
+}
+
+/* 삭제하기 버튼 디자인 */
+.notice-admin-bar .btn-delete {
+    background-color: #fce8e6; /* 연한 레드톤 배경 */
+    color: #d93025;            /* 경고의 의미를 담은 레드 */
+}
+
+/* 삭제하기 버튼 마우스 오버 시 */
+.notice-admin-bar .btn-delete:hover {
+    background-color: #d93025; /* 배경이 짙은 레드지로 변경 */
+    color: #ffffff;            /* 글자는 흰색으로 */
+    transform: translateY(-1px); /* 살짝 위로 떠오르는 효과 */
+}
+
+/* 버튼을 클릭하고 있을 때 (누르는 느낌) */
+.notice-admin-bar button:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+.clearfix-padding {
+    clear: both;
+    height: 120px; /* 공지사항 목록과 푸터 사이의 여유 공간 */
+}
+
+footer {
+    position: relative;
+    width: 100%;
+    margin-top: auto; /* 하단 고정 지향 */
+     background: #12203a; /* 푸터 배경색 (기존 스타일에 맞게 수정 가능) */
+    padding: 20px 0;
+    text-align: center;
+}
