@@ -2,7 +2,10 @@
   <div class="nav__inner">
 
     <!-- 로고 -->
-    <a href="<%= user ? '/user/user_service/about' : '/login' %>" class="nav__dropdown-trigger">
+<a href="<%= user?.role === 'S'
+    ? '/user/senior_service/senior_about'
+    : '/user/user_service/about' %>"
+   class="nav__dropdown-trigger">
       <svg class="nav__logo-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <rect x="2" y="8" width="24" height="18" rx="3" fill="#2563eb" opacity="0.15"/>
         <rect x="2" y="8" width="24" height="18" rx="3" stroke="#2563eb" stroke-width="1.5"/>
