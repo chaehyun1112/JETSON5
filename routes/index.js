@@ -251,7 +251,7 @@ router.post("/login", (req, res) => {
                 return res.redirect("/user/user_service/about");
             }
             if(user.MEM_ST === "S"){
-                return res.redirect("/user/user_service/about");
+                return res.redirect("/user/senior_service/senior_about");
             }
             if(user.MEM_ST === "A"){
                 return res.redirect("/admin/admin_dashboard/admin");
@@ -856,57 +856,6 @@ router.get("/index/index_about", (req, res) => {
     });
 });
 
-router.get('/index/index_announce', (req, res) => {
-  // 1. 현재 로그인한 유저의 세션 정보 가져오기 (로그인 안 되어 있으면 null이나 빈 객체)
-const notices = [
-    { isNew: true,  category: '공지',    title: '복약안심서비스 정식 오픈 안내',                         date: '2025.06.01' },
-    { isNew: true,  category: '업데이트', title: 'v1.2 업데이트 – 복약 이력 리포트 기능 추가',           date: '2025.05.20' },
-    { isNew: false, category: '점검',    title: '서버 정기 점검 완료 안내 (5월 15일 02:00~04:00)',       date: '2025.05.15' },
-    { isNew: false, category: '공지',    title: '개인정보 처리방침 개정 안내 (2025년 5월)',              date: '2025.05.01' },
-    { isNew: false, category: '업데이트', title: 'v1.1 업데이트 – 알림 설정 세분화 및 UI 개선',          date: '2025.04.10' },
-    { isNew: false, category: '공지',    title: '스마트 약 보관함 펌웨어 업데이트 방법 안내',            date: '2025.03.28' },
-    { isNew: false, category: '공지',    title: '복약안심서비스 베타 테스트 참여자 모집 결과 안내',       date: '2025.03.01' },
-];
-
-if (!req.session.user) {
-        return res.render('index/index_announce', {
-            title: '공지사항',
-            notices,
-            member: null
-        });
-    }
-
-    // 로그인 안 한 경우
-    if (!req.session.user) {
-        return res.render('index/index_announce', {
-            title: '공지사항',
-            notices,
-            member: null
-        });
-    }
-
-    // 로그인한 경우에만 DB 조회
-    const sql = `
-        SELECT MEM_ST
-        FROM TB_MEMBER
-        WHERE MEM_ID = ?
-    `;
-
-    conn.query(sql, [req.session.user.id], (err, rows) => {
-
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        res.render('index/index_announce', {
-            title: '공지사항',
-            notices,
-            member: rows[0]
-        });
-    });
-});
-
 router.get('/index/index_HowToUse', (req, res) => {
   res.render('index/index_HowToUse', {
     title:   '이용 방법',
@@ -1110,7 +1059,61 @@ router.get("/user/user_dashboard/dashboard_call", isLoggedIn, (req, res) => {
 
 
 
+
+
 // 김성훈 6월 30일 추가한 router (admin_update, send_message)
+
+
+router.get('/index/index_announce', (req, res) => {
+  // 1. 현재 로그인한 유저의 세션 정보 가져오기 (로그인 안 되어 있으면 null이나 빈 객체)
+const notices = [
+    { isNew: true,  category: '공지',    title: '복약안심서비스 정식 오픈 안내',                         date: '2025.06.01' },
+    { isNew: true,  category: '업데이트', title: 'v1.2 업데이트 – 복약 이력 리포트 기능 추가',           date: '2025.05.20' },
+    { isNew: false, category: '점검',    title: '서버 정기 점검 완료 안내 (5월 15일 02:00~04:00)',       date: '2025.05.15' },
+    { isNew: false, category: '공지',    title: '개인정보 처리방침 개정 안내 (2025년 5월)',              date: '2025.05.01' },
+    { isNew: false, category: '업데이트', title: 'v1.1 업데이트 – 알림 설정 세분화 및 UI 개선',          date: '2025.04.10' },
+    { isNew: false, category: '공지',    title: '스마트 약 보관함 펌웨어 업데이트 방법 안내',            date: '2025.03.28' },
+    { isNew: false, category: '공지',    title: '복약안심서비스 베타 테스트 참여자 모집 결과 안내',       date: '2025.03.01' },
+];
+
+if (!req.session.user) {
+        return res.render('index/index_announce', {
+            title: '공지사항',
+            notices,
+            member: null
+        });
+    }
+
+    // 로그인 안 한 경우
+    if (!req.session.user) {
+        return res.render('index/index_announce', {
+            title: '공지사항',
+            notices,
+            member: null
+        });
+    }
+
+    // 로그인한 경우에만 DB 조회
+    const sql = `
+        SELECT MEM_ST
+        FROM TB_MEMBER
+        WHERE MEM_ID = ?
+    `;
+
+    conn.query(sql, [req.session.user.id], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        res.render('index/index_announce', {
+            title: '공지사항',
+            notices,
+            member: rows[0]
+        });
+    });
+});
 
 
 let tempAdminData = {
@@ -1173,6 +1176,115 @@ router.post('/admin/send_message', (req, res) => {
     console.log(`[메시지 발송 로그] 대상: ${target} | 유형: ${type} | 제목: ${title}`);
 
     res.json({ success: true });
+});
+
+
+router.get('/user/senior_service/senior_about', (req, res) => {
+  res.render('user/senior_service/senior_about', { title: '서비스 소개 — 복약안심서비스' });
+});
+
+
+
+
+// 약 스케줄 get
+router.get("/user/senior_info/senior_schedule", (req, res) => {
+
+    if(!req.session.user){
+        return res.redirect("/");
+    }
+
+    const sql = `
+    SELECT *
+    FROM TB_SENIOR
+    WHERE MEM_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [req.session.user.id],
+        (err, rows) => {
+
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            res.render(
+                "user/senior_info/senior_schedule",
+                { seniors : rows }
+            );
+        }
+    );
+});
+
+// 약 스케줄 post
+router.post("/user/senior_info/senior_schedule", (req, res) => {
+
+    const {
+        seniorId,
+        takingDate,
+        pillboxOrder,
+        takingType,
+        takingTime
+    } = req.body;
+
+    const sql = `
+    INSERT INTO TB_SCHEDULE
+    (
+        SENIOR_ID,
+        TAKING_DATE,
+        PILLBOX_ORDER,
+        TAKING_TYPE,
+        TAKING_TIME,
+        TAKING_YN
+    )
+    VALUES
+    (?, ?, ?, ?, ?, 'N')
+    `;
+
+    conn.query(
+        sql,
+        [
+            seniorId,
+            takingDate,
+            pillboxOrder,
+            takingType,
+            takingTime
+        ],
+        (err, result) => {
+
+            if(err){
+                console.log(err);
+
+                return res.send(
+                    "<script>alert('등록 실패');history.back();</script>"
+                );
+            }
+
+            res.send(
+                "<script>alert('복약 스케줄 등록 완료');location.href='/user/user_dashboard/main_dashboard';</script>"
+            );
+
+        }
+    );
+});
+
+
+
+router.get("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
+
+    res.render("user/senior_info/senior_register", {
+        title: "대상자 등록",
+        user: req.session.user
+    });
+});
+
+
+router.get('/user/senior_info/senior_settings', (req, res) => {
+  res.render('user/senior_info/senior_settings', {
+    pageTitle: '계정 관리',
+    account
+  });
 });
 
 
