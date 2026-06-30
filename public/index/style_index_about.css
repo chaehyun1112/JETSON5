@@ -438,12 +438,19 @@ footer span {
 .about-section:last-child { border-bottom: none; }
 
 .about-section__num {
-  font-size: 36px;
-  font-weight: 700;
-  color: #dbeafe;
-  line-height: 1;
   flex-shrink: 0;
-  width: 48px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #3b5bdb;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(59, 91, 219, .25);
+  margin-top: 2px;
 }
 
 .about-section__title {
