@@ -28,6 +28,9 @@ body {
   background: #f0f4fa;
 }
 
+
+
+
 a { text-decoration: none; color: inherit; }
 img, svg { display: block; }
 
@@ -299,6 +302,7 @@ img, svg { display: block; }
 
 .nav__user-dropdown.is-open {
   display: block;
+  transform: none !important;
   animation: fadeDown 0.15s ease;
 }
 
@@ -323,6 +327,8 @@ img, svg { display: block; }
   background: #e8eef8;
   margin: 4px 0;
 }
+
+
 
 .nav__user-item {
   display: flex;
