@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>복약 스케줄 등록</title>
+    <link rel="stylesheet" href="/user/user_service/style_register_schedule.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+
+    <main class="schedule-page">
+        <section class="schedule-box">
+
+            <h2 class="box-title">복약 스케줄 등록</h2>
+            <p class="box-desc">
+                복약 시간과 약통 칸 번호를 각각 지정해주세요.<br>
+                칸 번호를 선택하지 않은 시간대는 등록되지 않습니다.
+            </p>
+
+            <form action="/user/user_service/schedule_register"
+                  method="post"
+                  class="schedule-form">
+
+                <!-- 시니어 선택 -->
+                <div class="form-group">
+                    <label class="form-label">시니어 선택</label>
+                    <select name="seniorId" required class="form-select">
+                        <option value="" disabled selected>시니어를 선택하세요</option>
+                        <% seniors.forEach(function(senior) { %>
+                            <option value="<%= senior.SENIOR_ID %>">
+                                <%= senior.SENIOR_NAME %>
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <!-- 스케줄 시작일 -->
+                <div class="form-group">
+                    <label class="form-label">스케줄 시작일</label>
+                    <input type="date" name="startDate" required class="form-input">
+                </div>
+
+                <!-- 4개 시간 카드 -->
+                <div class="time-grid">
+                    <div class="time-card">
+                        <h3 class="time-card-title">아침 복약</h3>
+                        <div class="card-row">
+                            <div class="card-field">
+                                <label class="time-label">약통 칸 번호</label>
+                                <select name="morningPillbox" class="can-select">
+                                    <option value="">선택 안 함</option>
+                                    <option value="1">1번 칸</option>
+                                    <option value="2">2번 칸</option>
+                                    <option value="3">3번 칸</option>
+                                    <option value="4">4번 칸</option>
+                                </select>
+                            </div>
+                            <div class="card-field">
+                                <label class="time-label">복약 예정 시간</label>
+                                <input type="time" name="morningTime" class="time-input">
+                            </div>
+                        </div>
+                        <input type="hidden" name="morningType" value="아침">
+                    </div>
+
+                    <div class="time-card">
+                        <h3 class="time-card-title">점심 복약</h3>
+                        <div class="card-row">
+                            <div class="card-field">
+                                <label class="time-label">약통 칸 번호</label>
+                                <select name="lunchPillbox" class="can-select">
+                                    <option value="">선택 안 함</option>
+                                    <option value="1">1번 칸</option>
+                                    <option value="2">2번 칸</option>
+                                    <option value="3">3번 칸</option>
+                                    <option value="4">4번 칸</option>
+                                </select>
+                            </div>
+                            <div class="card-field">
+                                <label class="time-label">복약 예정 시간</label>
+                                <input type="time" name="lunchTime" class="time-input">
+                            </div>
+                        </div>
+                        <input type="hidden" name="lunchType" value="점심">
+                    </div>
+
+                    <div class="time-card">
+                        <h3 class="time-card-title">저녁 복약</h3>
+                        <div class="card-row">
+                            <div class="card-field">
+                                <label class="time-label">약통 칸 번호</label>
+                                <select name="dinnerPillbox" class="can-select">
+                                    <option value="">선택 안 함</option>
+                                    <option value="1">1번 칸</option>
+                                    <option value="2">2번 칸</option>
+                                    <option value="3">3번 칸</option>
+                                    <option value="4">4번 칸</option>
+                                </select>
+                            </div>
+                            <div class="card-field">
+                                <label class="time-label">복약 예정 시간</label>
+                                <input type="time" name="dinnerTime" class="time-input">
+                            </div>
+                        </div>
+                        <input type="hidden" name="dinnerType" value="저녁">
+                    </div>
+
+                    <div class="time-card">
+                        <h3 class="time-card-title">취침 전 복약</h3>
+                        <div class="card-row">
+                            <div class="card-field">
+                                <label class="time-label">약통 칸 번호</label>
+                                <select name="nightPillbox" class="can-select">
+                                    <option value="">선택 안 함</option>
+                                    <option value="1">1번 칸</option>
+                                    <option value="2">2번 칸</option>
+                                    <option value="3">3번 칸</option>
+                                    <option value="4">4번 칸</option>
+                                </select>
+                            </div>
+                            <div class="card-field">
+                                <label class="time-label">복약 예정 시간</label>
+                                <input type="time" name="nightTime" class="time-input">
+                            </div>
+                        </div>
+                        <input type="hidden" name="nightType" value="취침 전">
+                    </div>
+
+                </div>
+
+                <!-- 버튼 -->
+                <div class="btn-row">
+                    <a href="/user/user_service/about" class="btn-cancel">취소</a>
+                    <button type="submit" class="btn-submit">스케줄 등록</button>
+                </div>
+
+            </form>
+
+        </section>
+    </main>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+
+
+<script>
+flatpickr(".time-input", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    altInput: true,
+    altFormat: "K h:i",
+    locale: flatpickr.l10ns.ko,
+    time_24hr: false,
+    minuteIncrement: 1,
+    
+    // 💡 팝업창이 열릴 때 꾹 누르기 기능 심기
+    onOpen: function(selectedDates, dateStr, instance) {
+        // Flatpickr 내부의 위/아래 화살표 버튼들 다 찾아오기
+        const upButtons = instance.calendarContainer.querySelectorAll('.flatpickr-time-action-btn.flatpickr-am-pm, .arrowUp');
+        const downButtons = instance.calendarContainer.querySelectorAll('.arrowDown');
+        
+        let pressInterval;
+
+        
+        const makeLongPress = (btn, isUp) => {
+            
+            btn.addEventListener('mousedown', () => {
+
+                if(btn.classList.contains('flatpickr-am-pm')) return; // 오전/오후 버튼은 연타 제외
+                
+                pressInterval = setInterval(() => {
+                    if (isUp) {
+                        btn.parentElement.querySelector('input').stepUp();
+                    } else {
+                        btn.parentElement.querySelector('input').stepDown();
+                    }
+
+                    btn.parentElement.querySelector('input').dispatchEvent(new Event('input'));
+                }, 100);
+            });
+
+
+            const stopPress = () => clearInterval(pressInterval);
+            btn.addEventListener('mouseup', stopPress);
+            btn.addEventListener('mouseleave', stopPress);
+        };
+
+        
+        upButtons.forEach(btn => makeLongPress(btn, true));
+        downButtons.forEach(btn => makeLongPress(btn, false));
+    }
+});
+</script>
+</body>
+</html>
