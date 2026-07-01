@@ -77,9 +77,17 @@
 
             </form>
 
-            <div class="links">
-                <a href="/user/user_info/protected">대시보드로 돌아가기</a>
-            </div>
+                <div class="links">
+                    <% if (from === "pillbox") { %>
+                        <a href="/user/user_service/register-pillbox">
+                            약통 등록으로 돌아가기
+                        </a>
+                    <% } else { %>
+                        <a href="/user/user_info/protected">
+                            보호대상 정보로 돌아가기
+                        </a>
+                    <% } %>
+                </div>
 
         </section>
 

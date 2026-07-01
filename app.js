@@ -30,6 +30,10 @@ res.locals.user = req.session.user || null;
 next();
 });
 
+
+
+// 7월 1일 김성훈 app.js 수정코드
+
 app.use((req, res, next) => {
 
     res.locals.hasPillbox = false;

@@ -252,7 +252,6 @@ img, svg { display: block; }
   transition: opacity 0.2s;
 }
 .nav__user-btn:hover .nav__avatar { opacity: 0.85; }
-
 .nav__user-dropdown {
   display: none;
   position: absolute;
@@ -272,6 +271,7 @@ img, svg { display: block; }
   transform: none !important;
   animation: fadeDown 0.15s ease;
 }
+
 
 .nav__user-info {
   padding: 10px 12px;
@@ -642,16 +642,16 @@ input:focus, select:focus, textarea:focus {
   cursor: pointer;
 }
 
-/* 3. 내부의 흰색 동그라미 버튼 (위치 이탈 방지 수정) */
+
 .slider::before {
   content: "";
   position: absolute;
   
-  /* 💡 34px 높이에서 테두리 빼고 쏙 들어가도록 크기 밸런스 조정 */
+
   width: 22px;                      
   height: 22px;
   
-  /* 💡 수직/수평 중앙 정렬을 위해 top 값을 명확히 계산 */
+
   top: 50%;
   left: 3px;
   transform: translateY(-50%);      /* 위아래로 쏠리지 않고 정확히 세로 중앙에 위치 */
@@ -662,15 +662,15 @@ input:focus, select:focus, textarea:focus {
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ⭐ 스위치가 ON 되었을 때 바깥 배경 틀 변화 */
+
 .switch input:checked + .slider { 
   background: #2563eb;              
   border-color: #2563eb;            
 }
 
-/* ⭐ 스위치가 ON 되었을 때 흰색 원 이동 (수직 중앙 유지하면서 X축만 이동) */
+
 .switch input:checked + .slider::before { 
-  /* 💡 세로 중앙(-50%)을 유지한 상태에서 오른쪽으로 26px 이동 */
+
   transform: translateY(-50%) translateX(26px);      
 }
 

@@ -676,8 +676,10 @@
 
 .nav__user-dropdown.is-open {
   display: block;
+  transform: none !important;
   animation: fadeDown 0.15s ease;
 }
+
 
 .nav__user-info {
   padding: 10px 12px;

@@ -44,6 +44,8 @@
 
           <label>대상자 선택</label>
 
+            <% if (seniors.length > 0) { %>
+
             <select
                 name="seniorId"
                 required>
@@ -57,6 +59,14 @@
                 <% }) %>
 
             </select>
+            
+            <% } else { %>
+
+            <select disabled>
+                <option selected>등록 가능한 대상자가 없습니다.</option>
+            </select>
+
+            <% } %>
           <label for="pillboxId">약통 시리얼 번호</label>
           <input
             type="text"
@@ -70,8 +80,15 @@
         <button type="submit" class="btn btn--primary btn--full">등록하기</button>
       </form>
 
-      <a href="/user/user_service/medicine_buy" class="nopill-card__link">약통이 없으신가요? 구매하러 가기 →</a>
+      <div class="nopill-links">
+          <a href="/user/user_service/medicine_buy" class="nopill-card__link">
+              약통이 없으신가요? 구매하러 가기 →
+          </a>
 
+          <a href="/user/user_info/seniorRegister?from=pillbox" class="nopill-card__link">
+              등록할 대상자가 없으신가요? 대상자 등록하기 →
+          </a>
+      </div>
     </div>
   </main>
 
