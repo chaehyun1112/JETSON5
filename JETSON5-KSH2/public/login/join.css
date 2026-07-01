@@ -1,0 +1,114 @@
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#eaf3ff;
+color:#1f2d3d;
+}
+
+.join-page{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.join-box{
+width:320px;
+text-align:center;
+}
+
+.join-box h1{
+margin:0 0 12px;
+font-size:20px;
+font-weight:700;
+color:#1b4fb8;
+}
+
+.subtitle{
+margin:0 0 28px;
+font-size:13px;
+color:#2d65c8;
+}
+
+.icon-box{
+display:flex;
+flex-direction:column;
+align-items:center;
+margin-bottom:8px;
+}
+
+.handle{
+width:28px;
+height:18px;
+border:5px solid #2359d1;
+border-bottom:none;
+border-radius:6px 6px 0 0;
+}
+
+.case{
+width:58px;
+height:48px;
+border:5px solid #2359d1;
+border-radius:5px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:20px;
+}
+
+.join-box h2{
+margin:6px 0 20px;
+font-size:14px;
+}
+
+.join-form{
+display:flex;
+flex-direction:column;
+text-align:left;
+}
+
+.join-form label{
+margin-bottom:5px;
+font-size:12px;
+}
+
+.join-form input,
+.join-form select{
+height:34px;
+margin-bottom:12px;
+padding:0 10px;
+border:none;
+border-radius:3px;
+background:#fff;
+}
+
+.join-form input:focus,
+.join-form select:focus
+
+.join-btn{
+height:36px;
+border:none;
+border-radius:3px;
+background:#2359d1;
+color:#fff;
+font-size:13px;
+font-weight:700;
+cursor:pointer;
+}
+
+.join-btn:hover
+
+.links{
+margin-top:15px;
+text-align:center;
+}
+
+.links a{
+text-decoration:none;
+color:#555;
+font-size:12px;
+}

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/user/user_info/style_user_update.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <main class="edit-page">
+        <section class="edit-box">
+
+            <!-- ── 프로필 헤더 ── -->
+            <div class="profile-header">
+                <div class="avatar">
+                    <%= person.SENIOR_NAME ? person.SENIOR_NAME.charAt(0) : '?' %>
+                </div>
+                <h2 class="profile-name"><%= person.SENIOR_NAME %></h2>
+            </div>
+
+            <form action="/user/user_info/protected/update/<%= person.SENIOR_ID %>"
+                  method="post"
+                  class="edit-form">
+
+                <!-- ════════════════════════════
+                     섹션 1: 기본 정보 수정
+                ════════════════════════════ -->
+                <div class="section-block">
+                    <h3 class="section-title">기본 정보</h3>
+
+                    <div class="info-grid">
+
+                        <div class="form-group">
+                            <label class="form-label">보호대상 아이디</label>
+                            <input type="text"
+                                   class="form-input readonly-input"
+                                   value="<%= person.SENIOR_ID %>"
+                                   readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">이름</label>
+                            <input type="text"
+                                   name="SENIOR_NAME"
+                                   class="form-input"
+                                   value="<%= person.SENIOR_NAME %>"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">이메일</label>
+                            <input type="email"
+                                   name="SENIOR_EMAIL"
+                                   class="form-input"
+                                   value="<%= person.SENIOR_EMAIL %>"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">연락처</label>
+                            <input type="tel"
+                                   name="SENIOR_CONTACT"
+                                   class="form-input"
+                                   value="<%= person.SENIOR_CONTACT %>"
+                                   placeholder="010-0000-0000"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">주소</label>
+                            <input type="text"
+                                   name="SENIOR_ADDR"
+                                   class="form-input"
+                                   value="<%= person.SENIOR_ADDR %>"
+                                   placeholder="주소를 입력하세요">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">약통 번호</label>
+                            <input type="text"
+                                   name="PILLBOX_NUM"
+                                   class="form-input"
+                                   value="<%= person.PILLBOX_NUM %>"
+                                   placeholder="약통 번호를 입력하세요">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">가입 일자</label>
+                            <input type="text"
+                                   class="form-input readonly-input"
+                                   value="<%= new Date(person.JOINED_AT).toLocaleDateString('ko-KR') %>"
+                                   readonly>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- ════════════════════════════
+                     섹션 2: 복약 스케줄 수정
+                ════════════════════════════ -->
+                <div class="section-block">
+                    <h3 class="section-title">복약 스케줄</h3>
+                    <p class="section-desc">
+                        칸 번호를 선택하지 않은 시간대는 등록되지 않습니다.
+                    </p>
+
+                    <!-- 4개 시간 카드 -->
+                    <div class="time-grid">
+
+                        <div class="time-card">
+                            <h4 class="time-card-title">아침 복용</h4>
+                            <div class="card-row">
+                                <div class="card-field">
+                                    <label class="time-label">약통 칸 번호</label>
+                                    <select name="morningPillbox" class="can-select">
+                                        <option value="">선택 안 함</option>
+
+                                        <option value="1"
+                                        <%= morning && morning.PILLBOX_ORDER==1 ? "selected":"" %>>
+                                        1번 칸
+                                        </option>
+
+                                        <option value="2"
+                                        <%= morning && morning.PILLBOX_ORDER==2 ? "selected":"" %>>
+                                        2번 칸
+                                        </option>
+
+                                        <option value="3"
+                                        <%= morning && morning.PILLBOX_ORDER==3 ? "selected":"" %>>
+                                        3번 칸
+                                        </option>
+
+                                        <option value="4"
+                                        <%= morning && morning.PILLBOX_ORDER==4 ? "selected":"" %>>
+                                        4번 칸
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="card-field">
+                                    <label class="time-label">복용 예정 시간</label>
+                                    <input
+                                    type="time"
+                                    name="morningTime"
+                                    class="time-input"
+                                    value="<%= morning ? morning.TAKING_TIME.toString().substring(0,5) : '' %>">
+                                </div>
+                            </div>
+                            <input type="hidden" name="morningType" value="아침">
+                        </div>
+
+                        <div class="time-card">
+                            <h4 class="time-card-title">점심 복용</h4>
+                            <div class="card-row">
+                                <div class="card-field">
+                                    <label class="time-label">약통 칸 번호</label>
+                                    <select name="lunchPillbox" class="can-select">
+                                        <option value="">선택 안 함</option>
+
+                                        <option value="1"
+                                        <%= lunch && lunch.PILLBOX_ORDER==1 ? "selected":"" %>>
+                                        1번 칸
+                                        </option>
+
+                                        <option value="2"
+                                        <%= lunch && lunch.PILLBOX_ORDER==2 ? "selected":"" %>>
+                                        2번 칸
+                                        </option>
+
+                                        <option value="3"
+                                        <%= lunch && lunch.PILLBOX_ORDER==3 ? "selected":"" %>>
+                                        3번 칸
+                                        </option>
+
+                                        <option value="4"
+                                        <%= lunch && lunch.PILLBOX_ORDER==4 ? "selected":"" %>>
+                                        4번 칸
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="card-field">
+                                    <label class="time-label">복용 예정 시간</label>
+                                    <input
+                                    type="time"
+                                    name="lunchTime"
+                                    class="time-input"
+                                    value="<%= lunch ? lunch.TAKING_TIME.toString().substring(0,5) : '' %>">
+                                </div>
+                            </div>
+                            <input type="hidden" name="lunchType" value="점심">
+                        </div>
+
+                        <div class="time-card">
+                            <h4 class="time-card-title">저녁 복용</h4>
+                            <div class="card-row">
+                                <div class="card-field">
+                                    <label class="time-label">약통 칸 번호</label>
+                                    <select name="dinnerPillbox" class="can-select">
+                                        <option value="">선택 안 함</option>
+
+                                        <option value="1"
+                                        <%= dinner && dinner.PILLBOX_ORDER==1 ? "selected":"" %>>
+                                        1번 칸
+                                        </option>
+
+                                        <option value="2"
+                                        <%= dinner && dinner.PILLBOX_ORDER==2 ? "selected":"" %>>
+                                        2번 칸
+                                        </option>
+
+                                        <option value="3"
+                                        <%= dinner && dinner.PILLBOX_ORDER==3 ? "selected":"" %>>
+                                        3번 칸
+                                        </option>
+
+                                        <option value="4"
+                                        <%= dinner && dinner.PILLBOX_ORDER==4 ? "selected":"" %>>
+                                        4번 칸
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="card-field">
+                                    <label class="time-label">복용 예정 시간</label>
+                                    <input
+                                    type="time"
+                                    name="dinnerTime"
+                                    class="time-input"
+                                    value="<%= dinner ? dinner.TAKING_TIME.toString().substring(0,5) : '' %>">
+                                </div>
+                            </div>
+                            <input type="hidden" name="dinnerType" value="저녁">
+                        </div>
+
+                        <div class="time-card">
+                            <h4 class="time-card-title">취침 전 복용</h4>
+                            <div class="card-row">
+                                <div class="card-field">
+                                    <label class="time-label">약통 칸 번호</label>
+                                    <select name="nightPillbox" class="can-select">
+                                        <option value="">선택 안 함</option>
+
+                                        <option value="1"
+                                        <%= night && night.PILLBOX_ORDER==1 ? "selected":"" %>>
+                                        1번 칸
+                                        </option>
+
+                                        <option value="2"
+                                        <%= night && night.PILLBOX_ORDER==2 ? "selected":"" %>>
+                                        2번 칸
+                                        </option>
+
+                                        <option value="3"
+                                        <%= night && night.PILLBOX_ORDER==3 ? "selected":"" %>>
+                                        3번 칸
+                                        </option>
+
+                                        <option value="4"
+                                        <%= night && night.PILLBOX_ORDER==4 ? "selected":"" %>>
+                                        4번 칸
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="card-field">
+                                    <label class="time-label">복용 예정 시간</label>
+                                    <input
+                                    type="time"
+                                    name="nightTime"
+                                    class="time-input"
+                                    value="<%= night ? night.TAKING_TIME.toString().substring(0,5) : '' %>">
+                                </div>
+                            </div>
+                            <input type="hidden" name="nightType" value="취침 전">
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ── 버튼 ── -->
+                <div class="btn-row">
+                    <a href="/user/user_info/protected" class="btn-cancel">취소</a>
+                    <button type="submit" class="btn-submit">수정 완료</button>
+                </div>
+
+            </form>
+
+        </section>
+    </main>
+
+</body>
+</html>
