@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/index/style_index_announce.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+<% if (user && user.role === 'S') { %>
+    <%- include('../partials/user_partials/nav_senior') %>
+<% } else { %>
+    <%- include('../partials/user_partials/nav_index') %>
+<% } %>
+  <div class="about-header">
+    <div class="about-header__inner">
+      <p class="section-tag">공지 사항</p>
+      <h1 class="about-header__title">새로운 소식을 전해드립니다</h1>
+      <p class="about-header__sub">서비스 업데이트, 점검 안내, 이용 정책 변경 등 중요한 내용을 확인하세요.</p>
+    </div>
+  </div>
+  <br><br><br><br><br>
+
+  <% if (member && member.MEM_ST === 'A') { %>
+    <div class="notice-admin-bar" style="max-width: 800px; margin: 0 auto 15px auto; display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-add-notice" onclick="openAddMode()" style="background-color: #1a73e8; color: white; border:none; padding: 8px 16px; border-radius: 6px; cursor:pointer;">추가하기</button>
+        <button class="btn-delete-selected" onclick="deleteSelectedNotices()" style="background-color: #ff4d4f; color: white; border:none; padding: 8px 16px; border-radius: 6px; cursor:pointer;">선택 삭제</button>
+    </div>
+  <% } %>
+
+  <div class="notice-list">
+
+    <% if (member && member.MEM_ST === 'A') { %>
+    <div id="notice-add-form" class="notice-item" style="display: none; align-items: center; gap: 15px; background-color: #f8f9fa; border: 1px dashed #1a73e8; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+      <div style="display: flex; flex-grow: 1; justify-content: space-between; align-items: center; gap: 10px;">
+        <div class="edit-inputs" style="display: flex; gap: 10px; flex-grow: 1;">
+          <select id="add-category" style="padding: 5px; border-radius: 4px;">
+            <option value="공지">공지</option>
+            <option value="업데이트">업데이트</option>
+            <option value="점검">점검</option>
+          </select>
+          <input type="text" id="add-title-input" placeholder="새로운 공지사항 제목을 입력하세요." style="flex-grow: 1; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div class="admin-buttons" style="display: flex; gap: 5px;">
+          <button style="background-color: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="saveNewNotice()">완료</button>
+          <button style="background-color: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="closeAddMode()">취소</button>
+        </div>
+      </div>
+    </div>
+    <% } %>
+<% notices.forEach(function(notice, index) { %>
+<div class="notice-item" data-id="<%= index %>" style="display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #eee;">
+  
+  <% if (member && member.MEM_ST === 'A') { %>
+    <input type="checkbox" class="notice-checkbox" value="<%= index %>" style="width: 18px; height: 18px; cursor: pointer;">
+  <% } %>
+
+  <div class="notice-view-mode" style="display: flex; flex-grow: 1; justify-content: space-between; align-items: center;">
+    <div class="notice-content">
+      <span class="notice-badge <%= notice.isNew ? 'new' : '' %> notice-badge-text"><%= notice.category %></span>
+      <span class="notice-title-text" style="margin-left: 10px;"><%= notice.title %></span>
+      <span class="notice-date" style="margin-left: 10px; color: #888;"><%= notice.date %></span>
+    </div>
+    
+    <% if (member && member.MEM_ST === 'A') { %>
+      <div class="admin-buttons">
+        <button class="btn-edit" onclick="toggleEditMode('<%= index %>', true)">수정</button>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (member && member.MEM_ST === 'A') { %>
+  <div class="notice-edit-mode" style="display: none; flex-grow: 1; justify-content: space-between; align-items: center; gap: 10px;">
+    <div class="edit-inputs" style="display: flex; gap: 10px; flex-grow: 1;">
+      <select class="edit-category" style="padding: 5px; border-radius: 4px;">
+        <option value="공지" <%= notice.category === '공지' ? 'selected' : '' %>>공지</option>
+        <option value="업데이트" <%= notice.category === '업데이트' ? 'selected' : '' %>>업데이트</option>
+        <option value="점검" <%= notice.category === '점검' ? 'selected' : '' %>>점검</option>
+      </select>
+      <input type="text" class="edit-title-input" value="<%= notice.title %>" style="flex-grow: 1; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+    </div>
+    <div class="admin-buttons" style="display: flex; gap: 5px;">
+      <button style="background-color: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="saveNotice('<%= index %>')">완료</button>
+      <button style="background-color: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="toggleEditMode('<%= index %>', false)">취소</button>
+    </div>
+  </div>
+  <% } %>
+
+</div>
+<% }); %>
+</main>
+ <% if (member && member.MEM_ST === 'A') { %>
+        <a href="/admin/admin_dashboard/admin">돌아가기</a>
+    </div>
+  <% } %>
+
+
+</div> </main> <div class="clearfix-padding"></div>
+
+
+<br><br>
+<br><br>
+
+<br><br>
+<br>
+
+<footer>
+  © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
+
+</body>
+
+<script>
+// [공통] 수정 모드 토글 함수
+function toggleEditMode(id, isEdit) {
+    const item = document.querySelector(`.notice-item[data-id="${id}"]`);
+    if (!item) return;
+    const viewMode = item.querySelector('.notice-view-mode');
+    const editMode = item.querySelector('.notice-edit-mode');
+
+    if (isEdit) {
+        viewMode.style.display = 'none';
+        editMode.style.display = 'flex';
+    } else {
+        viewMode.style.display = 'flex';
+        editMode.style.display = 'none';
+    }
+}
+
+// [수정] 화면 즉시 반영 함수
+function saveNotice(id) {
+    const item = document.querySelector(`.notice-item[data-id="${id}"]`);
+    if (!item) return;
+
+    const updatedCategory = item.querySelector('.edit-category').value;
+    const updatedTitle = item.querySelector('.edit-title-input').value;
+
+    const badgeSpan = item.querySelector('.notice-badge-text');
+    const titleSpan = item.querySelector('.notice-title-text');
+
+    badgeSpan.textContent = updatedCategory;
+    titleSpan.textContent = updatedTitle;
+
+    toggleEditMode(id, false);
+}
+
+// [삭제] 체크박스 다중 선택 삭제 함수
+function deleteSelectedNotices() {
+    const checkboxes = document.querySelectorAll('.notice-checkbox:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('삭제할 공지사항을 선택해주세요.');
+        return;
+    }
+
+    if (!confirm(`선택한 ${checkboxes.length}개의 공지사항을 삭제하시겠습니까?`)) {
+        return;
+    }
+
+    // 서버를 안 거치므로, 체크된 상자들이 속한 카드(.notice-item)를 화면에서 바로 지웁니다.
+    checkboxes.forEach(cb => {
+        const item = cb.closest('.notice-item');
+        if (item) item.remove();
+    });
+}
+
+// [추가] 등록 폼 열기
+function openAddMode() {
+    const addForm = document.getElementById('notice-add-form');
+    if (addForm) {
+        addForm.style.display = 'flex';
+        document.getElementById('add-title-input').focus();
+    }
+}
+
+// [추가] 등록 폼 닫기
+function closeAddMode() {
+    const addForm = document.getElementById('notice-add-form');
+    if (addForm) {
+        addForm.style.display = 'none';
+        document.getElementById('add-title-input').value = '';
+    }
+}
+
+// [추가] 완료 시 맨 위에 카드 동적 생성 및 기존 기능 자동 바인딩
+function saveNewNotice() {
+    const category = document.getElementById('add-category').value;
+    const title = document.getElementById('add-title-input').value;
+
+    if (!title.trim()) {
+        alert('제목을 입력해주세요.');
+        return;
+    }
+
+    const today = new Date();
+    const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+    const newId = Date.now(); // 고유 ID 부여
+
+    // 💡 동적으로 생성되는 새 HTML (기존 수정/삭제 구조와 100% 일치시킴)
+    const newNoticeHtml = `
+      <div class="notice-item" data-id="${newId}" style="display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #eee;">
+        <input type="checkbox" class="notice-checkbox" value="${newId}" style="width: 18px; height: 18px; cursor: pointer;">
+        
+        <div class="notice-view-mode" style="display: flex; flex-grow: 1; justify-content: space-between; align-items: center;">
+          <div class="notice-content">
+            <span class="notice-badge new notice-badge-text">${category}</span>
+            <span class="notice-title-text" style="margin-left: 10px;">${title}</span>
+            <span class="notice-date" style="margin-left: 10px; color: #888;">${formattedDate}</span>
+          </div>
+          <div class="admin-buttons">
+            <button class="btn-edit" onclick="toggleEditMode('${newId}', true)">수정</button>
+          </div>
+        </div>
+
+        <div class="notice-edit-mode" style="display: none; flex-grow: 1; justify-content: space-between; align-items: center; gap: 10px;">
+          <div class="edit-inputs" style="display: flex; gap: 10px; flex-grow: 1;">
+            <select class="edit-category" style="padding: 5px; border-radius: 4px;">
+              <option value="공지" ${category === '공지' ? 'selected' : ''}>공지</option>
+              <option value="업데이트" ${category === '업데이트' ? 'selected' : ''}>업데이트</option>
+              <option value="점검" ${category === '점검' ? 'selected' : ''}>점검</option>
+            </select>
+            <input type="text" class="edit-title-input" value="${title}" style="flex-grow: 1; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+          </div>
+          <div class="admin-buttons" style="display: flex; gap: 5px;">
+            <button style="background-color: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="saveNotice('${newId}')">완료</button>
+            <button style="background-color: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="toggleEditMode('${newId}', false)">취소</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const addForm = document.getElementById('notice-add-form');
+    addForm.insertAdjacentHTML('afterend', newNoticeHtml);
+
+    closeAddMode();
+}
+</script>
