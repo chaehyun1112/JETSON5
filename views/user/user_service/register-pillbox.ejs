@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/user/user_service/style_about.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <% if (user && user.role === 'S') { %>
+    <%- include('../../partials/user_partials/nav_senior') %>
+<% } else { %>
+      <%- include('../../partials/user_partials/nav_about') %>
+<% } %>
+
+  <main class="nopill-main">
+    <div class="nopill-card">
+
+      <div class="nopill-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.5" aria-hidden="true">
+          <rect x="2" y="7" width="20" height="15" rx="2"/>
+          <path d="M10 7V5a2 2 0 014 0v2"/>
+          <path d="M12 12v4M10 14h4"/>
+        </svg>
+      </div>
+
+      <h1 class="nopill-card__title">약통 등록</h1>
+      <p class="nopill-card__desc">
+        스마트 약상자 하단의 시리얼 번호를 입력해 주세요.<br>
+        등록 후 바로 대시보드를 이용하실 수 있습니다.
+      </p>
+
+      <% if (error) { %>
+        <p class="login-error"><%= error %></p>
+      <% } %>
+
+      <form action="/user/user_service/register-pillbox" method="POST" class="pillbox-form">
+        
+        <div class="pillbox-form__group">
+
+          <label>대상자 선택</label>
+
+            <select
+                name="seniorId"
+                required>
+
+                <% seniors.forEach(senior => { %>
+
+                    <option value="<%= senior.SENIOR_ID %>">
+                        <%= senior.SENIOR_NAME %>
+                    </option>
+
+                <% }) %>
+
+            </select>
+          <label for="pillboxId">약통 시리얼 번호</label>
+          <input
+            type="text"
+            id="pillboxId"
+            name="pillboxId"
+            placeholder="예: PB-2025-XXXX"
+            required
+          />
+          <span class="pillbox-form__hint">약상자 하단 스티커에서 확인하실 수 있습니다.</span>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">등록하기</button>
+      </form>
+
+      <a href="/user/user_service/medicine_buy" class="nopill-card__link">약통이 없으신가요? 구매하러 가기 →</a>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 복약안심서비스 &nbsp;|&nbsp; Team Jetson5 &nbsp;|&nbsp; 스마트 약상자 기반 복약 관리 플랫폼</p>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,271 @@
+/* =============================================
+   복약 스케줄 등록 - style_register_schedule.css
+   ============================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+    background-color: #f0f4ff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+/* ── 메인 카드 ── */
+.schedule-page {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.schedule-box {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    padding: 40px 48px 48px;
+    width: 100%;
+    max-width: 900px;
+}
+
+/* ── 제목 / 설명 ── */
+.box-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 10px;
+}
+
+.box-desc {
+    font-size: 0.875rem;
+    color: #2563eb;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+/* ── 폼 공통 ── */
+.schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.form-select,
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #111827;
+    background: #ffffff;
+    appearance: auto;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-select:focus,
+.form-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ── 4개 시간 카드 그리드 ── */
+.time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.time-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px 18px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: box-shadow 0.2s;
+}
+
+.time-card:hover {
+    box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+}
+
+.time-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2563eb;
+}
+
+/* ── 카드 내부: 칸 번호 + 시간 가로 배치 ── */
+.card-row {
+    display: flex;
+    gap: 12px;
+}
+
+.card-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.time-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.time-input {
+    width: 100%;
+    padding: 10px 14px;              /* 상하좌우 여백을 넓혀서 터치/클릭하기 편하게 */
+    border: 1px solid #e5e7eb;        /* 선을 좀 더 연하고 부드러운 회색으로 변경 */
+    border-radius: 10px;              /* 라운딩을 살짝 더 주어 트렌디하게 */
+    font-size: 0.9rem;                /* 글자 크기를 살짝 키워 가독성 확보 */
+    font-weight: 500;                 /* 글자 두께를 주어 직관적으로 변경 */
+    color: #1f2937;
+    background: #ffffff;
+    outline: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* 은은한 하단 그림자 추가 */
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+/* 포커스(클릭) 되었을 때 효과 체감 업그레이드 */
+.time-input:focus {
+    border-color: #3b82f6;            /* 좀 더 밝고 선명한 브랜드 블루 */
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); /* 부드러운 하이라이트 링 */
+    background-color: #f8fafc;        /* 클릭 시 미세하게 배경색을 바꿔 피드백 제공 */
+}
+
+/* ── 칸 번호 드롭다운 ── */
+.can-select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #111827;
+    background: #ffffff;
+    appearance: auto;
+    outline: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+}
+
+.can-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 선택 안 함 상태 회색 처리 */
+.can-select:has(option[value=""]:checked) {
+    color: #9ca3af;
+}
+
+/* ── 시간 입력 ── */
+.time-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #111827;
+    background: #ffffff;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.time-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ── 하단 버튼 행 ── */
+.btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.btn-cancel {
+    padding: 12px 28px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.btn-submit {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover {
+    background: #1d4ed8;
+}
+
+/* ── 반응형 ── */
+@media (max-width: 640px) {
+    .schedule-box {
+        padding: 28px 20px 36px;
+    }
+
+    .time-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-row {
+        flex-direction: column;
+    }
+
+    .btn-row {
+        flex-direction: column-reverse;
+    }
+
+    .btn-cancel,
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}

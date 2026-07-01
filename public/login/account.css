@@ -1,0 +1,121 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Arial', sans-serif;
+    background:#eaf3ff;
+}
+
+.page{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.box{
+    width:420px;
+    background:white;
+    border-radius:20px;
+    padding:40px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.logo-area{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.logo-area h1{
+    color:#2359d1;
+    margin-bottom:10px;
+    font-size:36px;
+}
+
+.logo-area p{
+    color:#5b7ec7;
+    font-size:15px;
+}
+
+.pill-icon{
+    width:90px;
+    height:90px;
+    margin:25px auto;
+    border:5px solid #2359d1;
+    border-radius:12px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:40px;
+    position:relative;
+}
+
+.pill-icon::before{
+    content:'';
+    width:35px;
+    height:20px;
+    border:5px solid #2359d1;
+    border-bottom:none;
+    position:absolute;
+    top:-25px;
+    border-radius:8px 8px 0 0;
+}
+
+.page-title{
+    text-align:center;
+    margin-bottom:25px;
+    color:#1f2d3d;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:6px;
+    font-size:14px;
+}
+
+.form-group input{
+    width:100%;
+    height:45px;
+    border:none;
+    background:#f4f7fc;
+    border-radius:8px;
+    padding:0 15px;
+}
+
+.form-group input:focus{
+    outline:2px solid #2359d1;
+}
+
+.submit-btn{
+    width:100%;
+    height:48px;
+    background:#2359d1;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.submit-btn:hover{
+    background:#1a47af;
+}
+
+.bottom-link{
+    text-align:center;
+    margin-top:20px;
+}
+
+.bottom-link a{
+    color:#666;
+    text-decoration:none;
+}
