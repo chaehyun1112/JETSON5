@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
   <link rel="stylesheet" href="/css/common.css" />
-  <link rel="stylesheet" href="/css/user_dashboard/dashboard_pages.css" />
+  <link rel="stylesheet" href="/user/user_dashboard/dashboard_pages.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -28,28 +28,28 @@
     <div class="db-container">
       <section class="db-stats">
         <div class="db-stat-card">
-          <div class="db-stat-card__icon db-stat-card__icon--blue">알</div>
+          <span class="db-stat-card__emoji">🔔</span>
           <div>
             <p class="db-stat-card__label">전체 알림</p>
             <p class="db-stat-card__num"><%= summary.total %><span>건</span></p>
           </div>
         </div>
         <div class="db-stat-card">
-          <div class="db-stat-card__icon db-stat-card__icon--red">미</div>
+          <span class="db-stat-card__emoji">💊</span>
           <div>
             <p class="db-stat-card__label">미복용 알림</p>
             <p class="db-stat-card__num db-stat-card__num--red"><%= summary.missed %><span>건</span></p>
           </div>
         </div>
         <div class="db-stat-card">
-          <div class="db-stat-card__icon db-stat-card__icon--purple">주</div>
+          <span class="db-stat-card__emoji">⚠️</span>
           <div>
             <p class="db-stat-card__label">주의 알림</p>
             <p class="db-stat-card__num db-stat-card__num--purple"><%= summary.warn %><span>건</span></p>
           </div>
         </div>
         <div class="db-stat-card">
-          <div class="db-stat-card__icon db-stat-card__icon--green">수</div>
+          <span class="db-stat-card__emoji">📨</span>
           <div>
             <p class="db-stat-card__label">수신 처리</p>
             <p class="db-stat-card__num db-stat-card__num--green"><%= summary.received %><span>건</span></p>

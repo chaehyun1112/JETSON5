@@ -41,7 +41,15 @@
           <div class="nav__user-dropdown" id="userMenuDropdown">
             <div class="nav__user-info">
               <strong><%= user.name %></strong>
-              <span><%= user.role %></span>
+              <span class="nav__role">
+                <% if (user.role === 'P') { %>
+                    보호자
+                <% } else if (user.role === 'S') { %>
+                    대상자
+                <% } else if (user.role === 'A') { %>
+                    관리자
+                <% } %>
+            </span>
             </div>
             <div class="nav__user-divider"></div>
             <a href="/user/user_info/settings" class="nav__user-item">
