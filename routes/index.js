@@ -12,9 +12,6 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-console.log(process.env.EMAIL_USER)
-console.log(process.env.EMAIL_PASS);
-
 // 로그인 체크 미들웨어
 function isLoggedIn(req, res, next) {
   if (req.session && req.session.user) return next();
@@ -463,8 +460,6 @@ router.post("/verifyEmailCode", (req,res)=>{
 });
 
 
-
-
 // 아이디 중복 확인
 router.post("/checkId", (req, res) => {
 
@@ -701,12 +696,13 @@ router.post("/user/user_info/delete", isLoggedIn, (req, res) => {
             // 보호자
             if (memberType === "P") {
 
-                const updateSeniorSql = `
-                    UPDATE TB_SENIOR
-                    SET MEM_ID = NULL
-                    WHERE MEM_ID = ? `;
+                const seniorSql = `
+                    SELECT SENIOR_ID
+                    FROM TB_SENIOR
+                    WHERE MEM_ID = ?
+                `;
 
-                conn.query(updateSeniorSql, [memId], (err) => {
+                conn.query(seniorSql, [memId], (err, seniorRows) => {
 
                     if (err)
                         return conn.rollback(() => {
@@ -714,34 +710,84 @@ router.post("/user/user_info/delete", isLoggedIn, (req, res) => {
                             res.send("<script>alert('탈퇴 실패');history.back();</script>");
                         });
 
-                    const deleteMemberSql = `
-                        DELETE FROM TB_MEMBER
-                        WHERE MEM_ID = ? `;
+                    const seniorIds = seniorRows.map(row => row.SENIOR_ID);
 
-                    conn.query(deleteMemberSql, [memId], (err) => {
+                    const deleteSchedules = (callback) => {
 
-                        if (err)
-                            return conn.rollback(() => {
-                                console.log(err);
-                                res.send("<script>alert('탈퇴 실패');history.back();</script>");
-                            });
+                        if (seniorIds.length === 0) return callback();
 
-                        conn.commit(err => {
+                        conn.query(
+                            "DELETE FROM TB_SCHEDULE WHERE SENIOR_ID IN (?)",
+                            [seniorIds],
+                            (err) => {
 
-                            if (err)
-                                return conn.rollback(() => {
-                                    console.log(err);
-                                    res.send("<script>alert('탈퇴 실패');history.back();</script>");
-                                });
+                                if (err)
+                                    return conn.rollback(() => {
+                                        console.log(err);
+                                        res.send("<script>alert('탈퇴 실패');history.back();</script>");
+                                    });
 
-                            req.session.destroy(() => {
-                                res.send("<script>alert('회원탈퇴가 완료되었습니다.');location.href='/login';</script>");
-                            });
-                        });
+                                conn.query(
+                                    "DELETE FROM TB_MEDICINE_SCHEDULE WHERE SENIOR_ID IN (?)",
+                                    [seniorIds],
+                                    (err) => {
+
+                                        if (err)
+                                            return conn.rollback(() => {
+                                                console.log(err);
+                                                res.send("<script>alert('탈퇴 실패');history.back();</script>");
+                                            });
+
+                                        callback();
+                                    }
+                                );
+                            }
+                        );
+                    };
+
+                    deleteSchedules(() => {
+
+                        conn.query(
+                            "DELETE FROM TB_SENIOR WHERE MEM_ID = ?",
+                            [memId],
+                            (err) => {
+
+                                if (err)
+                                    return conn.rollback(() => {
+                                        console.log(err);
+                                        res.send("<script>alert('탈퇴 실패');history.back();</script>");
+                                    });
+
+                                conn.query(
+                                    "DELETE FROM TB_MEMBER WHERE MEM_ID = ?",
+                                    [memId],
+                                    (err) => {
+
+                                        if (err)
+                                            return conn.rollback(() => {
+                                                console.log(err);
+                                                res.send("<script>alert('탈퇴 실패');history.back();</script>");
+                                            });
+
+                                        conn.commit(err => {
+
+                                            if (err)
+                                                return conn.rollback(() => {
+                                                    console.log(err);
+                                                    res.send("<script>alert('탈퇴 실패');history.back();</script>");
+                                                });
+
+                                            req.session.destroy(() => {
+                                                res.send("<script>alert('회원탈퇴가 완료되었습니다.');location.href='/login';</script>");
+                                            });
+                                        });
+                                    }
+                                );
+                            }
+                        );
                     });
                 });
             }
-
             // 대상자
             else if (memberType === "S") {
 
@@ -905,6 +951,13 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
             title: '대시보드 — 복약안심서비스',
             user: req.session.user,
 
+            seniorList: [
+                { id: 'senior01', name: '이민수' },
+                { id: 'senior02', name: '박영희' },
+                { id: 'senior03', name: '정순자' },
+            ],
+            selectedSenior: req.query.senior || 'senior01',
+
             stats: {
             total: 12,
             completed: 9,
@@ -913,27 +966,35 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
             },
 
             today: {
-            morning: "✅ (❌,✔ 선택)",
+            morning: "✅",
             lunch: "❌",
             dinner: "❌",
+            bedtime: "❌",
             },
 
             weekly: {
             avgRate: 76,
             takenDays: 5,
             missedCount: 4,
-            chartData: {
-                labels:  ['21일 (월)', '22일 (화)', '23일 (수)', '24일 (목)', '25일 (금)', '26일 (토)', '27일 (일)'],
-                morning: [100, 83, 67, 100, 83, 50, 0],
-                lunch:   [83,  67, 83,  83, 50, 67, 0],
-                dinner:  [67,  50, 67,  83, 67, 33, 0],
+            table: {
+                range: '6월 9일 ~ 15일',
+                days: [
+                    { label: '월', morning: 'done',    lunch: 'done',    dinner: 'done',    bedtime: 'done',    rate: 100 },
+                    { label: '화', morning: 'done',    lunch: 'missed',  dinner: 'done',    bedtime: 'done',    rate: 75  },
+                    { label: '수', morning: 'done',    lunch: 'done',    dinner: 'done',    bedtime: 'done',    rate: 100 },
+                    { label: '목', morning: 'done',    lunch: 'done',    dinner: 'pending', bedtime: 'pending', rate: 50  },
+                    { label: '금', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
+                    { label: '토', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
+                    { label: '일', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
+                ],
             },
             },
 
             schedule: [
-            { time: '08:00', meal: '아침', medicineName: '아스피린 100mg',    dose: '1정', status: 'ok'   },
-            { time: '12:30', meal: '점심', medicineName: '혈압약 (암로디핀)', dose: '1정', status: 'warn' },
-            { time: '19:00', meal: '저녁', medicineName: '당뇨약 (메트포민)', dose: '2정', status: 'plan' },
+            { time: '08:00', meal: '아침',   medicineName: '아스피린 100mg',    dose: '1정', status: 'ok'   },
+            { time: '12:30', meal: '점심',   medicineName: '혈압약 (암로디핀)', dose: '1정', status: 'warn' },
+            { time: '19:00', meal: '저녁',   medicineName: '당뇨약 (메트포민)', dose: '2정', status: 'plan' },
+            { time: '22:00', meal: '자기전', medicineName: '수면유도제',        dose: '1정', status: 'plan' },
             ],
 
             sensor: {
@@ -1652,7 +1713,8 @@ router.get("/user/user_info/seniorRegister", isLoggedIn, (req, res) => {
 
     res.render("user/user_info/seniorRegister", {
         title: "대상자 등록",
-        user: req.session.user
+        user: req.session.user,
+        from: req.query.from || ""
     });
 });
 
@@ -1669,18 +1731,7 @@ router.get('/index/index_HowToUse', (req, res) => {
   });
 });
 
-const account = {
-  name: '김민지',
-  email: 'silvercare@example.com',
-  birth: '1958-03-12',
-  phone: '010-1234-5678',
-  guardian: '박서준',
-  guardianPhone: '010-9876-5432',
-  address: '서울특별시 강남구 테헤란로 123',
-  joinedAt: '2026.06.25',
-  lastLogin: '오늘 09:42',
-  privacyNote: '병원 방문 전 보호자에게 주간 복약 리포트를 공유합니다.'
-};
+
 
 // 김성훈 6월 30일 추가한 router (admin_update, send_message)
 
@@ -1896,13 +1947,57 @@ router.get("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
 });
 
 
-router.get('/user/senior_info/senior_settings', (req, res) => {
-  res.render('user/senior_info/senior_settings', {
-    pageTitle: '계정 관리',
-    account
-  });
-});
+router.get("/user/senior_info/senior_settings", (req, res) => {
 
+    const id = req.session.user.id;
+
+    conn.query(
+        "SELECT * FROM TB_MEMBER WHERE MEM_ID = ? AND MEM_ST = 'S'",
+        [id],
+        (err, memberRows) => {
+
+            if (err) {
+                console.log(err);
+                return res.send("DB 오류");
+            }
+
+            if (memberRows.length === 0) {
+                return res.send("시니어 회원이 아닙니다.");
+            }
+
+            conn.query(
+                "SELECT * FROM TB_SENIOR WHERE SENIOR_ID = ?",
+                [id],
+                (err, seniorRows) => {
+
+                    if (err) {
+                        console.log(err);
+                        return res.send("DB 오류");
+                    }
+
+                    if (seniorRows.length === 0) {
+                        return res.send("시니어 정보를 찾을 수 없습니다.");
+                    }
+
+                    const account = {
+                        ...memberRows[0],
+                        ...seniorRows[0],
+                        lastLogin: "오늘 09:42"
+                    };
+
+                    res.render("user/senior_info/senior_settings", {
+                        pageTitle: "계정 관리",
+                        account,
+                        user: req.session.user
+                    });
+
+                }
+            );
+
+        }
+    );
+
+});
 
 // 태헌님 router 코드
 router.get("/records", (req, res) => {

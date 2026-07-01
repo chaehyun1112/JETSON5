@@ -21,21 +21,21 @@
       <a href="/index/index_HowToUse">이용 방법</a>
 
 
+  
 <div class="nav__dropdown">
 
-         <a href="<%= user ? '/user/user_dashboard/main_dashboard' : '/login' %>" class="nav__dropdown-trigger">
-          대시보드
-  </a>
 
 
-  <% if (hasPillbox) { %>
+ 
              <a href="<%= user ? '/user/user_dashboard/main_dashboard' : '/login' %>" class="nav__dropdown-trigger">
           대시보드
+          <% if (hasPillbox) { %>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
+           <% } %>
   </a>
-    
+     <% if (hasPillbox) { %>
         </a>
         <div class="nav__dropdown-menu">
           <div class="nav__dropdown-menu-inner">
@@ -60,7 +60,6 @@
   <% } %>
 
 </div>
-
       <a href="/index/index_announce">공지사항</a>
     </nav>
 
@@ -80,7 +79,15 @@
         <div class="nav__user-dropdown" id="userMenuDropdown">
             <div class="nav__user-info">
             <strong><%= user.name %></strong>
-            <span><%= user.role %></span>
+                        <span class="nav__role">
+              <% if (user.role === 'P') { %>
+                  보호자
+              <% } else if (user.role === 'S') { %>
+                  대상자
+              <% } else if (user.role === 'A') { %>
+                  관리자
+              <% } %>
+          </span>
             </div>
             <div class="nav__user-divider"></div>
             <a href="/user/senior_info/senior_settings" class="nav__user-item">
