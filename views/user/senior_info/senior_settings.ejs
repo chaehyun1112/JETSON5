@@ -29,8 +29,8 @@
         <div class="user-card">
           <div class="avatar-row">
             <div>
-              <strong><%= account.name %>님</strong>
-              <span><%= account.email %></span>
+              <strong><%= account.SENIOR_ID %>님</strong>
+              <span><%= account.SENIOR_EMAIL %></span>
             </div>
           </div>
           <span class="status-pill"><span class="status-dot"></span> 본인 인증 완료</span>
@@ -70,11 +70,19 @@
             <div class="info-strip">
               <div class="info-item">
                 <span>회원 상태</span>
-                <strong>활성</strong>
+                  <strong>
+                  <% if(account.MEM_ST === "P"){ %>
+                  보호자
+                  <% } else if(account.MEM_ST === "S"){ %>
+                  시니어
+                  <% } else { %>
+                  관리자
+                  <% } %>
+                  </strong>
               </div>
               <div class="info-item">
                 <span>가입일</span>
-                <strong><%= account.joinedAt %></strong>
+                <strong><%= new Date(account.JOINED_AT).toLocaleDateString("ko-KR") %></strong>
               </div>
               <div class="info-item">
                 <span>마지막 로그인</span>
@@ -85,31 +93,31 @@
             <form class="form-grid">
               <div class="field">
                 <label for="name">이름</label>
-                <input id="name" name="name" type="text" value="<%= account.name %>">
-              </div>
-              <div class="field">
-                <label for="birth">생년월일</label>
-                <input id="birth" name="birth" type="date" value="<%= account.birth %>">
+                <input id="name" name="name" type="text" value="<%= account.SENIOR_ID %>">
               </div>
               <div class="field">
                 <label for="phone">휴대폰 번호</label>
-                <input id="phone" name="phone" type="tel" value="<%= account.phone %>">
+                <input id="phone" name="MEM_CONTACT" type="tel" value="<%= account.SENIOR_CONTACT %>">
               </div>
               <div class="field">
                 <label for="email">이메일</label>
-                <input id="email" name="email" type="email" value="<%= account.email %>">
+                <input id="email" name="email" type="email" value="<%= account.SENIOR_EMAIL %>">
               </div>
               <div class="field">
                 <label for="guardian">주 보호자</label>
-                <input id="guardian" name="guardian" type="text" value="<%= account.guardian %>">
+                <input id="guardian" name="guardian" type="text" value="<%= account.MEM_NAME %>">
               </div>
               <div class="field">
                 <label for="guardian-phone">보호자 연락처</label>
-                <input id="guardian-phone" name="guardianPhone" type="tel" value="<%= account.guardianPhone %>">
+                <input id="guardian-phone" name="guardianPhone" type="tel" value="<%= account.MEM_CONTACT %>">
+              </div>
+              <div class="field">
+                <label for="pillbox-num">약통 번호</label>
+                <input id="pillbox-num" name="pillboxnum" type="text" value="<%= account.PILLBOX_NUM || ''%>">
               </div>
               <div class="field field--full">
                 <label for="address">주소</label>
-                <input id="address" name="address" type="text" value="<%= account.address %>">
+                <input id="address" name="address" type="text" value="<%= account.SENIOR_ADDR || ''%>">
               </div>
             </form>
           </div>
@@ -200,11 +208,11 @@
               <article class="privacy-card">
                 <h3>보호자 공유 범위</h3>
                 <p>보호자에게 공개되는 항목을 선택합니다.</p>
-<div class="chip-row">
-  <button class="chip active">복약 여부</button>
-  <button class="chip">미복용 알림</button>
-  <button class="chip">주간 리포트</button>
-</div>
+            <div class="chip-row">
+              <button class="chip active">복약 여부</button>
+              <button class="chip">미복용 알림</button>
+              <button class="chip">주간 리포트</button>
+            </div>
               </article>
               <article class="privacy-card">
                 <h3>데이터 보관 기간</h3>
@@ -223,11 +231,11 @@
                   <span class="slider"></span>
                 </label>
               </article>
-              <article class="privacy-card danger-zone">
-                <h3>계정 및 데이터 삭제</h3>
-                <p>서비스 탈퇴 전 보호자 연결과 복약 기록 삭제 범위를 확인합니다.</p>
-                <button class="btn btn--danger" type="button">삭제 요청</button>
-              </article>
+                <article class="privacy-card danger-zone">
+                  <h3>계정 및 데이터 삭제</h3>
+                  <p>서비스 탈퇴 시 계정 정보와 일부 데이터가 삭제될 수 있으며, 삭제된 정보는 복구할 수 없습니다.</p>
+                  <button type="button" class="btn btn--danger" onclick="deleteAccount()"> 탈퇴하기 </button>
+                </article>
             </div>
 
             <div class="field field--full privacy-note">
@@ -246,14 +254,35 @@
     </div>
   </main>
 
-  <script>
-const chips = document.querySelectorAll(".chip");
+    <script>
+    const chips = document.querySelectorAll(".chip");
 
-chips.forEach(chip => {
-    chip.addEventListener("click", function () {
-        this.classList.toggle("active");
+    chips.forEach(chip => {
+        chip.addEventListener("click", function () {
+            this.classList.toggle("active");
+        });
     });
-});
-</script>
+
+    // 회원탈퇴
+    function deleteAccount() {
+
+        const result = confirm(
+            "정말 회원탈퇴 하시겠습니까?\n\n삭제된 정보는 복구할 수 없습니다."
+        );
+
+        if (!result) {
+            return;
+        }
+
+        const form = document.createElement("form");
+
+        form.method = "POST";
+        form.action = "/user/user_info/delete";
+
+        document.body.appendChild(form);
+
+        form.submit();
+    }
+    </script>
 </body>
 </html>
