@@ -2081,6 +2081,7 @@ router.get('/user/senior_service/senior_about', (req, res) => {
   res.render('user/senior_service/senior_about', { title: '서비스 소개 — 복약안심서비스' });
 });
 
+// 보호자 등록 get
 router.get("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
 
     res.render("user/senior_info/senior_register", {
@@ -2089,57 +2090,124 @@ router.get("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
     });
 });
 
+// 보호자 등록 post
+router.post("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
 
-router.get("/user/senior_info/senior_settings", (req, res) => {
+    const { guardianId, guardianName } = req.body;
 
-    const id = req.session.user.id;
+    // 보호자 존재 확인
+    const checkSql = `
+        SELECT *
+        FROM TB_MEMBER
+        WHERE MEM_ID = ?
+          AND MEM_NAME = ?
+          AND MEM_ST = 'P'
+    `;
 
-    conn.query(
-        "SELECT * FROM TB_MEMBER WHERE MEM_ID = ? AND MEM_ST = 'S'",
-        [id],
-        (err, memberRows) => {
+    conn.query(checkSql, [guardianId, guardianName], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("<script>alert('DB 오류');history.back();</script>");
+        }
+
+        if (rows.length === 0) {
+            return res.send("<script>alert('보호자 정보를 찾을 수 없습니다.');history.back();</script>");
+        }
+
+        // 현재 로그인한 시니어와 보호자 연결
+        const updateSql = `
+            UPDATE TB_SENIOR
+            SET MEM_ID = ?
+            WHERE SENIOR_ID = ?
+              AND MEM_ID IS NULL
+        `;
+
+        conn.query(updateSql, [guardianId, req.session.user.id], (err, result) => {
+
+            if (err) {
+                console.log(err);
+                return res.send("<script>alert('등록 실패');history.back();</script>");
+            }
+
+            if (result.affectedRows === 0) {
+                return res.send("<script>alert('이미 보호자가 등록되어 있거나 대상자를 찾을 수 없습니다.');history.back();</script>");
+            }
+
+            return res.send(`
+                <script>
+                    alert('보호자 등록이 완료되었습니다.');
+                    location.href='/user/senior_service/senior_about';
+                </script>
+            `);
+        });
+    });
+});
+
+router.get("/user/senior_info/senior_settings", isLoggedIn, (req, res) => {
+
+    const seniorId = req.session.user.id;
+
+    // 시니어 정보 조회
+    const seniorSql = `
+        SELECT *
+        FROM TB_SENIOR
+        WHERE SENIOR_ID = ?
+    `;
+
+    conn.query(seniorSql, [seniorId], (err, seniorRows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        if (seniorRows.length === 0) {
+            return res.send("시니어 정보를 찾을 수 없습니다.");
+        }
+
+        const senior = seniorRows[0];
+
+        // 보호자가 아직 등록되지 않은 경우
+        if (!senior.MEM_ID) {
+
+            return res.render("user/senior_info/senior_settings", {
+                pageTitle: "계정 관리",
+                account: senior,
+                guardian: null,
+                user: req.session.user
+            });
+        }
+
+        // 보호자 정보 조회
+        const guardianSql = `
+            SELECT
+                MEM_NAME,
+                MEM_CONTACT
+            FROM TB_MEMBER
+            WHERE MEM_ID = ?
+            AND MEM_ST = 'P'
+        `;
+
+        conn.query(guardianSql, [senior.MEM_ID], (err, guardianRows) => {
 
             if (err) {
                 console.log(err);
                 return res.send("DB 오류");
             }
 
-            if (memberRows.length === 0) {
-                return res.send("시니어 회원이 아닙니다.");
-            }
+            const guardian = guardianRows.length > 0
+                ? guardianRows[0]
+                : null;
 
-            conn.query(
-                "SELECT * FROM TB_SENIOR WHERE SENIOR_ID = ?",
-                [id],
-                (err, seniorRows) => {
-
-                    if (err) {
-                        console.log(err);
-                        return res.send("DB 오류");
-                    }
-
-                    if (seniorRows.length === 0) {
-                        return res.send("시니어 정보를 찾을 수 없습니다.");
-                    }
-
-                    const account = {
-                        ...memberRows[0],
-                        ...seniorRows[0],
-                        lastLogin: "오늘 09:42"
-                    };
-
-                    res.render("user/senior_info/senior_settings", {
-                        pageTitle: "계정 관리",
-                        account,
-                        user: req.session.user
-                    });
-
-                }
-            );
-
-        }
-    );
-
+            res.render("user/senior_info/senior_settings", {
+                pageTitle: "계정 관리",
+                account: senior,
+                guardian,
+                user: req.session.user
+            });
+        });
+    });
 });
 
 // 태헌님 router 코드

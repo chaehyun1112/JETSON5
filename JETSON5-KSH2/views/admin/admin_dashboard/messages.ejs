@@ -28,7 +28,28 @@
           <h1><%= pageTitle %></h1>
           <p>회원 문의와 약상자 이상사항 알림을 확인합니다.</p>
         </div>
-      </header>
+
+    <div class="admin-user-menu">
+    <button type="button" class="admin-user-button" id="adminUserButton">
+      관리자
+      <span>▼</span>
+    </button>
+
+    <div class="admin-user-dropdown" id="adminUserDropdown">
+      <a href="/admin/admin_update">개인정보 수정</a>
+      <a href="/admin/members_update">회원정보 수정</a>
+      <a href="/index/index_announce">공지사항 수정</a>
+      <form action="/logout" method="POST" class="logout-form">
+          <button type="submit" class="admin-user-item">
+              로그아웃
+          </button>
+      </form>
+    </div>
+  </div>
+
+        </header>
+
+
 
       <section class="message-summary-grid">
         <article class="stat-card">
@@ -157,6 +178,23 @@
       </section>
     </main>
   </div>
+
+    <script>
+  const adminUserButton = document.querySelector("#adminUserButton");
+  const adminUserDropdown = document.querySelector("#adminUserDropdown");
+
+  adminUserButton.addEventListener("click", () => {
+    adminUserDropdown.classList.toggle("show");
+  });
+
+  document.addEventListener("click", (event) => {
+    const isMenuClick = event.target.closest(".admin-user-menu");
+
+    if (!isMenuClick) {
+      adminUserDropdown.classList.remove("show");
+    }
+  });
+</script>
 
   <script>
     const messageItems = document.querySelectorAll(".message-item");
