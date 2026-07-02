@@ -29,7 +29,7 @@
         <div class="user-card">
           <div class="avatar-row">
             <div>
-              <strong><%= account.SENIOR_ID %>님</strong>
+              <strong><%= account.SENIOR_NAME %>님</strong>
               <span><%= account.SENIOR_EMAIL %></span>
             </div>
           </div>
@@ -92,8 +92,12 @@
 
             <form class="form-grid">
               <div class="field">
-                <label for="name">이름</label>
+                <label for="name">아이디</label>
                 <input id="name" name="name" type="text" value="<%= account.SENIOR_ID %>">
+              </div>
+              <div class="field">
+                <label for="name">이름</label>
+                <input id="name" name="name" type="text" value="<%= account.SENIOR_NAME %>">
               </div>
               <div class="field">
                 <label for="phone">휴대폰 번호</label>
@@ -105,11 +109,11 @@
               </div>
               <div class="field">
                 <label for="guardian">주 보호자</label>
-                <input id="guardian" name="guardian" type="text" value="<%= account.MEM_NAME %>">
+                <input id="guardian" name="guardian" type="text" value="<%= guardian ? guardian.MEM_NAME : '' %>">
               </div>
               <div class="field">
                 <label for="guardian-phone">보호자 연락처</label>
-                <input id="guardian-phone" name="guardianPhone" type="tel" value="<%= account.MEM_CONTACT %>">
+                <input id="guardian-phone" name="guardianPhone" type="tel" value="<%= guardian ? guardian.MEM_CONTACT : '' %>">
               </div>
               <div class="field">
                 <label for="pillbox-num">약통 번호</label>
