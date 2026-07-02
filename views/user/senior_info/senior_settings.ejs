@@ -29,7 +29,7 @@
         <div class="user-card">
           <div class="avatar-row">
             <div>
-              <strong><%= account.SENIOR_ID %>님</strong>
+              <strong><%= account.SENIOR_NAME %>님</strong>
               <span><%= account.SENIOR_EMAIL %></span>
             </div>
           </div>
@@ -90,36 +90,41 @@
               </div>
             </div>
 
-            <form class="form-grid">
+            <form
+                action="/user/senior_info/senior_settings/update"
+                method="post"
+                class="form-grid">              <div class="field">
+                <label for="name">아이디</label>
+                <input id="name" name="SENIOR_ID" type="text" value="<%= account.SENIOR_ID %>" readonly>
+              </div>
               <div class="field">
                 <label for="name">이름</label>
-                <input id="name" name="name" type="text" value="<%= account.SENIOR_ID %>">
+                <input id="name" name="SENIOR_NAME" type="text" value="<%= account.SENIOR_NAME %>">
               </div>
               <div class="field">
                 <label for="phone">휴대폰 번호</label>
-                <input id="phone" name="MEM_CONTACT" type="tel" value="<%= account.SENIOR_CONTACT %>">
+                <input id="phone" name="SENIOR_CONTACT" type="tel" value="<%= account.SENIOR_CONTACT %>">
               </div>
               <div class="field">
                 <label for="email">이메일</label>
-                <input id="email" name="email" type="email" value="<%= account.SENIOR_EMAIL %>">
+                <input id="email" name="SENIOR_EMAIL" type="email" value="<%= account.SENIOR_EMAIL %>">
               </div>
               <div class="field">
                 <label for="guardian">주 보호자</label>
-                <input id="guardian" name="guardian" type="text" value="<%= account.MEM_NAME %>">
+                <input id="guardian" name="guardian" type="text" value="<%= guardian ? guardian.MEM_NAME : '' %>" readonly>
               </div>
               <div class="field">
                 <label for="guardian-phone">보호자 연락처</label>
-                <input id="guardian-phone" name="guardianPhone" type="tel" value="<%= account.MEM_CONTACT %>">
+                <input id="guardian-phone" name="guardianPhone" type="tel" value="<%= guardian ? guardian.MEM_CONTACT : '' %>" readonly>
               </div>
               <div class="field">
                 <label for="pillbox-num">약통 번호</label>
-                <input id="pillbox-num" name="pillboxnum" type="text" value="<%= account.PILLBOX_NUM || ''%>">
+                <input id="pillbox-num" name="PILLBOX_NUM" type="text" value="<%= account.PILLBOX_NUM || ''%>">
               </div>
               <div class="field field--full">
                 <label for="address">주소</label>
-                <input id="address" name="address" type="text" value="<%= account.SENIOR_ADDR || ''%>">
+                <input id="address" name="SENIOR_ADDR" type="text" value="<%= account.SENIOR_ADDR || ''%>">
               </div>
-            </form>
           </div>
         </section>
 
@@ -246,9 +251,10 @@
 
             <div class="action-row">
               <button class="btn btn--outline" type="button" data-action="cancel" onclick="location.href='/user/user_service/about'">변경 취소</button>
-              <button class="btn btn--primary" type="button" data-action="save" data-label="설정 저장" onclick="location.href='/user/user_service/about'">설정 저장</button>
+              <button class="btn btn--primary"type="submit">설정 저장</button>
             </div>
           </div>
+          </form>
         </section>
       </div>
     </div>

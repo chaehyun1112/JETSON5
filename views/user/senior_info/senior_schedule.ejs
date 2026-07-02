@@ -21,16 +21,21 @@
                 칸 번호를 선택하지 않은 시간대는 등록되지 않습니다.
             </p>
 
-            <form action="/user/user_service/schedule_register"
+            <form action="/user/senior_info/senior_schedule"
                   method="post"
                   class="schedule-form">
 
+                <input type="hidden" name="seniorId" value="<%= user.id %>">
 
-                <!-- 스케줄 시작일 -->
+            <input
+                type="hidden"
+                name="takingDate"
+                value="<%= new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().split('T')[0] %>">
+                <!-- 스케줄 시작일
                 <div class="form-group">
                     <label class="form-label">스케줄 변경일</label>
-                    <input type="date" name="startDate" required class="form-input">
-                </div>
+                    <p><%= new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0] %></p>
+                </div> -->
 
                 <!-- 4개 시간 카드 -->
                 <div class="time-grid">
@@ -123,7 +128,7 @@
 
                 <!-- 버튼 -->
                 <div class="btn-row">
-                    <a href="/user/user_service/about" class="btn-cancel">취소</a>
+                    <a href="/user/senior_service/senior_about" class="btn-cancel">취소</a>
                     <button type="submit" class="btn-submit">스케줄 등록</button>
                 </div>
 
