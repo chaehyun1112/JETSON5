@@ -14,7 +14,7 @@ body {
   flex-direction: column;
 }
 
-
+ 
 /* ── 리셋 & 기본 ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

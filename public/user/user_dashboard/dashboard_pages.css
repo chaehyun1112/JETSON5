@@ -1,5 +1,4 @@
-// 복용관리, 실시간 상태, 알림 관리
-
+/* 복용관리, 실시간 상태, 알림 관리 */
 
 .db-page {
   background: #f0f4fa;
@@ -10,7 +9,7 @@
   padding: 2.5rem 1.5rem;
 }
 
-.db-header__inner {
+.db-header__inner { 
   max-width: 1000px;
   margin: 0 auto;
   display: flex;
