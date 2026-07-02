@@ -181,7 +181,7 @@ router.post("/user/user_service/schedule_register", (req, res) => {
     });
 });
 
-// 약통 등록 페이지
+// 보호자 웹페이지 약통 등록 페이지 get
 router.get('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
     if(!req.session.user){
         return res.redirect("/");
@@ -212,8 +212,10 @@ router.get('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
             seniors: rows
           });
         }
-    );});
+    );
+});
 
+// 보호자 웹페이지 약통 등록 페이지 post
 router.post('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
     const {
         seniorId,
@@ -247,6 +249,91 @@ router.post('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
             );
         }
     );
+});
+
+// 시니어 웹페이지 약통 등록 get
+router.get("/user/senior_info/senior_register-pillbox", isLoggedIn, (req, res) => {
+
+    const sql = `
+        SELECT *
+        FROM TB_SENIOR
+        WHERE SENIOR_ID = ?
+          AND (PILLBOX_NUM IS NULL OR PILLBOX_NUM = '')
+    `;
+
+    conn.query(sql, [req.session.user.id], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        res.render("user/senior_info/senior_register-pillbox", {
+            title: "약통 등록",
+            user: req.session.user,
+            seniors: rows,
+            error: null
+        });
+    });
+});
+
+// 시니어 웹페이지 약통 등록 POST
+router.post("/user/senior_info/senior_register-pillbox", isLoggedIn, (req, res) => {
+
+    const { pillboxNum } = req.body;
+    const seniorId = req.session.user.id;
+
+    if (!pillboxNum) {
+        return res.send("<script>alert('약통 번호를 입력해주세요.');history.back();</script>");
+    }
+
+    // 이미 다른 시니어가 사용 중인지 확인
+    const checkSql = `
+        SELECT SENIOR_ID
+        FROM TB_SENIOR
+        WHERE PILLBOX_NUM = ?
+          AND SENIOR_ID <> ?
+    `;
+
+    conn.query(checkSql, [pillboxNum, seniorId], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("<script>alert('DB 오류가 발생했습니다.');history.back();</script>");
+        }
+
+        if (rows.length > 0) {
+            return res.send("<script>alert('이미 등록된 약통 번호입니다.');history.back();</script>");
+        }
+
+        const updateSql = `
+            UPDATE TB_SENIOR
+            SET PILLBOX_NUM = ?
+            WHERE SENIOR_ID = ?
+        `;
+
+        conn.query(updateSql, [pillboxNum, seniorId], (err, result) => {
+
+            if (err) {
+                console.log(err);
+                return res.send("<script>alert('약통 등록에 실패했습니다.');history.back();</script>");
+            }
+
+            if (result.affectedRows === 0) {
+                return res.send("<script>alert('시니어 정보를 찾을 수 없습니다.');history.back();</script>");
+            }
+
+            return res.send(`
+                <script>
+                    alert('약통 등록이 완료되었습니다.');
+                    location.href='/user/senior_service/senior_about';
+                </script>
+            `);
+
+        });
+
+    });
+
 });
 
 // 회원가입 get
@@ -1422,8 +1509,8 @@ router.get("/user/user_info/user_update/:id", (req, res) => {
     });
 });
 
-// 시니어 정보 수정 완료 POST
-router.post("/user/user_info/protected/update/:id", (req, res) => {
+// 시니어 기본 정보 수정 POST
+router.post("/user/user_info/protected/info/update/:id", (req, res) => {
 
     const seniorId = req.params.id;
 
@@ -1432,7 +1519,48 @@ router.post("/user/user_info/protected/update/:id", (req, res) => {
         SENIOR_EMAIL,
         SENIOR_CONTACT,
         SENIOR_ADDR,
-        PILLBOX_NUM,
+        PILLBOX_NUM
+    } = req.body;
+
+    const sql = `
+        UPDATE TB_SENIOR
+        SET
+            SENIOR_NAME = ?,
+            SENIOR_EMAIL = ?,
+            SENIOR_CONTACT = ?,
+            SENIOR_ADDR = ?,
+            PILLBOX_NUM = ?
+        WHERE SENIOR_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [
+            SENIOR_NAME,
+            SENIOR_EMAIL,
+            SENIOR_CONTACT,
+            SENIOR_ADDR,
+            PILLBOX_NUM,
+            seniorId
+        ],
+        (err) => {
+
+            if (err) {
+                console.log(err);
+                return res.redirect("back");
+            }
+
+            res.redirect("/user/user_info/protected");
+        }
+    );
+});
+
+// 시니어 복약 스케줄 수정 POST
+router.post("/user/user_info/protected/schedule/update/:id", (req, res) => {
+
+    const seniorId = req.params.id;
+
+    const {
 
         morningPillbox,
         morningTime,
@@ -1452,141 +1580,103 @@ router.post("/user/user_info/protected/update/:id", (req, res) => {
 
     } = req.body;
 
-    // 1. 시니어 정보 수정
-    const seniorSql = `
-        UPDATE TB_SENIOR
+    // 기존 스케줄 종료
+    const endSql = `
+        UPDATE TB_MEDICINE_SCHEDULE
         SET
-            SENIOR_NAME=?,
-            SENIOR_EMAIL=?,
-            SENIOR_CONTACT=?,
-            SENIOR_ADDR=?,
-            PILLBOX_NUM=?
+            USE_YN='N',
+            END_DATE=CURDATE(),
+            UPDATED_AT=NOW()
         WHERE SENIOR_ID=?
+        AND USE_YN='Y'
     `;
 
-    conn.query(
-        seniorSql,
-        [
-            SENIOR_NAME,
-            SENIOR_EMAIL,
-            SENIOR_CONTACT,
-            SENIOR_ADDR,
-            PILLBOX_NUM,
-            seniorId
-        ],
-        (err) => {
+    conn.query(endSql, [seniorId], (err) => {
 
-            if(err){
-                console.log(err);
-                return res.redirect("back");
-            }
-
-            // 2. 기존 스케줄 종료
-            const endSql = `
-                UPDATE TB_MEDICINE_SCHEDULE
-                SET
-                    USE_YN='N',
-                    END_DATE=CURDATE(),
-                    UPDATED_AT=NOW()
-                WHERE SENIOR_ID=?
-                AND USE_YN='Y'
-            `;
-
-            conn.query(endSql,[seniorId],(err2)=>{
-
-                if(err2){
-                    console.log(err2);
-                    return res.redirect("back");
-                }
-
-                const schedules=[];
-
-                if(morningPillbox && morningTime){
-
-                    schedules.push([
-                        seniorId,
-                        morningPillbox,
-                        morningType,
-                        morningTime
-                    ]);
-                }
-
-                if(lunchPillbox && lunchTime){
-
-                    schedules.push([
-                        seniorId,
-                        lunchPillbox,
-                        lunchType,
-                        lunchTime
-                    ]);
-                }
-
-                if(dinnerPillbox && dinnerTime){
-
-                    schedules.push([
-                        seniorId,
-                        dinnerPillbox,
-                        dinnerType,
-                        dinnerTime
-                    ]);
-                }
-
-                if(nightPillbox && nightTime){
-
-                    schedules.push([
-                        seniorId,
-                        nightPillbox,
-                        nightType,
-                        nightTime
-                    ]);
-                }
-
-                // 스케줄이 하나도 없으면 종료
-                if(schedules.length===0){
-                    return res.redirect("/user/user_info/protected");
-                }
-
-                const insertSql=`
-                    INSERT INTO TB_MEDICINE_SCHEDULE
-                    (
-                        SENIOR_ID,
-                        PILLBOX_ORDER,
-                        TAKING_TYPE,
-                        TAKING_TIME,
-                        START_DATE
-                    )
-                    VALUES
-                    (
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        CURDATE()
-                    )`;
-
-                let count=0;
-
-                schedules.forEach(schedule=>{
-
-                    conn.query(
-                        insertSql,
-                        schedule,
-                        (err3)=>{
-
-                            if(err3){
-                                console.log(err3);
-                            }
-
-                            count++;
-                            if(count===schedules.length){
-                                res.redirect("/user/user_info/protected");
-                            }
-                        }
-                    );
-                });
-            });
+        if (err) {
+            console.log(err);
+            return res.redirect("back");
         }
-    );
+
+        const schedules = [];
+
+        if (morningPillbox && morningTime) {
+            schedules.push([
+                seniorId,
+                morningPillbox,
+                morningType,
+                morningTime
+            ]);
+        }
+
+        if (lunchPillbox && lunchTime) {
+            schedules.push([
+                seniorId,
+                lunchPillbox,
+                lunchType,
+                lunchTime
+            ]);
+        }
+
+        if (dinnerPillbox && dinnerTime) {
+            schedules.push([
+                seniorId,
+                dinnerPillbox,
+                dinnerType,
+                dinnerTime
+            ]);
+        }
+
+        if (nightPillbox && nightTime) {
+            schedules.push([
+                seniorId,
+                nightPillbox,
+                nightType,
+                nightTime
+            ]);
+        }
+
+        if (schedules.length === 0) {
+            return res.redirect("/user/user_info/protected");
+        }
+
+        const insertSql = `
+            INSERT INTO TB_MEDICINE_SCHEDULE
+            (
+                SENIOR_ID,
+                PILLBOX_ORDER,
+                TAKING_TYPE,
+                TAKING_TIME,
+                START_DATE
+            )
+            VALUES
+            (
+                ?,
+                ?,
+                ?,
+                ?,
+                CURDATE()
+            )
+        `;
+
+        let count = 0;
+
+        schedules.forEach(schedule => {
+
+            conn.query(insertSql, schedule, (err2) => {
+
+                if (err2) {
+                    console.log(err2);
+                }
+
+                count++;
+
+                if (count === schedules.length) {
+                    res.redirect("/user/user_info/protected");
+                }
+            });
+        });
+    });
 });
 
 // 시니어 정보 삭제
@@ -1688,17 +1778,15 @@ router.post("/user/user_info/settings/update", isLoggedIn, (req, res) => {
             MEM_ADDR,
             req.session.user.id
         ],
-        (err) => {
+        (err, result) => {
 
             if (err) {
                 console.log(err);
-
-                return res.send(
-                    "<script>alert('수정 실패');history.back();</script>"
-                );
+                return res.send("<script>alert('수정 실패');history.back();</script>");
             }
 
-            // 세션 이름도 함께 갱신
+            console.log(result);
+
             req.session.user.name = MEM_NAME;
 
             res.send(
@@ -1881,55 +1969,115 @@ router.get("/user/senior_info/senior_schedule", (req, res) => {
     );
 });
 
-// 약 스케줄 post
-router.post("/user/senior_info/senior_schedule", (req, res) => {
+// 약 스케줄 등록 POST
+router.post("/user/senior_info/senior_schedule", isLoggedIn, (req, res) => {
+
+    console.log(req.body);
 
     const {
         seniorId,
-        takingDate,
-        pillboxOrder,
-        takingType,
-        takingTime
+
+        morningPillbox,
+        morningTime,
+
+        lunchPillbox,
+        lunchTime,
+
+        dinnerPillbox,
+        dinnerTime,
+
+        nightPillbox,
+        nightTime
+
     } = req.body;
 
-    const sql = `
-    INSERT INTO TB_SCHEDULE
-    (
-        SENIOR_ID,
-        TAKING_DATE,
-        PILLBOX_ORDER,
-        TAKING_TYPE,
-        TAKING_TIME,
-        TAKING_YN
-    )
-    VALUES
-    (?, ?, ?, ?, ?, 'N')
+    const schedules = [];
+
+    const addSchedule = (pillbox, time, type) => {
+
+        // 둘 다 비어있으면 등록 안 함
+        if (!pillbox && !time) return null;
+
+        // 하나만 입력한 경우
+        if (!pillbox || !time) {
+            return `${type} 복약은 약통 번호와 시간을 모두 입력해주세요.`;
+        }
+
+        schedules.push([
+            seniorId,
+            pillbox,
+            type,
+            time
+        ]);
+
+        return null;
+    };
+
+    let error;
+
+    error = addSchedule(morningPillbox, morningTime, "아침");
+    if (error) return res.send(`<script>alert('${error}');history.back();</script>`);
+
+    error = addSchedule(lunchPillbox, lunchTime, "점심");
+    if (error) return res.send(`<script>alert('${error}');history.back();</script>`);
+
+    error = addSchedule(dinnerPillbox, dinnerTime, "저녁");
+    if (error) return res.send(`<script>alert('${error}');history.back();</script>`);
+
+    error = addSchedule(nightPillbox, nightTime, "취침 전");
+    if (error) return res.send(`<script>alert('${error}');history.back();</script>`);
+
+    if (schedules.length === 0) {
+        return res.send("<script>alert('최소 한 개 이상의 복약 스케줄을 등록해주세요.');history.back();</script>");
+    }
+
+    const insertSql = `
+        INSERT INTO TB_MEDICINE_SCHEDULE
+        (
+            SENIOR_ID,
+            PILLBOX_ORDER,
+            TAKING_TYPE,
+            TAKING_TIME,
+            START_DATE
+        )
+        VALUES
+        (
+            ?,
+            ?,
+            ?,
+            ?,
+            CURDATE()
+        )
     `;
 
-    conn.query(
-        sql,
-        [
-            seniorId,
-            takingDate,
-            pillboxOrder,
-            takingType,
-            takingTime
-        ],
-        (err, result) => {
+    let count = 0;
 
-            if(err){
+    schedules.forEach(schedule => {
+
+        conn.query(insertSql, schedule, (err) => {
+
+            if (err) {
                 console.log(err);
-
-                return res.send(
-                    "<script>alert('등록 실패');history.back();</script>"
-                );
+                return res.send("<script>alert('등록 실패');history.back();</script>");
             }
 
-            res.send(
-                "<script>alert('복약 스케줄 등록 완료');location.href='/user/user_dashboard/main_dashboard';</script>"
-            );
-        }
-    );
+            count++;
+
+            if (count === schedules.length) {
+
+                return res.send(`
+                    <script>
+                        alert('복약 스케줄 등록 완료');
+                        location.href='/user/senior_service/senior_about';
+                    </script>
+                `);
+
+            }
+
+        });
+
+    });
+
 });
 
 
@@ -1946,205 +2094,224 @@ router.get("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
     });
 });
 
+// 보호자 등록
+// 보호자 등록 POST
+router.post("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
 
-router.get("/user/senior_info/senior_settings", (req, res) => {
+    const { guardianId, guardianName } = req.body;
+    const seniorId = req.session.user.id;
 
-    const id = req.session.user.id;
+    // 현재 시니어의 보호자 등록 여부 확인
+    const seniorSql = `
+        SELECT MEM_ID
+        FROM TB_SENIOR
+        WHERE SENIOR_ID = ?
+    `;
 
-    conn.query(
-        "SELECT * FROM TB_MEMBER WHERE MEM_ID = ? AND MEM_ST = 'S'",
-        [id],
-        (err, memberRows) => {
+    conn.query(seniorSql, [seniorId], (err, seniorRows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("<script>alert('DB 오류가 발생했습니다.');history.back();</script>");
+        }
+
+        if (seniorRows.length === 0) {
+            return res.send("<script>alert('시니어 정보를 찾을 수 없습니다.');history.back();</script>");
+        }
+
+        // 이미 보호자가 등록되어 있는 경우
+        if (seniorRows[0].MEM_ID) {
+            return res.send(
+                "<script>alert('이미 보호자가 등록되어 있습니다.\\n변경은 계정 관리에서 가능합니다.');history.back();</script>"
+            );
+        }
+
+        // 보호자 정보 확인
+        const guardianSql = `
+            SELECT MEM_ID
+            FROM TB_MEMBER
+            WHERE MEM_ID = ?
+              AND MEM_NAME = ?
+              AND MEM_ST = 'P'
+        `;
+
+        conn.query(
+            guardianSql,
+            [guardianId, guardianName],
+            (err, guardianRows) => {
+
+                if (err) {
+                    console.log(err);
+                    return res.send("<script>alert('DB 오류가 발생했습니다.');history.back();</script>");
+                }
+
+                // 보호자가 아니거나 정보가 일치하지 않는 경우
+                if (guardianRows.length === 0) {
+                    return res.send(
+                        "<script>alert('보호자 정보를 찾을 수 없습니다.\\n보호자 아이디와 이름을 다시 확인해주세요.');history.back();</script>"
+                    );
+                }
+
+                // 보호자 등록
+                const updateSql = `
+                    UPDATE TB_SENIOR
+                    SET MEM_ID = ?
+                    WHERE SENIOR_ID = ?
+                `;
+
+                conn.query(
+                    updateSql,
+                    [guardianId, seniorId],
+                    (err, result) => {
+
+                        if (err) {
+                            console.log(err);
+                            return res.send("<script>alert('보호자 등록에 실패했습니다.');history.back();</script>");
+                        }
+
+                        if (result.affectedRows === 0) {
+                            return res.send("<script>alert('보호자 등록에 실패했습니다.');history.back();</script>");
+                        }
+
+                        return res.send(`
+                            <script>
+                                alert('보호자가 성공적으로 등록되었습니다.');
+                                location.href='/user/senior_service/senior_about';
+                            </script>
+                        `);
+                    }
+                );
+            }
+        );
+    });
+});
+
+// 시니어 페이지 개인정보 관리
+router.get("/user/senior_info/senior_settings", isLoggedIn, (req, res) => {
+
+    const seniorId = req.session.user.id;
+
+    // 시니어 정보 조회
+    const seniorSql = `
+        SELECT *
+        FROM TB_SENIOR
+        WHERE SENIOR_ID = ?
+    `;
+
+    conn.query(seniorSql, [seniorId], (err, seniorRows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        if (seniorRows.length === 0) {
+            return res.send("시니어 정보를 찾을 수 없습니다.");
+        }
+
+        const senior = seniorRows[0];
+
+        // 보호자가 아직 등록되지 않은 경우
+        if (!senior.MEM_ID) {
+
+            return res.render("user/senior_info/senior_settings", {
+                pageTitle: "계정 관리",
+                account: senior,
+                guardian: null,
+                user: req.session.user
+            });
+
+        }
+
+        // 보호자 정보 조회
+        const guardianSql = `
+            SELECT
+                MEM_NAME,
+                MEM_CONTACT
+            FROM TB_MEMBER
+            WHERE MEM_ID = ?
+            AND MEM_ST = 'P'
+        `;
+
+        conn.query(guardianSql, [senior.MEM_ID], (err, guardianRows) => {
 
             if (err) {
                 console.log(err);
                 return res.send("DB 오류");
             }
 
-            if (memberRows.length === 0) {
-                return res.send("시니어 회원이 아닙니다.");
+            const guardian = guardianRows.length > 0
+                ? guardianRows[0]
+                : null;
+
+            res.render("user/senior_info/senior_settings", {
+                pageTitle: "계정 관리",
+                account: senior,
+                guardian,
+                user: req.session.user
+            });
+        });
+    });
+});
+
+// 시니어 계정 정보 수정
+router.post("/user/senior_info/senior_settings/update", isLoggedIn, (req, res) => {
+
+    console.log("시니어 설정 저장");
+    console.log(req.body);
+
+    const {
+        SENIOR_NAME,
+        SENIOR_EMAIL,
+        SENIOR_CONTACT,
+        SENIOR_ADDR,
+        PILLBOX_NUM
+    } = req.body;
+
+    const sql = `
+        UPDATE TB_SENIOR
+        SET
+            SENIOR_NAME = ?,
+            SENIOR_EMAIL = ?,
+            SENIOR_CONTACT = ?,
+            SENIOR_ADDR = ?,
+            PILLBOX_NUM = ?
+        WHERE SENIOR_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [
+            SENIOR_NAME,
+            SENIOR_EMAIL,
+            SENIOR_CONTACT,
+            SENIOR_ADDR,
+            PILLBOX_NUM || null,
+            req.session.user.id
+        ],
+        (err, result) => {
+
+            if (err) {
+                console.log(err);
+
+                return res.send(
+                    "<script>alert('수정 실패');history.back();</script>"
+                );
             }
 
-            conn.query(
-                "SELECT * FROM TB_SENIOR WHERE SENIOR_ID = ?",
-                [id],
-                (err, seniorRows) => {
+            console.log(result);
 
-                    if (err) {
-                        console.log(err);
-                        return res.send("DB 오류");
-                    }
+            // 세션 이름도 같이 수정
+            req.session.user.name = SENIOR_NAME;
 
-                    if (seniorRows.length === 0) {
-                        return res.send("시니어 정보를 찾을 수 없습니다.");
-                    }
-
-                    const account = {
-                        ...memberRows[0],
-                        ...seniorRows[0],
-                        lastLogin: "오늘 09:42"
-                    };
-
-                    res.render("user/senior_info/senior_settings", {
-                        pageTitle: "계정 관리",
-                        account,
-                        user: req.session.user
-                    });
-
-                }
+            return res.send(
+                "<script>alert('회원정보가 수정되었습니다.');location.href='/user/senior_info/senior_settings';</script>"
             );
-
         }
     );
-
 });
 
 // 태헌님 router 코드
-router.get("/records", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍춘순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        range: "2025-05-14 ~ 2025-05-20",
-        records: [
-            { date: "2025-05-20 (화)", plannedTime: "08:00", actualTime: "08:05", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-19 (월)", plannedTime: "08:00", actualTime: "08:03", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-18 (일)", plannedTime: "08:00", actualTime: "-", result: "미복용", resultTone: "danger", bottleState: "닫힘", bottleTone: "closed" },
-            { date: "2025-05-17 (토)", plannedTime: "08:00", actualTime: "08:02", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-16 (금)", plannedTime: "08:00", actualTime: "08:01", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-15 (목)", plannedTime: "08:00", actualTime: "08:04", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" },
-            { date: "2025-05-14 (수)", plannedTime: "08:00", actualTime: "08:06", result: "복용 완료", resultTone: "success", bottleState: "열림", bottleTone: "open" }
-        ],
-        pagination: {
-            current: 1,
-            pages: [1, 2, 3]
-        }
-    };
-
-    res.render("records", { data });
-});
-
-router.get("/status", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍춘순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        summary: {
-            device: {
-                label: "센서 연결 상태",
-                value: "정상",
-                sub: "마지막 업데이트 14:25:13"
-            },
-            remaining: {
-                label: "잔여량 추정",
-                value: "약 17일분",
-                sub: "정상"
-            }
-        },
-        weightChart: {
-            labels: ["03:09", "03:15", "03:21", "03:27", "03:33", "03:39", "03:45"],
-            values: [28.9, 28.8, 27.2, 27.1, 27.1, 27.1, 27.2]
-        },
-        doseAmounts: [
-            { label: "아침 (2t)", value: 85, detail: "약 17일분 보유" },
-            { label: "점심 (2t)", value: 42, detail: "약 8일 보유" },
-            { label: "저녁 (2t)", value: 76, detail: "약 15일 보유" }
-        ],
-        weeklyTrend: [
-            { day: "월", value: 30 },
-            { day: "화", value: 29 },
-            { day: "수", value: 29 },
-            { day: "목", value: 28 },
-            { day: "금", value: 28 },
-            { day: "토", value: 28 },
-            { day: "일", value: 28 }
-        ],
-        logs: [
-            { date: "2025-05-20", time: "08:05", state: "열림", result: "복용 완료", tone: "success" },
-            { date: "2025-05-19", time: "08:03", state: "열림", result: "복용 완료", tone: "success" },
-            { date: "2025-05-18", time: "-", state: "닫힘", result: "미복용", tone: "danger" },
-            { date: "2025-05-17", time: "08:02", state: "열림", result: "복용 완료", tone: "success" },
-            { date: "2025-05-16", time: "08:01", state: "열림", result: "복용 완료", tone: "success" },
-            { date: "2025-05-15", time: "08:04", state: "열림", result: "이중 복용 의심", tone: "warning" },
-            { date: "2025-05-14", time: "08:06", state: "열림", result: "복용 완료", tone: "success" }
-        ],
-        events: [
-            {
-                title: "이중 복용 의심",
-                date: "2025-05-15 08:04",
-                detail: "1회 기준(1.6g)의 2배 감소가 감지되어 보호자에게 알림을 전송했습니다.",
-                tone: "warning"
-            },
-            {
-                title: "복약량 부족 예측",
-                date: "금요일 (2t)",
-                detail: "현재 용량 42%, 약 8일 후 소진 예상. 처방전 준비를 권장합니다.",
-                tone: "neutral"
-            },
-            {
-                title: "정상 복용 확인",
-                date: "2025-05-20 08:05",
-                detail: "아침 시간대 대비 1분 이내 복용. 무게 -1.6g 감소.",
-                tone: "success"
-            },
-            {
-                title: "미복용 감지",
-                date: "2025-05-18 종일",
-                detail: "무게 변화가 없어 보호자에게 SMS 전송을 완료했습니다.",
-                tone: "warning"
-            }
-        ]
-    };
-
-    res.render("status", { data });
-});
-
-router.get("/alerts", (req, res) => {
-    const data = {
-        resident: {
-            name: "홍춘순 어르신",
-            age: 74,
-            careLevel: "관리 4구역",
-            status: "정상"
-        },
-        lastUpdated: "2025년 6월 12일 목요일 · 오후 2:35",
-        guardian: {
-            name: "김태현",
-            relation: "보호자",
-            phone: "010-1234-5678"
-        },
-        history: [
-            {
-                sentAt: "2025-05-21 08:05",
-                type: "미복용 감지",
-                tone: "danger",
-                message: "어제 시간(06:00)을 5분 경과하였으나 약통이 열리지 않았습니다."
-            },
-            {
-                sentAt: "2025-05-20 08:05",
-                type: "복용 완료",
-                tone: "success",
-                message: "약통이 열려 복용이 완료되었습니다."
-            },
-            {
-                sentAt: "2025-05-19 08:03",
-                type: "복용 완료",
-                tone: "success",
-                message: "약통이 열려 복용이 완료되었습니다."
-            }
-        ]
-    };
-
-    res.render("alerts", { data });
-});
 
 // 복약 기록 페이지 - DB 없이 화면 확인용
 router.get("/user/user_dashboard/dashboard_record", isLoggedIn, (req, res) => {

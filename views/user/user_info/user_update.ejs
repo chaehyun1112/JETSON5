@@ -22,8 +22,7 @@
                 <h2 class="profile-name"><%= person.SENIOR_NAME %></h2>
             </div>
 
-            <form action="/user/user_info/protected/update/<%= person.SENIOR_ID %>"
-                  method="post"
+            <form action="/user/user_info/protected/info/update/<%= person.SENIOR_ID %>"                  method="post"
                   class="edit-form">
 
                 <!-- ════════════════════════════
@@ -95,15 +94,28 @@
                                    value="<%= new Date(person.JOINED_AT).toLocaleDateString('ko-KR') %>"
                                    readonly>
                         </div>
-
                     </div>
+                <!-- ── 버튼 ── -->
+                <div class="btn-row">
+                    <a href="/user/user_info/protected" class="btn-cancel">취소</a>
+                    <button type="submit" class="btn-submit">수정 완료</button>
                 </div>
-
-                <div class="divider"></div>
+                <br>
+            </div>
+        </form>
+        
+        <div class="divider"></div>
 
                 <!-- ════════════════════════════
                      섹션 2: 복약 스케줄 수정
                 ════════════════════════════ -->
+
+                <div class="divider"></div>
+
+            <form action="/user/user_info/protected/schedule/update/<%= person.SENIOR_ID %>"
+                method="post"
+                class="edit-form">
+
                 <div class="section-block">
                     <h3 class="section-title">복약 스케줄</h3>
                     <p class="section-desc">
