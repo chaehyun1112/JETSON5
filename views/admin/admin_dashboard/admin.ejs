@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>admin</title>
+    <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/admin/admin_dashboard/style_admin.css" />
 </head>
 <body>
+  <div class="wrapper">
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="admin-logo">
@@ -38,6 +40,7 @@
       <a href="/admin/admin_update">개인정보 수정</a>
       <a href="/admin/members_update">회원정보 수정</a>
       <a href="/index/index_announce">공지사항 수정</a>
+      <a href="/admin/check_inquiry">문의사항 확인</a>
       <form action="/logout" method="POST" class="logout-form">
           <button type="submit" class="admin-user-item">
               로그아웃
@@ -137,6 +140,7 @@
       </section>
     </main>
   </div>
+</div>
   <script>
   const adminUserButton = document.querySelector("#adminUserButton");
   const adminUserDropdown = document.querySelector("#adminUserDropdown");

@@ -332,13 +332,8 @@ img, svg { display: block; }
     transform: translateX(-50%) translateY(0);
   }
 }
-/*  nav css 
-/*  nav css */
 
 
-/* =============================================
-   히어로
-   ============================================= */
 .hero {
   background: linear-gradient(135deg, #e8f0fd 0%, #dbeafe 60%, #eff6ff 100%);
   padding: 5rem 1.5rem 4rem;
@@ -796,4 +791,51 @@ img, svg { display: block; }
 
   .features__grid { grid-template-columns: 1fr 1fr; }
   .steps { grid-template-columns: 1fr 1fr; }
+}
+
+
+.cta {
+    position: relative;
+}
+
+.cta-icon {
+    position: absolute;
+    right: 30px;      /* 오른쪽 끝에서 30px */
+    bottom: 20px;     /* 아래에서 20px */
+    width: 100px;     /* 크기 */
+filter: brightness(0);
+}
+
+.top-btn {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+
+    width: 60px;
+    height: 60px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: all 0.3s ease;
+
+    z-index: 999;
+}
+
+.top-btn img {
+    width: 60px;
+  filter: brightness(0); 
+}
+
+.top-btn.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+html {
+    scroll-behavior: smooth;
 }

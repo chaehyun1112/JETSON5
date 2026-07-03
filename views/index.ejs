@@ -13,6 +13,10 @@
 
     <%- include('partials/user_partials/nav_index') %>
     
+    <div id="top">
+    </div>
+
+
   <!-- ===== 히어로 ===== -->
   <section class="hero">
     <div class="hero__inner">
@@ -170,20 +174,49 @@
   </section>
 
   <!-- ===== CTA ===== -->
-  <section class="cta">
-    <div class="container cta__inner">
-      <h2>복약 안심, 지금 바로 시작하세요</h2>
-      <p>스마트 약상자 하나로 가족의 건강을 지킵니다.</p>
-      <a href="/login" class="btn btn--white">로그인하고 시작하기 →</a>
-    </div>
-  </section>
+<section class="cta">
+  <div class="container cta__inner">
+    <h2>복약 안심, 지금 바로 시작하세요</h2>
+    <p>스마트 약상자 하나로 가족의 건강을 지킵니다.</p>
+    <a href="/login" class="btn btn--white">로그인하고 시작하기 →</a>
+  </div>
+<a href="#top" class="top-btn" id="topBtn">
+    <img src="/icon/KakaoTalk_20260703_112839241.png" alt="맨 위로">
+</a>
 
+</section>
+</section>
   <!-- ===== 푸터 ===== -->
   <footer class="footer">
     <div class="container">
       <p>© 2025 복약안심서비스 &nbsp;|&nbsp; Team Jetson5 &nbsp;|&nbsp; 스마트 약상자 기반 복약 관리 플랫폼</p>
     </div>
   </footer>
+  
+<script>
+const topBtn = document.getElementById("topBtn");
+
+window.addEventListener("scroll", function () {
+
+    if (window.scrollY > 300) {
+        topBtn.classList.add("show");
+    } else {
+        topBtn.classList.remove("show");
+    }
+
+});
+
+topBtn.addEventListener("click", function (e) {
+
+    e.preventDefault();
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+});
+</script>
 
 </body>
 </html>

@@ -94,10 +94,18 @@
                                    class="form-input readonly-input"
                                    value="<%= new Date(person.JOINED_AT).toLocaleDateString('ko-KR') %>"
                                    readonly>
+                                   
                         </div>
 
                     </div>
+                <div class="btn-row">
+                    <a href="/user/user_info/protected" class="btn-cancel">취소</a>
+                    <button type="submit" class="btn-submit">수정 완료</button>
                 </div>
+
+
+                </div>
+                
 
                 <div class="divider"></div>
 
@@ -110,175 +118,196 @@
                         칸 번호를 선택하지 않은 시간대는 등록되지 않습니다.
                     </p>
 
-                    <!-- 4개 시간 카드 -->
-                    <div class="time-grid">
-
-                        <div class="time-card">
-                            <h4 class="time-card-title">아침 복용</h4>
-                            <div class="card-row">
-                                <div class="card-field">
-                                    <label class="time-label">약통 칸 번호</label>
-                                    <select name="morningPillbox" class="can-select">
-                                        <option value="">선택 안 함</option>
-
-                                        <option value="1"
-                                        <%= morning && morning.PILLBOX_ORDER==1 ? "selected":"" %>>
-                                        1번 칸
-                                        </option>
-
-                                        <option value="2"
-                                        <%= morning && morning.PILLBOX_ORDER==2 ? "selected":"" %>>
-                                        2번 칸
-                                        </option>
-
-                                        <option value="3"
-                                        <%= morning && morning.PILLBOX_ORDER==3 ? "selected":"" %>>
-                                        3번 칸
-                                        </option>
-
-                                        <option value="4"
-                                        <%= morning && morning.PILLBOX_ORDER==4 ? "selected":"" %>>
-                                        4번 칸
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="card-field">
-                                    <label class="time-label">복용 예정 시간</label>
-                                    <input
-                                    type="time"
-                                    name="morningTime"
-                                    class="time-input"
-                                    value="<%= morning ? morning.TAKING_TIME.toString().substring(0,5) : '' %>">
+                <!-- 4개 시간 카드 -->
+ <div class="time-grid">
+    <div class="time-card">
+        <h3 class="time-card-title">아침 복용</h3>
+        <div class="card-row">
+            <div class="card-field">
+                <label class="time-label">약통 칸 번호</label>
+                <select name="morningPillbox" class="can-select">
+                    <option value="">선택 안 함</option>
+                    <option value="1">1번 칸</option>
+                    <option value="2">2번 칸</option>
+                    <option value="3">3번 칸</option>
+                    <option value="4">4번 칸</option>
+                </select>
+            </div>
+            <div class="card-field">
+                <label class="time-label">복용 예정 시간</label>
+                <div class="custom-time-picker" data-name="morningTime">
+                    <button type="button" class="time-display">
+                        <span class="time-display-text">시간 선택</span>
+                        <svg class="time-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="time-dropdown">
+                        <div class="time-wheel-group">
+                            <div class="time-wheel" data-type="ampm">
+                                <div class="wheel-track">
+                                    <div class="wheel-item" data-value="AM">오전</div>
+                                    <div class="wheel-item" data-value="PM">오후</div>
                                 </div>
                             </div>
-                            <input type="hidden" name="morningType" value="아침">
-                        </div>
-
-                        <div class="time-card">
-                            <h4 class="time-card-title">점심 복용</h4>
-                            <div class="card-row">
-                                <div class="card-field">
-                                    <label class="time-label">약통 칸 번호</label>
-                                    <select name="lunchPillbox" class="can-select">
-                                        <option value="">선택 안 함</option>
-
-                                        <option value="1"
-                                        <%= lunch && lunch.PILLBOX_ORDER==1 ? "selected":"" %>>
-                                        1번 칸
-                                        </option>
-
-                                        <option value="2"
-                                        <%= lunch && lunch.PILLBOX_ORDER==2 ? "selected":"" %>>
-                                        2번 칸
-                                        </option>
-
-                                        <option value="3"
-                                        <%= lunch && lunch.PILLBOX_ORDER==3 ? "selected":"" %>>
-                                        3번 칸
-                                        </option>
-
-                                        <option value="4"
-                                        <%= lunch && lunch.PILLBOX_ORDER==4 ? "selected":"" %>>
-                                        4번 칸
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="card-field">
-                                    <label class="time-label">복용 예정 시간</label>
-                                    <input
-                                    type="time"
-                                    name="lunchTime"
-                                    class="time-input"
-                                    value="<%= lunch ? lunch.TAKING_TIME.toString().substring(0,5) : '' %>">
-                                </div>
+                            <div class="time-wheel" data-type="hour">
+                                <div class="wheel-track"></div>
                             </div>
-                            <input type="hidden" name="lunchType" value="점심">
-                        </div>
-
-                        <div class="time-card">
-                            <h4 class="time-card-title">저녁 복용</h4>
-                            <div class="card-row">
-                                <div class="card-field">
-                                    <label class="time-label">약통 칸 번호</label>
-                                    <select name="dinnerPillbox" class="can-select">
-                                        <option value="">선택 안 함</option>
-
-                                        <option value="1"
-                                        <%= dinner && dinner.PILLBOX_ORDER==1 ? "selected":"" %>>
-                                        1번 칸
-                                        </option>
-
-                                        <option value="2"
-                                        <%= dinner && dinner.PILLBOX_ORDER==2 ? "selected":"" %>>
-                                        2번 칸
-                                        </option>
-
-                                        <option value="3"
-                                        <%= dinner && dinner.PILLBOX_ORDER==3 ? "selected":"" %>>
-                                        3번 칸
-                                        </option>
-
-                                        <option value="4"
-                                        <%= dinner && dinner.PILLBOX_ORDER==4 ? "selected":"" %>>
-                                        4번 칸
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="card-field">
-                                    <label class="time-label">복용 예정 시간</label>
-                                    <input
-                                    type="time"
-                                    name="dinnerTime"
-                                    class="time-input"
-                                    value="<%= dinner ? dinner.TAKING_TIME.toString().substring(0,5) : '' %>">
-                                </div>
+                            <div class="time-wheel" data-type="minute">
+                                <div class="wheel-track"></div>
                             </div>
-                            <input type="hidden" name="dinnerType" value="저녁">
                         </div>
-
-                        <div class="time-card">
-                            <h4 class="time-card-title">취침 전 복용</h4>
-                            <div class="card-row">
-                                <div class="card-field">
-                                    <label class="time-label">약통 칸 번호</label>
-                                    <select name="nightPillbox" class="can-select">
-                                        <option value="">선택 안 함</option>
-
-                                        <option value="1"
-                                        <%= night && night.PILLBOX_ORDER==1 ? "selected":"" %>>
-                                        1번 칸
-                                        </option>
-
-                                        <option value="2"
-                                        <%= night && night.PILLBOX_ORDER==2 ? "selected":"" %>>
-                                        2번 칸
-                                        </option>
-
-                                        <option value="3"
-                                        <%= night && night.PILLBOX_ORDER==3 ? "selected":"" %>>
-                                        3번 칸
-                                        </option>
-
-                                        <option value="4"
-                                        <%= night && night.PILLBOX_ORDER==4 ? "selected":"" %>>
-                                        4번 칸
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="card-field">
-                                    <label class="time-label">복용 예정 시간</label>
-                                    <input
-                                    type="time"
-                                    name="nightTime"
-                                    class="time-input"
-                                    value="<%= night ? night.TAKING_TIME.toString().substring(0,5) : '' %>">
-                                </div>
-                            </div>
-                            <input type="hidden" name="nightType" value="취침 전">
-                        </div>
-
+                        <div class="wheel-highlight"></div>
                     </div>
+                    <input type="hidden" name="morningTime" class="time-hidden-input">
                 </div>
+            </div>
+        </div>
+        <input type="hidden" name="morningType" value="아침">
+    </div>
+
+    <div class="time-card">
+        <h3 class="time-card-title">점심 복용</h3>
+        <div class="card-row">
+            <div class="card-field">
+                <label class="time-label">약통 칸 번호</label>
+                <select name="lunchPillbox" class="can-select">
+                    <option value="">선택 안 함</option>
+                    <option value="1">1번 칸</option>
+                    <option value="2">2번 칸</option>
+                    <option value="3">3번 칸</option>
+                    <option value="4">4번 칸</option>
+                </select>
+            </div>
+            <div class="card-field">
+                <label class="time-label">복용 예정 시간</label>
+                <div class="custom-time-picker" data-name="lunchTime">
+                    <button type="button" class="time-display">
+                        <span class="time-display-text">시간 선택</span>
+                        <svg class="time-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="time-dropdown">
+                        <div class="time-wheel-group">
+                            <div class="time-wheel" data-type="ampm">
+                                <div class="wheel-track">
+                                    <div class="wheel-item" data-value="AM">오전</div>
+                                    <div class="wheel-item" data-value="PM">오후</div>
+                                </div>
+                            </div>
+                            <div class="time-wheel" data-type="hour">
+                                <div class="wheel-track"></div>
+                            </div>
+                            <div class="time-wheel" data-type="minute">
+                                <div class="wheel-track"></div>
+                            </div>
+                        </div>
+                        <div class="wheel-highlight"></div>
+                    </div>
+                    <input type="hidden" name="lunchTime" class="time-hidden-input">
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="lunchType" value="점심">
+    </div>
+
+    <div class="time-card">
+        <h3 class="time-card-title">저녁 복용</h3>
+        <div class="card-row">
+            <div class="card-field">
+                <label class="time-label">약통 칸 번호</label>
+                <select name="dinnerPillbox" class="can-select">
+                    <option value="">선택 안 함</option>
+                    <option value="1">1번 칸</option>
+                    <option value="2">2번 칸</option>
+                    <option value="3">3번 칸</option>
+                    <option value="4">4번 칸</option>
+                </select>
+            </div>
+            <div class="card-field">
+                <label class="time-label">복용 예정 시간</label>
+                <div class="custom-time-picker" data-name="dinnerTime">
+                    <button type="button" class="time-display">
+                        <span class="time-display-text">시간 선택</span>
+                        <svg class="time-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="time-dropdown">
+                        <div class="time-wheel-group">
+                            <div class="time-wheel" data-type="ampm">
+                                <div class="wheel-track">
+                                    <div class="wheel-item" data-value="AM">오전</div>
+                                    <div class="wheel-item" data-value="PM">오후</div>
+                                </div>
+                            </div>
+                            <div class="time-wheel" data-type="hour">
+                                <div class="wheel-track"></div>
+                            </div>
+                            <div class="time-wheel" data-type="minute">
+                                <div class="wheel-track"></div>
+                            </div>
+                        </div>
+                        <div class="wheel-highlight"></div>
+                    </div>
+                    <input type="hidden" name="dinnerTime" class="time-hidden-input">
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="dinnerType" value="저녁">
+    </div>
+
+    <div class="time-card">
+        <h3 class="time-card-title">취침 전 복용</h3>
+        <div class="card-row">
+            <div class="card-field">
+                <label class="time-label">약통 칸 번호</label>
+                <select name="nightPillbox" class="can-select">
+                    <option value="">선택 안 함</option>
+                    <option value="1">1번 칸</option>
+                    <option value="2">2번 칸</option>
+                    <option value="3">3번 칸</option>
+                    <option value="4">4번 칸</option>
+                </select>
+            </div>
+            <div class="card-field">
+                <label class="time-label">복용 예정 시간</label>
+                <div class="custom-time-picker" data-name="nightTime">
+                    <button type="button" class="time-display">
+                        <span class="time-display-text">시간 선택</span>
+                        <svg class="time-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="time-dropdown">
+                        <div class="time-wheel-group">
+                            <div class="time-wheel" data-type="ampm">
+                                <div class="wheel-track">
+                                    <div class="wheel-item" data-value="AM">오전</div>
+                                    <div class="wheel-item" data-value="PM">오후</div>
+                                </div>
+                            </div>
+                            <div class="time-wheel" data-type="hour">
+                                <div class="wheel-track"></div>
+                            </div>
+                            <div class="time-wheel" data-type="minute">
+                                <div class="wheel-track"></div>
+                            </div>
+                        </div>
+                        <div class="wheel-highlight"></div>
+                    </div>
+                    <input type="hidden" name="nightTime" class="time-hidden-input">
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="nightType" value="취침 전">
+    </div>
+</div>
 
                 <!-- ── 버튼 ── -->
                 <div class="btn-row">
@@ -290,6 +319,137 @@
 
         </section>
     </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.custom-time-picker').forEach(initTimePicker);
+});
+
+function initTimePicker(picker) {
+    const display = picker.querySelector('.time-display');
+    const displayText = picker.querySelector('.time-display-text');
+    const dropdown = picker.querySelector('.time-dropdown');
+    const hiddenInput = picker.querySelector('.time-hidden-input');
+
+    const ampmWheel = picker.querySelector('[data-type="ampm"] .wheel-track');
+    const hourWheel = picker.querySelector('[data-type="hour"] .wheel-track');
+    const minuteWheel = picker.querySelector('[data-type="minute"] .wheel-track');
+
+    // 시(1~12), 분(00~55, 5분 단위) 채우기
+    for (let h = 1; h <= 12; h++) {
+        const item = document.createElement('div');
+        item.className = 'wheel-item';
+        item.dataset.value = String(h).padStart(2, '0');
+        item.textContent = String(h).padStart(2, '0');
+        hourWheel.appendChild(item);
+    }
+    for (let m = 0; m < 60; m += 1) {
+        const item = document.createElement('div');
+        item.className = 'wheel-item';
+        item.dataset.value = String(m).padStart(2, '0');
+        item.textContent = String(m).padStart(2, '0');
+        minuteWheel.appendChild(item);
+    }
+
+    const wheels = picker.querySelectorAll('.time-wheel');
+    const state = { ampm: 'AM', hour: '01', minute: '00' };
+
+    // 드롭다운 열기/닫기
+    display.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.contains('open');
+        closeAllPickers();
+        if (!isOpen) {
+            dropdown.classList.add('open');
+            display.classList.add('active');
+            // 열릴 때 현재 선택값 위치로 스크롤 정렬
+            requestAnimationFrame(() => {
+                wheels.forEach(w => snapToSelected(w, false));
+            });
+        }
+    });
+
+    document.addEventListener('click', () => closeAllPickers());
+    dropdown.addEventListener('click', (e) => e.stopPropagation());
+
+    function closeAllPickers() {
+        document.querySelectorAll('.time-dropdown.open').forEach(d => {
+            d.classList.remove('open');
+            d.closest('.custom-time-picker').querySelector('.time-display').classList.remove('active');
+        });
+    }
+
+    // 각 휠 스크롤 처리: 끝에 도달하면 멈춤 (네이티브 스크롤이 이미 멈춰주지만,
+    // wheel 이벤트를 가로채 최대/최소에서 확실히 정지시킴)
+    wheels.forEach(wheel => {
+        const track = wheel.querySelector('.wheel-track');
+        const itemHeight = 36;
+
+    wheel.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const maxScroll = track.scrollHeight - wheel.clientHeight;
+    const step = itemHeight * 5; // 한 번 휠 굴릴 때 5칸씩 이동 (숫자 키울수록 더 빨라짐)
+    let next = wheel.scrollTop + (e.deltaY > 0 ? step : -step);
+    next = Math.max(0, Math.min(maxScroll, next));
+    wheel.scrollTo({ top: next, behavior: 'smooth' });
+    }, { passive: false });
+        let scrollTimeout;
+        wheel.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => snapToSelected(wheel, true), 100);
+        });
+
+        // 클릭으로 바로 선택
+        track.addEventListener('click', (e) => {
+            const item = e.target.closest('.wheel-item');
+            if (!item) return;
+            const items = Array.from(track.children);
+            const idx = items.indexOf(item);
+            wheel.scrollTo({ top: idx * itemHeight, behavior: 'smooth' });
+        });
+    });
+
+    function snapToSelected(wheel, updateState) {
+        const track = wheel.querySelector('.wheel-track');
+        const itemHeight = 36;
+        const items = Array.from(track.children);
+        const centerIndex = Math.round(wheel.scrollTop / itemHeight);
+        const clampedIndex = Math.max(0, Math.min(items.length - 1, centerIndex));
+
+        // 스크롤 위치 보정 (딱 맞게 정렬)
+        wheel.scrollTo({ top: clampedIndex * itemHeight, behavior: 'smooth' });
+
+        items.forEach((item, i) => item.classList.toggle('selected', i === clampedIndex));
+
+        if (updateState) {
+            const type = wheel.closest('.time-wheel').dataset.type;
+            state[type] = items[clampedIndex].dataset.value;
+            updateDisplay();
+        }
+    }
+
+    function updateDisplay() {
+        const ampmLabel = state.ampm === 'AM' ? '오전' : '오후';
+        displayText.textContent = `${ampmLabel} ${state.hour}:${state.minute}`;
+        displayText.classList.remove('placeholder');
+
+        // 24시간제로 변환해서 hidden input에 저장 (서버는 HH:MM 형식 기대)
+        let hour24 = parseInt(state.hour, 10);
+        if (state.ampm === 'PM' && hour24 !== 12) hour24 += 12;
+        if (state.ampm === 'AM' && hour24 === 12) hour24 = 0;
+        hiddenInput.value = `${String(hour24).padStart(2, '0')}:${state.minute}`;
+    }
+
+    // 초기 상태 표시
+    displayText.classList.add('placeholder');
+    displayText.textContent = '시간 선택';
+
+    // 초기 하이라이트 (오전 첫번째, 01시, 00분)
+    ampmWheel.children[0].classList.add('selected');
+    hourWheel.children[0].classList.add('selected');
+    minuteWheel.children[0].classList.add('selected');
+}
+</script>
 
 </body>
 </html>

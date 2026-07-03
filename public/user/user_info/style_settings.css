@@ -252,6 +252,7 @@ img, svg { display: block; }
   transition: opacity 0.2s;
 }
 .nav__user-btn:hover .nav__avatar { opacity: 0.85; }
+
 .nav__user-dropdown {
   display: none;
   position: absolute;
@@ -271,7 +272,6 @@ img, svg { display: block; }
   transform: none !important;
   animation: fadeDown 0.15s ease;
 }
-
 
 .nav__user-info {
   padding: 10px 12px;
@@ -477,11 +477,6 @@ img, svg { display: block; }
   font-size: 14px;
   font-weight: 700;
   transition: background 0.2s, color 0.2s;
-}
-.side-nav a:hover,
-.side-nav a.is-current {
-  background: #eff6ff;
-  color: #2563eb;
 }
 
 
