@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/admin/admin_dashboard/style_medicines.css" />
 </head>
 <body>
+  <div class="wrapper">
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="admin-logo">
@@ -50,7 +52,7 @@
 
         </header>
 
-
+<div class="top-row">
       <section class="box-summary-grid">
         <article class="stat-card">
           <span>전체 약상자</span>
@@ -58,6 +60,19 @@
           <p>등록된 약상자 수</p>
         </article>
       </section>
+      
+
+
+      <section class="member-toolbar">
+        <input type="text" id="memberSearch" placeholder="이름 또는 아이디 검색" />
+
+        <select id="memberTypeFilter">
+          <option value="all">전체 회원</option>
+          <option value="P">보호자</option>
+          <option value="S">시니어</option>
+        </select>
+      </section>
+</div>
 
       <section class="medicine-box-layout">
         <div class="admin-panel medicine-box-list-panel">
@@ -169,7 +184,7 @@
       </section>
     </main>
   </div>
-
+</div>
   
   <script>
   const adminUserButton = document.querySelector("#adminUserButton");

@@ -1,17 +1,21 @@
-// 복용관리, 실시간 상태, 알림 관리
+/* 복용관리, 실시간 상태, 알림 관리 */
 
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scrollbar-gutter: stable; overflow-x: hidden; }
 
 .db-page {
   background: #f0f4fa;
+  overflow-x: hidden;
 }
 
 .db-header {
   background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-  padding: 2.5rem 1.5rem;
+  padding: 3.5rem 1.5rem;
 }
 
 .db-header__inner {
-  max-width: 1000px;
+  max-width: 860px;
   margin: 0 auto;
   display: flex;
   align-items: flex-end;
@@ -23,22 +27,31 @@
 .db-header__greeting {
   font-size: 13px;
   color: #93c5fd;
-  margin-bottom: 4px;
+  margin-top: 0;
+  margin-bottom: 0.4rem;
   line-height: 1.3;
 }
 .db-header__greeting strong { color: #fff; }
+
+.db-header__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
 
 .db-header__title {
   font-size: 30px;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 4px;
+  margin: 0.4rem 0;
   line-height: 1.3;
 }
 
 .db-header__date {
   font-size: 15px;
   color: #bfdbfe;
+  margin: 0;
   line-height: 1.3;
 }
 
@@ -113,7 +126,7 @@
 }
 
 .db-container {
-  max-width: 1000px;
+  max-width: 860px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -135,7 +148,7 @@
 }
 
 .db-stat-card {
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -174,7 +187,7 @@
 .db-stat-card__num--purple { color: #6d28d9; }
 
 .db-card {
-  padding: 1.5rem;
+  padding: 1.25rem;
 }
 
 .db-card__header {
@@ -196,6 +209,225 @@
   font-size: 14px;
   color: #2563eb;
 }
+
+.db-card__header--record {
+  flex-wrap: wrap;
+}
+
+.db-senior-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e0e7f5;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.db-senior-select__label {
+  font-size: 13px;
+  color: #6b7a9a;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.db-senior-select__value {
+  color: #1e3a8a;
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.db-senior-select__caret {
+  color: #1e3a8a;
+  font-size: 13px;
+  line-height: 1;
+  pointer-events: none;
+  transition: transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.db-senior-select.is-open .db-senior-select__caret {
+  transform: rotate(180deg);
+}
+
+.db-senior-select__menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  padding-top: 8px;
+  min-width: 140px;
+  z-index: 200;
+}
+
+.db-senior-select.is-open .db-senior-select__menu {
+  display: block;
+  animation: fadeDownRight 0.15s ease;
+}
+
+.db-senior-select__menu-inner {
+  background: #fff;
+  border: 0.5px solid #d8e2f0;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.10);
+}
+
+.db-senior-select__menu-inner a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: #4b5a7a;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+}
+.db-senior-select__menu-inner a:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+.db-senior-select__menu-inner a.is-active {
+  background: #dbeafe;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+@keyframes fadeDownRight {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.db-card__more--record {
+  display: inline-block;
+  margin: -0.75rem 0 1rem;
+  text-decoration: none;
+}
+.db-card__more--record:hover { opacity: 0.7; }
+
+.db-query-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #eaf2ff;
+  border: 1px solid #cfe0fb;
+  border-radius: 10px;
+  padding: 6px 10px;
+  flex-wrap: wrap;
+}
+
+.db-query-tabs {
+  display: flex;
+  gap: 4px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.db-query-tab {
+  border: none;
+  background: transparent;
+  color: #4b5a7a;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.db-query-tab.is-active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.db-query-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-query-fields {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.db-query-fields[hidden] {
+  display: none;
+}
+
+.db-query-fields input,
+.db-query-fields select {
+  height: 32px;
+  border: 1px solid #cfe0fb;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #1e3a8a;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.db-query-fields[data-fields="daily"] input[type="date"],
+.db-query-fields[data-fields="monthly"] #monthYear {
+  width: 140px;
+}
+
+.db-query-fields[data-fields="daily"] input[type="time"],
+.db-query-fields[data-fields="monthly"] #monthMonth {
+  width: 110px;
+}
+
+.db-query-hint {
+  font-size: 12px;
+  color: #6b7a9a;
+  margin: 0;
+}
+
+.db-query-hint-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: -0.75rem 0 1rem;
+}
+
+.db-alert--extra {
+  display: none;
+}
+
+.db-alert--extra.db-alert--extra-visible {
+  display: block;
+}
+
+.db-query-form button {
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.db-query-form button:hover { background: #1d4ed8; }
 
 .db-table-wrap {
   overflow-x: auto;
@@ -309,7 +541,7 @@
 
 .db-status-card__numbers {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 1rem;
 }
@@ -359,7 +591,7 @@
 
 .db-alert {
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 14px 1.25rem;
 }
 
 .db-alert--ok {
@@ -764,13 +996,6 @@
 
 /* footer */
 
-
-.footer {
-  background: #0f1f4a;
-  padding: 1.75rem 1.5rem;
-  text-align: center;
-}
-
 .footer p {
   font-size: 13px;
   color: #6b7a9a;
@@ -804,6 +1029,6 @@ body {
   width: 100%;
   background-color: #0b132b; /* 대시보드 하단의 짙은 네이비 색상 */
   color: #8fa0c4;            /* 글자 색상 */
-  padding: 20px 0;           /* 위아래 여백 */
+  padding: 3.5rem 1.5rem;    /* 상단 배너와 통일된 여백 */
   text-align: center;
 }

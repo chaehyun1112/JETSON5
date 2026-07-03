@@ -450,9 +450,7 @@ img, svg { display: block; }
 }
 
 /* 중복되거나 필요 없어진 특수 클래스 초기화 */
-.about-action-card--primary { }
-.about-action-card--outline { }
-.about-action-card__icon--outline { }
+
 
 
 /* 문구 섹션들 */
@@ -629,6 +627,7 @@ img, svg { display: block; }
 }
 
 
+
 .footer {
   background: #0f1f4a;
   padding: 1.75rem 1.5rem;
@@ -694,4 +693,15 @@ body > *:not(.footer) {
 .nopill-card__link:hover {
     color: #1d4ed8;
     text-decoration: underline;
+}
+
+.btn--ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px; /* 아이콘과 글자 사이 간격 */
+}
+
+.btn-icon {
+    width: 18px;
+    height: 18px;
 }

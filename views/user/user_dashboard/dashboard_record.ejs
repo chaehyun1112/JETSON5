@@ -16,14 +16,10 @@
   <section class="db-header">
     <div class="db-header__inner">
       <div>
-        <p class="db-header__greeting">안녕하세요, <strong><%= user.name %></strong> 님</p>
+        <p class="db-header__greeting">안녕하세요, <strong><%= user.name %></strong> 님 👋</p>
         <h1 class="db-header__title">복약 기록</h1>
-        <p class="db-header__date">등록된 시니어별 복약 시간을 DB 기준으로 확인합니다.</p>
+        <p class="db-header__date">등록된 시니어별 복약 시간을 복약일정 기준으로 확인합니다.</p>
       </div>
-      <form class="db-date-form" method="GET" action="/user/user_dashboard/records">
-        <input type="date" name="date" value="<%= selectedDate %>" />
-        <button type="submit">조회</button>
-      </form>
     </div>
   </section>
 
@@ -61,9 +57,25 @@
       </section>
 
       <section class="db-card">
-        <div class="db-card__header">
-          <h2 class="db-card__title">선택 날짜 복약 일정 목록</h2>
-          <a href="/user/user_dashboard/status" class="db-card__more">실시간 상태 보기</a>
+        <div class="db-card__header db-card__header--record">
+          <h2 class="db-card__title">복약 일정</h2>
+          <div class="db-senior-select" id="seniorDropdown">
+            <span class="db-senior-select__label">보호대상</span>
+            <% const currentSenior = seniorOptions.find(s => s.id === selectedSeniorId) || seniorOptions[0]; %>
+            <span class="db-senior-select__value"><%= currentSenior ? currentSenior.name : '-' %></span>
+            <span class="db-senior-select__caret">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </span>
+            <div class="db-senior-select__menu">
+              <div class="db-senior-select__menu-inner">
+                <% seniorOptions.forEach(s => { %>
+                <a href="?senior=<%= s.id %>" class="<%= s.id === (currentSenior ? currentSenior.id : '') ? 'is-active' : '' %>"><%= s.name %></a>
+                <% }) %>
+              </div>
+            </div>
+          </div>
         </div>
 
         <% if (schedules.length === 0) { %>
@@ -111,5 +123,19 @@
       </section>
     </div>
   </main>
+
+  <script>
+    const seniorDropdown = document.getElementById('seniorDropdown');
+    if (seniorDropdown) {
+      seniorDropdown.addEventListener('click', (e) => {
+        seniorDropdown.classList.toggle('is-open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!seniorDropdown.contains(e.target)) {
+          seniorDropdown.classList.remove('is-open');
+        }
+      });
+    }
+  </script>
 </body>
 </html>

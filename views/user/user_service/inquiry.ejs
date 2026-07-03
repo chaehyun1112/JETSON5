@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/index/style_index_about.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <%- include('../partials/user_partials/nav_index') %>
+
+
+<main class="inquiry-container">
+  <div class="inquiry-detail-header">
+    <span class="status-badge status-<%= inquiry.INQUIRY_STATUS %>">
+      <%= inquiry.INQUIRY_STATUS %>
+    </span>
+    <h2><%= inquiry.INQUIRY_TITLE %></h2>
+    <p class="inquiry-meta">
+      <%= inquiry.INQUIRY_TYPE %> · 
+      <%= new Date(inquiry.CREATED_AT).toLocaleDateString('ko-KR') %>
+    </p>
+  </div>
+
+  <div class="inquiry-content-box">
+    <%= inquiry.INQUIRY_CONTENT %>
+  </div>
+
+  <% if (inquiry.ANSWER_CONTENT) { %>
+    <div class="inquiry-answer-box">
+      <h3>답변</h3>
+      <p class="answer-date">
+        <%= new Date(inquiry.ANSWERED_AT).toLocaleDateString('ko-KR') %> 답변 완료
+      </p>
+      <div class="answer-content">
+        <%= inquiry.ANSWER_CONTENT %>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="inquiry-waiting">
+      <p>아직 답변이 등록되지 않았습니다.</p>
+    </div>
+  <% } %>
+
+  <a href="/inquiry" class="btn-back">목록으로</a>
+</main>
+
+
+<footer>
+  © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
