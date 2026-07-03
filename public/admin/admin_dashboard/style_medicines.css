@@ -251,6 +251,7 @@ body {
   color: #8a94a6;
 }
 
+
 .admin-content {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -542,4 +543,46 @@ body {
 .admin-user-dropdown button:hover {
   background: #f2f6ff;
   color: #1f4fbf;
+}
+
+
+
+.member-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.member-toolbar input,
+.member-toolbar select {
+  height: 38px;
+  border: 1px solid #d7ddea;
+  border-radius: 5px;
+  background: #fff;
+  padding: 0 10px;
+  font-size: 14px;
+  text-align: left;
+}
+.member-toolbar input::placeholder {
+  text-align: left;
+}
+
+.member-toolbar input {
+  width: 260px;
+}
+.member-toolbar select {
+  width: 120px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-width: 1200px;   /* 최소 너비 */
+    min-height: 100vh;
+    overflow-x: auto;    /* 필요하면 가로 스크롤 */
 }

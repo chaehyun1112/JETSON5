@@ -1,0 +1,39 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100vh;
+}
+
+body {
+    font-family: "Noto Sans KR", sans-serif;
+}
+
+/* 링크 */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 이미지 */
+img {
+    display: block;
+    max-width: 100%;
+}
+
+/* 버튼 */
+button {
+    cursor: pointer;
+}
+
+/* 입력창 */
+input,
+button,
+select,
+textarea {
+    font: inherit;
+}
