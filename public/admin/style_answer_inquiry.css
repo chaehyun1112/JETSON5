@@ -1,0 +1,111 @@
+/* ==========================================================================
+   관리자 답변 페이지 레이아웃 수정 (완성본)
+   ========================================================================== */
+
+/* 1. 전체 컨테이너 폭 정렬 및 중앙 배치 */
+.inquiry-container {
+  max-width: 1000px !important; /* 관리자 화면이므로 조금 더 시원하게 넓힘 */
+  margin: 3rem auto !important;
+  padding: 2.5rem !important;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+/* 2. 맨 위 상단 헤더 영역 전면 수정 */
+.admin-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  border-bottom: 2px solid #e2e8f0 !important; /* 구분선을 조금 더 선명하게 */
+  padding-bottom: 1rem !important;
+  margin-bottom: 2rem !important;
+  width: 100% !important;
+}
+
+/* 헤더 내 배지 위치 고정 */
+.admin-header .status-badge {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+/* 헤더 타이틀 텍스트 */
+.admin-header h2 {
+  margin: 0 !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: #1e3a8a !important;
+}
+
+/* 3. 유저 문의 요약 섹션 가로폭 맞춤 */
+.user-inquiry-section {
+  width: 100% !important;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  box-sizing: border-box !important;
+}
+
+/* 4. 답변 입력 폼 구조 바로잡기 (핵심 오류 수정) */
+.admin-answer-section {
+  width: 100% !important;
+}
+
+.admin-answer-section .inquiry-form {
+  display: flex !important;
+  flex-direction: column !important; /* 폼 내부 요소를 무조건 세로로 나열 */
+  width: 100% !important;
+}
+
+/* 라벨이 입력창 위로 올라가도록 설정 */
+.admin-answer-section .form-group {
+  display: flex !important;
+  flex-direction: column !important; /* 라벨과 textarea를 세로 배치 */
+  align-items: flex-start !important; /* 왼쪽 정렬 */
+  gap: 10px !important; /* 라벨과 textarea 사이 간격 */
+  width: 100% !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* "답변 내용 입력" 라벨 스타일 */
+.admin-answer-section .form-group label {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #1e3a8a !important;
+  display: block !important;
+  margin: 0 !important;
+}
+
+/* 찌그러져 있던 입력창(textarea)을 가로로 길게 100% 확장 */
+.admin-answer-section textarea {
+  width: 100% !important;      /* 부모 너비에 맞춰 꽉 차게 */
+  min-height: 250px !important; /* 세로 크기도 시원하게 확보 */
+  padding: 16px !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  background-color: #ffffff !important;
+  box-sizing: border-box !important; /* 패딩이 너비에 영향을 주지 않도록 고정 */
+  resize: vertical;             /* 사용자가 세로 크기만 조절 가능하도록 설정 */
+}
+
+/* 입력창에 마우스 클릭(포커스)했을 때 효과 */
+.admin-answer-section textarea:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+  outline: none !important;
+}
+
+/* 5. 하단 버튼 바 레이아웃 정렬 */
+.btn-row {
+  display: flex !important;
+  justify-content: flex-end !important; /* 버튼들을 우측 정렬 */
+  gap: 12px !important;
+  padding-top: 1.5rem !important;
+  border-top: 1px solid #e2e8f0 !important;
+  width: 100% !important;
+}

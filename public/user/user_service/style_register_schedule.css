@@ -121,7 +121,6 @@ body {
     display: flex;
     gap: 12px;
 }
-
 .card-field {
     display: flex;
     flex-direction: column;
@@ -135,19 +134,138 @@ body {
     color: #374151;
 }
 
-.time-input {
+/* 타임피커 컨테이너 */
+.custom-time-picker {
+    position: relative;
     width: 100%;
-    padding: 10px 14px;              /* 상하좌우 여백을 넓혀서 터치/클릭하기 편하게 */
-    border: 1px solid #e5e7eb;        /* 선을 좀 더 연하고 부드러운 회색으로 변경 */
-    border-radius: 10px;              /* 라운딩을 살짝 더 주어 트렌디하게 */
-    font-size: 0.9rem;                /* 글자 크기를 살짝 키워 가독성 확보 */
-    font-weight: 500;                 /* 글자 두께를 주어 직관적으로 변경 */
+}
+
+.time-display {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
     color: #1f2937;
     background: #ffffff;
     outline: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* 은은한 하단 그림자 추가 */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease-in-out;
     cursor: pointer;
+    font-family: inherit;
+}
+
+.time-display:hover {
+    border-color: #c7d2fe;
+}
+
+.time-display.active {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.time-display-text.placeholder {
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+.time-icon {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+/* 드롭다운 */
+.time-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 50;
+    width: 220px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f1f3;
+    padding: 8px;
+    display: none;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.time-dropdown.open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.time-wheel-group {
+    display: flex;
+    position: relative;
+    height: 180px;
+}
+
+/* 가운데 선택 영역 하이라이트 바 */
+.wheel-highlight {
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    right: 8px;
+    height: 36px;
+    transform: translateY(-50%);
+    background: #eef2ff;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.time-wheel {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    position: relative;
+    z-index: 2;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.time-wheel::-webkit-scrollbar {
+    display: none;
+}
+
+.wheel-track {
+    display: flex;
+    flex-direction: column;
+    padding: 72px 0;
+}
+
+.wheel-item {
+    height: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #9ca3af;
+    scroll-snap-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease, font-size 0.15s ease;
+}
+
+.wheel-item.selected {
+    color: #4338ca;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.time-wheel + .time-wheel {
+    border-left: 1px solid #f3f4f6;
 }
 
 /* 포커스(클릭) 되었을 때 효과 체감 업그레이드 */

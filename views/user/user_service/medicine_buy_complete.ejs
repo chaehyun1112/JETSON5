@@ -48,9 +48,17 @@
       </div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:0.5rem;">
+        <% if (user && user.role === 'S') { %>
+        <a href="/user/senior_info/senior_register-pillbox" class="btn btn--primary">지금 바로 약통 등록하기</a>
+        <% } else { %>
         <a href="/user/user_service/register-pillbox" class="btn btn--primary">지금 바로 약통 등록하기</a>
-        <a href="/user/user_service/about" class="btn btn--outline">서비스 소개로 돌아가기</a>
-      </div>
+        <% } %>
+<% if (user && user.role === 'S') { %>
+    <a href="/user/senior_service/senior_about" class="btn btn--outline">서비스 소개로 돌아가기</a>
+<% } else { %>
+    <a href="/user/user_service/about" class="btn btn--outline">서비스 소개로 돌아가기</a>
+<% } %>      
+</div>
 
     </div>
   </main>

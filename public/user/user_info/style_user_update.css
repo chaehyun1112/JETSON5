@@ -187,31 +187,173 @@ body {
     display: flex;
     gap: 10px;
 }
-
 .card-field {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
     flex: 1;
 }
 
 .time-label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #374151;
 }
 
-.can-select {
+/* 타임피커 컨테이너 */
+.custom-time-picker {
+    position: relative;
     width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: #111827;
+}
+
+.time-display {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1f2937;
     background: #ffffff;
     outline: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
     cursor: pointer;
+    font-family: inherit;
+}
+
+.time-display:hover {
+    border-color: #c7d2fe;
+}
+
+.time-display.active {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.time-display-text.placeholder {
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+.time-icon {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+/* 드롭다운 */
+.time-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 50;
+    width: 220px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f1f3;
+    padding: 8px;
+    display: none;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.time-dropdown.open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.time-wheel-group {
+    display: flex;
+    position: relative;
+    height: 180px;
+}
+
+/* 가운데 선택 영역 하이라이트 바 */
+.wheel-highlight {
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    right: 8px;
+    height: 36px;
+    transform: translateY(-50%);
+    background: #eef2ff;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.time-wheel {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    position: relative;
+    z-index: 2;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.time-wheel::-webkit-scrollbar {
+    display: none;
+}
+
+.wheel-track {
+    display: flex;
+    flex-direction: column;
+    padding: 72px 0;
+}
+
+.wheel-item {
+    height: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #9ca3af;
+    scroll-snap-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease, font-size 0.15s ease;
+}
+
+.wheel-item.selected {
+    color: #4338ca;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.time-wheel + .time-wheel {
+    border-left: 1px solid #f3f4f6;
+}
+
+/* 포커스(클릭) 되었을 때 효과 체감 업그레이드 */
+.time-input:focus {
+    border-color: #3b82f6;            /* 좀 더 밝고 선명한 브랜드 블루 */
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); /* 부드러운 하이라이트 링 */
+    background-color: #f8fafc;        /* 클릭 시 미세하게 배경색을 바꿔 피드백 제공 */
+}
+
+/* ── 칸 번호 드롭다운 ── */
+.can-select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #111827;
+    background: #ffffff;
+    appearance: auto;
+    outline: none;
     transition: border-color 0.2s;
+    cursor: pointer;
 }
 
 .can-select:focus {
@@ -219,12 +361,18 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+/* 선택 안 함 상태 회색 처리 */
+.can-select:has(option[value=""]:checked) {
+    color: #9ca3af;
+}
+
+/* ── 시간 입력 ── */
 .time-input {
     width: 100%;
-    padding: 8px 10px;
+    padding: 9px 12px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     color: #111827;
     background: #ffffff;
     outline: none;
@@ -236,17 +384,16 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* ── 하단 버튼 ── */
+/* ── 하단 버튼 행 ── */
 .btn-row {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    padding-top: 8px;
-    border-top: 1px solid #e5e7eb;
+    margin-top: 8px;
 }
 
 .btn-cancel {
-    padding: 11px 28px;
+    padding: 12px 28px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     background: #ffffff;
@@ -266,7 +413,7 @@ body {
 }
 
 .btn-submit {
-    padding: 11px 28px;
+    padding: 12px 28px;
     border: none;
     border-radius: 8px;
     background: #2563eb;
@@ -283,12 +430,8 @@ body {
 
 /* ── 반응형 ── */
 @media (max-width: 640px) {
-    .edit-box {
+    .schedule-box {
         padding: 28px 20px 36px;
-    }
-
-    .info-grid {
-        grid-template-columns: 1fr;
     }
 
     .time-grid {
@@ -297,10 +440,6 @@ body {
 
     .card-row {
         flex-direction: column;
-    }
-
-    .schedule-date-group {
-        max-width: 100%;
     }
 
     .btn-row {
