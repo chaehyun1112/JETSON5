@@ -1,0 +1,115 @@
+/* 1. 문의 내역 컨테이너 레이아웃 안정화 */
+.inquiry-container {
+  max-width: 800px;          /* 목록 페이지는 조금 더 넓게 설정 */
+  margin: 4rem auto;
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+/* 2. 상단 헤더 정렬 (타이틀 & 버튼) */
+.inquiry-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.inquiry-list-header h2 {
+  margin: 0 !important;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+/* 3. 문의하기 버튼 */
+.btn-write {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #2563eb;
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-write:hover {
+  background-color: #1d4ed8;
+}
+
+/* 4. 테이블 스타일 정렬 및 고정 */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.inquiry-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 14px;
+}
+
+.inquiry-table th {
+  background-color: #f8fafc;
+  color: #4b5a7a;
+  font-weight: 600;
+  padding: 14px 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.inquiry-table td {
+  padding: 16px 10px;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+/* 테이블 행 호버 효과 */
+.inquiry-table tbody tr {
+  transition: background-color 0.15s;
+}
+
+.inquiry-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* 제목 셀 우측 정렬 및 디자인 */
+.inquiry-title-cell {
+  text-align: left !important;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+/* 5. 상태 표시 배지 색상 복구 */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-align: center;
+}
+
+/* 답변완료 (초록색) */
+.status-badge.status-답변완료 {
+  background-color: #dcfce7 !important;
+  color: #15803d !important;
+}
+
+/* 답변대기 (주황색) */
+.status-badge.status-답변대기 {
+  background-color: #fef3c7 !important;
+  color: #d97706 !important;
+}
+
+.type-badge {
+  color: #64748b;
+  font-size: 13px;
+}

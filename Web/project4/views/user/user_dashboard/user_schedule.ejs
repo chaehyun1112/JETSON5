@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/user/user_dashboard/user_schedule.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <%- include('../../partials/user_partials/nav_dashboard') %>
+
+  <!-- ===== 페이지 헤더 ===== -->
+  <div class="dash-header">
+    <div class="dash-header__inner">
+      <p class="section-tag">메인 대시보드</p>
+      <h1 class="dash-header__title">안녕하세요, <%= user.name %>님 👋</h1>
+      <p class="dash-header__sub">오늘의 복약 스케줄을 확인하세요.</p>
+    </div>
+  </div>
+
+  <main class="dash-main">
+    <div class="dash-container">
+
+      <!-- ── 오늘 날짜 카드 ── -->
+      <div class="dash-today">
+        <span class="dash-today__date" id="todayDate"></span>
+        <span class="dash-today__badge">오늘</span>
+      </div>
+
+      <!-- ── 복약 현황 요약 ── -->
+      <div class="dash-summary">
+        <div class="dash-summary__card">
+          <p class="dash-summary__label">총 복약 횟수</p>
+          <p class="dash-summary__value"><%= schedule.length %><span>회</span></p>
+        </div>
+        <div class="dash-summary__card dash-summary__card--done">
+          <p class="dash-summary__label">복약 완료</p>
+          <p class="dash-summary__value"><%= schedule.filter(s => s.status === 'done').length %><span>회</span></p>
+        </div>
+        <div class="dash-summary__card dash-summary__card--miss">
+          <p class="dash-summary__label">미복약</p>
+          <p class="dash-summary__value"><%= schedule.filter(s => s.status === 'miss').length %><span>회</span></p>
+        </div>
+        <div class="dash-summary__card dash-summary__card--pending">
+          <p class="dash-summary__label">예정</p>
+          <p class="dash-summary__value"><%= schedule.filter(s => s.status === 'pending').length %><span>회</span></p>
+        </div>
+      </div>
+
+      <!-- ── 스케줄 타임라인 ── -->
+      <section class="dash-section">
+        <h2 class="dash-section__title">오늘의 복약 스케줄</h2>
+
+        <div class="schedule-list">
+          <% schedule.forEach(function(item) { %>
+          <div class="schedule-item schedule-item--<%= item.status %>">
+
+            <div class="schedule-item__time">
+              <span class="schedule-item__hour"><%= item.time %></span>
+            </div>
+
+            <div class="schedule-item__dot-wrap">
+              <div class="schedule-item__dot"></div>
+              <div class="schedule-item__line"></div>
+            </div>
+
+            <div class="schedule-item__body">
+              <div class="schedule-item__header">
+                <h3 class="schedule-item__name"><%= item.medicineName %></h3>
+                <span class="schedule-item__badge">
+                  <% if (item.status === 'done') { %>✅ 복약 완료
+                  <% } else if (item.status === 'miss') { %>⚠️ 미복약
+                  <% } else { %>🕐 예정
+                  <% } %>
+                </span>
+              </div>
+              <p class="schedule-item__detail"><%= item.dose %> · <%= item.note %></p>
+            </div>
+
+          </div>
+          <% }); %>
+        </div>
+      </section>
+
+      <!-- ── 보호대상 빠른 링크 ── -->
+      <div class="dash-quick">
+        <a href="/user/user_info/protected" class="dash-quick__card">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+          <span>보호대상 정보 보기</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+
+<footer class="footer">
+  © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
+
+  <script>
+    // 오늘 날짜 표시
+    const el = document.getElementById('todayDate');
+    if (el) {
+      const now = new Date();
+      const days = ['일','월','화','수','목','금','토'];
+      el.textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+    }
+  </script>
+
+</body>
+</html>

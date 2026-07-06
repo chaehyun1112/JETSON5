@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대상자 등록</title>
+    <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/user/user_service/seniorRegister.css">
+</head>
+<body>
+
+    <main class="register-page">
+
+        <section class="register-box">
+
+            <h1>스마트 약상자</h1>
+            <p class="subtitle">관리할 대상자 정보를 등록해주세요</p>
+
+            <div class="icon-box">
+                <div class="handle"></div>
+                <div class="case">
+                    <span>👤</span>
+                </div>
+            </div>
+
+            <h2>대상자 등록</h2>
+
+            <form action="/user/user_info/seniorRegister" method="post" class="register-form">
+
+                <label>대상자 아이디</label>
+                <input
+                    type="text"
+                    name="seniorId"
+                    placeholder="대상자 아이디"
+                    required>
+
+                <label>대상자 비밀번호</label>
+                <input
+                    type="password"
+                    name="seniorPw"
+                    placeholder="대상자 비밀번호"
+                    required>
+
+                <label>이름</label>
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="이름을 입력해주세요"
+                    required>
+
+                <label>이메일</label>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="이메일을 입력해주세요">
+
+                <label>연락처</label>
+                <input
+                    type="text"
+                    name="contact"
+                    placeholder="연락처를 입력해주세요">
+
+                <label>주소 (선택)</label>
+                <input
+                    type="text"
+                    name="addr"
+                    placeholder="주소를 입력해주세요">
+
+                <label>약통 번호 (선택)</label>
+                <input 
+                    type="text" 
+                    name="pillboxNum"
+                    placeholder="약통 번호를 입력해주세요">
+
+                <button type="submit" class="register-btn">
+                    등록하기
+                </button>
+
+            </form>
+
+                <div class="links">
+                    <% if (from === "pillbox") { %>
+                        <a href="/user/user_service/register-pillbox">
+                            약통 등록으로 돌아가기
+                        </a>
+                    <% } else { %>
+                        <a href="/user/user_info/protected">
+                            보호대상 정보로 돌아가기
+                        </a>
+                    <% } %>
+                </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
