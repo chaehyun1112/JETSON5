@@ -502,17 +502,7 @@ router.post("/sendEmailCode", (req, res) => {
           AND MEM_ST = ?
     `;
 
-        console.log(req.body);
-
-        console.log(id);
-        console.log(name);
-        console.log(email);
-        console.log(role);
-
     conn.query(checkSql, [id, name, email, role], (err, rows) => {
-
-
-
         console.log(rows);
 
         if (err) {
@@ -699,13 +689,79 @@ router.post("/logout", (req, res) => {
 });
 
 // 로그인 안 한 사람 접근 차단
-router.get("/admin/admin_dashboard/admin", (req, res) => {
+// TB_MEMBER, TB_SENIOR, TB_ALERT, TB_PILLBOX_LOG, TB_INQUIRY 기준으로 관리자 메인 현황을 만든다.
+router.get("/admin/admin_dashboard/admin", async (req, res) => {
+  if (!req.session.user || req.session.user.role !== "A") {
+    return res.redirect("/");
+  }
 
-    if (!req.session.user || req.session.user.role !== "A") {
-        return res.redirect("/");
-    }
+  const sql = `
+    SELECT
+      (SELECT COUNT(*) FROM TB_MEMBER) AS totalMembers,
+      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'P') AS parentMembers,
+      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'S') AS seniorMembers,
+      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'A') AS adminMembers,
 
-    res.render("admin/admin_dashboard/admin");
+      (SELECT COUNT(*)
+       FROM TB_ALERT
+       WHERE IS_RECEIVED = 'N') AS uncheckedAlertCount,
+
+      (SELECT COUNT(*)
+        FROM TB_SENIOR S
+        LEFT JOIN TB_PILLBOX_STATUS PS
+        ON PS.PILLBOX_NUM = S.PILLBOX_NUM
+        WHERE S.PILLBOX_NUM IS NOT NULL
+        AND S.PILLBOX_NUM <> ''
+        AND (
+            PS.LAST_HEARTBEAT_AT IS NULL
+            OR PS.LAST_HEARTBEAT_AT < DATE_SUB(NOW(), INTERVAL 1 MINUTE)
+        )
+      ) AS offlinePillboxCount,
+
+      (SELECT COUNT(*)
+       FROM TB_INQUIRY
+       WHERE INQUIRY_STATUS <> '완료') AS pendingInquiryCount
+  `;
+
+  const recentMembersSql = `
+    SELECT
+      MEM_ID AS id,
+      MEM_NAME AS name,
+      MEM_ST AS type,
+      DATE_FORMAT(JOINED_AT, '%Y-%m-%d') AS joinedAt
+    FROM TB_MEMBER
+    ORDER BY JOINED_AT DESC
+    LIMIT 5
+  `;
+
+  try {
+    const [[stats]] = await conn.promise().query(sql);
+    const [recentMembers] = await conn.promise().query(recentMembersSql);
+
+    res.render("admin/admin_dashboard/admin", {
+      title: "관리자 대시보드",
+      adminName: req.session.user.name || "관리자",
+      stats,
+      recentMembers,
+      notices: [
+        {
+          title: "알림",
+          content: `오늘 확인이 필요한 알림 ${stats.uncheckedAlertCount}건`,
+        },
+        {
+          title: "기기 연결 상태",
+          content: `오프라인 약 상자 ${stats.offlinePillboxCount}대`,
+        },
+        {
+          title: "신규 문의",
+          content: `확인 대기 문의 ${stats.pendingInquiryCount}건`,
+        },
+      ],
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("관리자 대시보드 조회 중 DB 오류가 발생했습니다.");
+  }
 });
 
 // 아이디 찾기
@@ -1149,7 +1205,7 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
             { time: '08:00', meal: '아침',   medicineName: '아스피린 100mg',    dose: '1정', status: 'ok'   },
             { time: '12:30', meal: '점심',   medicineName: '혈압약 (암로디핀)', dose: '1정', status: 'warn' },
             { time: '19:00', meal: '저녁',   medicineName: '당뇨약 (메트포민)', dose: '2정', status: 'plan' },
-            { time: '22:00', meal: '취침 전', medicineName: '수면유도제',        dose: '1정', status: 'plan' },
+            { time: '22:00', meal: '자기전', medicineName: '수면유도제',        dose: '1정', status: 'plan' },
             ],
 
             sensor: {
@@ -1176,169 +1232,305 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
     });
 });
 
-router.get("/admin/admin_dashboard/members", (req, res) => {
-  const members = [
-    {
-      id: "parent01",
-      name: "김보호",
-      type: "P",
-      email: "parent01@example.com",
-      contact: "010-1111-2222",
-      joinedAt: "2026-06-22",
-      address: "광주광역시",
-      memo: "시니어 회원 이민수 보호자",
-    },
-    {
-      id: "senior01",
-      name: "이민수",
-      type: "S",
-      email: "senior01@example.com",
-      contact: "010-3333-4444",
-      joinedAt: "2026-06-21",
-      address: "광주광역시",
-      memo: "복약 알림 사용 중",
-    },
-    {
-      id: "senior02",
-      name: "박영희",
-      type: "S",
-      email: "senior02@example.com",
-      contact: "010-5555-6666",
-      joinedAt: "2026-06-20",
-      address: "전라남도 나주시",
-      memo: "약상자 연결 대기",
-    },
-  ];
+// 보호자는 연결된 모든 보호대상자 ID와 약통 번호를 표시하고,
+// 시니어는 보호자 ID와 본인 약통 번호를 표시한다.
+router.get("/admin/admin_dashboard/members", async (req, res) => {
+  const sql = `
+    SELECT *
+    FROM (
+      SELECT
+        M.MEM_ID AS id,
+        M.MEM_NAME AS name,
+        M.MEM_ST AS type,
+        M.MEM_EMAIL AS email,
+        M.MEM_CONTACT AS contact,
+        DATE_FORMAT(M.JOINED_AT, '%Y-%m-%d') AS joinedAt,
+        IFNULL(M.MEM_ADDR, '') AS address,
+        CASE
+          WHEN M.MEM_ST = 'P' THEN
+            IFNULL(
+              NULLIF(
+                GROUP_CONCAT(
+                  DISTINCT CONCAT(
+                    '보호대상: ',
+                    S.SENIOR_ID,
+                    ' / 약통: ',
+                    IFNULL(NULLIF(S.PILLBOX_NUM, ''), '미등록')
+                  )
+                  ORDER BY S.SENIOR_ID
+                  SEPARATOR ', '
+                ),
+                ''
+              ),
+              '보호대상: 미등록 / 약통: 미등록'
+            )
 
-  res.render("admin/admin_dashboard/members", {
-    title: "회원관리",
-    pageTitle: "회원관리",
-    members,
+          WHEN M.MEM_ST = 'S' THEN
+            CONCAT(
+              '대상자: ',
+              M.MEM_ID,
+              ' / 보호자: ',
+              IFNULL(NULLIF(SELF_S.MEM_ID, ''), '미등록'),
+              ' / 약통: ',
+              IFNULL(NULLIF(SELF_S.PILLBOX_NUM, ''), '미등록')
+            )
+
+          ELSE
+            CONCAT('회원: ', M.MEM_ID)
+        END AS memo
+      FROM TB_MEMBER M
+      LEFT JOIN TB_SENIOR S
+        ON S.MEM_ID = M.MEM_ID
+      LEFT JOIN TB_SENIOR SELF_S
+        ON SELF_S.SENIOR_ID = M.MEM_ID
+      WHERE M.MEM_ST IN ('P', 'S')
+      GROUP BY
+        M.MEM_ID,
+        M.MEM_NAME,
+        M.MEM_ST,
+        M.MEM_EMAIL,
+        M.MEM_CONTACT,
+        M.JOINED_AT,
+        M.MEM_ADDR,
+        SELF_S.MEM_ID,
+        SELF_S.PILLBOX_NUM
+
+      UNION ALL
+
+      SELECT
+        S.SENIOR_ID AS id,
+        S.SENIOR_NAME AS name,
+        'S' AS type,
+        S.SENIOR_EMAIL AS email,
+        S.SENIOR_CONTACT AS contact,
+        DATE_FORMAT(S.JOINED_AT, '%Y-%m-%d') AS joinedAt,
+        IFNULL(S.SENIOR_ADDR, '') AS address,
+        CONCAT(
+          '대상자: ',
+          S.SENIOR_ID,
+          ' / 보호자: ',
+          IFNULL(NULLIF(S.MEM_ID, ''), '미등록'),
+          ' / 약통: ',
+          IFNULL(NULLIF(S.PILLBOX_NUM, ''), '미등록')
+        ) AS memo
+      FROM TB_SENIOR S
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM TB_MEMBER M
+        WHERE M.MEM_ID = S.SENIOR_ID
+      )
+    ) X
+    ORDER BY joinedAt DESC, type, name
+  `;
+
+  try {
+    const [members] = await conn.promise().query(sql);
+
+    res.render("admin/admin_dashboard/members", {
+      title: "회원관리",
+      pageTitle: "회원관리",
+      adminName: req.session.user?.name || "관리자",
+      members,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("회원 목록 조회 중 DB 오류가 발생했습니다.");
+  }
+});
+
+// 관리자 약 상자 관리 페이지
+// TB_PILLBOX_STATUS.LAST_HEARTBEAT_AT 기준으로 약상자 ON/OFF를 판단한다.
+router.get("/admin/admin_dashboard/medicine_boxes", async (req, res) => {
+  const sql = `
+    SELECT
+      S.PILLBOX_NUM AS id,
+      S.SENIOR_NAME AS owner,
+
+      CASE
+        WHEN PS.LAST_HEARTBEAT_AT >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)
+        THEN 'ON'
+        ELSE 'OFF'
+      END AS powerStatus,
+
+    DATE_FORMAT(PS.LAST_HEARTBEAT_AT, '%Y-%m-%d %H:%i') AS lastHeartbeatAt,
+
+    L.LOG_TYPE AS logType,
+
+      COUNT(M.MEDI_SCHE_CD) AS activeScheduleCount
+    FROM TB_SENIOR S
+
+    LEFT JOIN TB_PILLBOX_STATUS PS
+      ON PS.PILLBOX_NUM = S.PILLBOX_NUM
+
+    LEFT JOIN (
+      SELECT L1.*
+      FROM TB_PILLBOX_LOG L1
+      INNER JOIN (
+        SELECT SENIOR_ID, MAX(LOGGED_AT) AS LOGGED_AT
+        FROM TB_PILLBOX_LOG
+        GROUP BY SENIOR_ID
+      ) L2 ON L2.SENIOR_ID = L1.SENIOR_ID
+         AND L2.LOGGED_AT = L1.LOGGED_AT
+    ) L ON L.SENIOR_ID = S.SENIOR_ID
+
+    LEFT JOIN TB_MEDICINE_SCHEDULE M
+      ON M.SENIOR_ID = S.SENIOR_ID
+      AND M.USE_YN = 'Y'
+
+    WHERE S.PILLBOX_NUM IS NOT NULL
+      AND S.PILLBOX_NUM <> ''
+
+    GROUP BY
+    S.SENIOR_ID,
+    S.PILLBOX_NUM,
+    S.SENIOR_NAME,
+    PS.LAST_HEARTBEAT_AT,
+    L.LOG_TYPE
+
+    ORDER BY S.PILLBOX_NUM
+  `;
+
+  try {
+    const [rows] = await conn.promise().query(sql);
+
+    const medicineBoxes = rows.map((row) => {
+      const logType = row.logType || "";
+      const isOpen = logType.includes("OPEN") || logType.includes("열림");
+
+      return {
+        id: row.id,
+        owner: row.owner,
+        status: row.powerStatus,
+        isOpen,
+        pillStatus: "미확인",
+        lastPillCheckedAt: "-",
+        lastUpdated: row.lastHeartbeatAt || "-",
+        };
+    });
+
+    res.render("admin/admin_dashboard/medicine_boxes", {
+      title: "약 상자 관리",
+      pageTitle: "약 상자 관리",
+      adminName: req.session.user?.name || "관리자",
+      medicineBoxes,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("약상자 목록 조회 중 DB 오류가 발생했습니다.");
+  }
+});
+
+
+router.post("/api/pillbox/heartbeat", (req, res) => {
+  const { pillboxNum, seniorId } = req.body;
+  const ipAddr =
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.socket.remoteAddress ||
+    null;
+
+  if (!pillboxNum || !seniorId) {
+    return res.status(400).json({
+      success: false,
+      message: "pillboxNum, seniorId가 필요합니다.",
+    });
+  }
+
+  const sql = `
+    INSERT INTO TB_PILLBOX_STATUS
+      (PILLBOX_NUM, SENIOR_ID, POWER_STATUS, LAST_HEARTBEAT_AT, IP_ADDR)
+    SELECT
+      S.PILLBOX_NUM,
+      S.SENIOR_ID,
+      'Y',
+      NOW(),
+      ?
+    FROM TB_SENIOR S
+    WHERE S.SENIOR_ID = ?
+      AND S.PILLBOX_NUM = ?
+    ON DUPLICATE KEY UPDATE
+      SENIOR_ID = VALUES(SENIOR_ID),
+      POWER_STATUS = 'Y',
+      LAST_HEARTBEAT_AT = NOW(),
+      IP_ADDR = VALUES(IP_ADDR)
+  `;
+
+  conn.query(sql, [ipAddr, seniorId, pillboxNum], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ success: false });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "등록된 시니어/약통 정보를 찾을 수 없습니다.",
+      });
+    }
+
+    res.json({ success: true });
   });
 });
 
-router.get("/admin/admin_dashboard/medicine_boxes", (req, res) => {
-  const medicineBoxes = [
-    {
-      id: "BOX-001",
-      owner: "이민수",
-      status: "ON",
-      weight: "128g",
-      isOpen: false,
-      lcdTime: "2026-06-22 09:20",
-      buzzer: true,
-      led: true,
-      lastUpdated: "2026-06-22 09:25",
-    },
-    {
-      id: "BOX-002",
-      owner: "박영희",
-      status: "OFF",
-      weight: "84g",
-      isOpen: false,
-      lcdTime: "2026-06-22 08:10",
-      buzzer: false,
-      led: false,
-      lastUpdated: "2026-06-22 08:15",
-    },
-    {
-      id: "BOX-003",
-      owner: "정순자",
-      status: "ON",
-      weight: "42g",
-      isOpen: true,
-      lcdTime: "2026-06-22 10:02",
-      buzzer: false,
-      led: true,
-      lastUpdated: "2026-06-22 10:03",
-    },
-  ];
+// 관리자 알림 메시지 페이지
+// 알림 메시지 화면에서는 회원 문의(TB_INQUIRY)만 표시한다.
+router.get("/admin/admin_dashboard/messages", async (req, res) => {
+  const sql = `
+    SELECT
+      I.INQUIRY_CD AS id,
+      '문의' AS type,
+      I.INQUIRY_TITLE AS title,
+      M.MEM_NAME AS sender,
+      CONCAT(
+        CASE M.MEM_ST
+          WHEN 'P' THEN '보호자'
+          WHEN 'S' THEN '대상자'
+          WHEN 'A' THEN '관리자'
+          ELSE '회원'
+        END,
+        ' / 회원ID: ',
+        I.MEM_ID,
+        ' / 기기ID: ',
+        IFNULL(NULLIF(COALESCE(TARGET_S.PILLBOX_NUM, MEMBER_S.PILLBOX_NUM), ''), '미등록')
+      ) AS memberId,
 
-  res.render("admin/admin_dashboard/medicine_boxes", {
-    title: "약상자 관리",
-    pageTitle: "약상자 관리",
-    medicineBoxes,
-  });
+      CASE
+        WHEN I.INQUIRY_STATUS = '완료' THEN '완료'
+        ELSE '확인 필요'
+      END AS status,
+
+      DATE_FORMAT(I.CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
+      I.INQUIRY_CONTENT AS content
+    FROM TB_INQUIRY I
+    JOIN TB_MEMBER M
+      ON M.MEM_ID = I.MEM_ID
+
+    -- 문의가 특정 대상자와 연결된 경우, 그 대상자의 약통 번호를 가져온다.
+    LEFT JOIN TB_SENIOR TARGET_S
+      ON TARGET_S.SENIOR_ID = I.SENIOR_ID
+
+    -- 문의 작성자가 시니어 계정인 경우, 작성자 본인의 약통 번호를 가져온다.
+    LEFT JOIN TB_SENIOR MEMBER_S
+      ON MEMBER_S.SENIOR_ID = I.MEM_ID
+
+    ORDER BY I.CREATED_AT DESC
+    LIMIT 100
+  `;
+
+  try {
+    const [messages] = await conn.promise().query(sql);
+
+    res.render("admin/admin_dashboard/messages", {
+      title: "알림메시지",
+      pageTitle: "알림메시지",
+      adminName: req.session.user?.name || "관리자",
+      messages,
+    });
+  } catch (err) {
+    
+    console.log(err);
+    res.status(500).send("문의 목록 조회 중 DB 오류가 발생했습니다.");
+  }
 });
-
-
-router.get("/admin/admin_dashboard/messages", (req, res) => {
-  const messages = [
-    {
-      id: 1,
-      type: "문의",
-      title: "약상자 알림 시간이 변경되지 않습니다.",
-      sender: "김보호",
-      memberId: "parent01",
-      status: "대기",
-      createdAt: "2026-06-22 09:12",
-      content:
-        "보호자 앱에서 복약 알림 시간을 변경했는데 약상자에 반영되지 않습니다. 확인 부탁드립니다.",
-    },
-    {
-      id: 2,
-      type: "이상사항",
-      title: "BOX-003 약상자 개폐 감지 상태가 오래 유지됩니다.",
-      sender: "시스템",
-      memberId: "BOX-003",
-      status: "확인 필요",
-      createdAt: "2026-06-22 10:03",
-      content:
-        "BOX-003 약상자가 10분 이상 열림 상태로 유지되고 있습니다. 사용자 확인이 필요합니다.",
-    },
-    {
-      id: 3,
-      type: "문의",
-      title: "회원정보 연락처를 수정하고 싶습니다.",
-      sender: "박영희",
-      memberId: "senior02",
-      status: "완료",
-      createdAt: "2026-06-21 16:40",
-      content:
-        "회원가입할 때 입력한 연락처가 변경되었습니다. 관리자 페이지에서 수정 가능한지 문의드립니다.",
-    },
-    {
-      id: 4,
-      type: "이상사항",
-      title: "부저 알람이 작동하지 않습니다.",
-      sender: "이민수",
-      memberId: "senior01",
-      status: "대기",
-      createdAt: "2026-06-21 08:30",
-      content:
-        "복약 시간이 되었는데 부저 소리가 나지 않았습니다. LED는 켜졌지만 알림음은 들리지 않았습니다.",
-    },
-  ];
-
-  res.render("admin/admin_dashboard/messages", {
-    title: "알림메시지",
-    pageTitle: "알림메시지",
-    messages,
-  });
-});
-
-
-
-router.get("/admin/members_update", (req, res) => {
-  const memberId = req.params.id;
-
-  const member = {
-    id: memberId,
-    type: "S",
-    name: "이민수",
-    email: "abc@naver.com",
-    contact: "010-1234-5678",
-    address: "광주광역시 북구 첨단과기로 123",
-    joinedAt: "2026-06-22",
-  };
-
-  res.render("admin/members_update", {
-    title: "회원정보 수정",
-    pageTitle: "회원정보 수정",
-    member,
-  });
-});
-
 
 router.get("/findId", (req, res) => {
     res.render("login/findId");
@@ -1804,8 +1996,6 @@ router.get('/user/user_info/settings', isLoggedIn, (req, res) => {
 
 // 계정 정보 수정
 router.post("/user/user_info/settings/update", isLoggedIn, (req, res) => {
-    console.log("설정 저장 POST");
-    console.log(req.body);
 
     const {
         MEM_NAME,
@@ -1929,26 +2119,147 @@ if (!req.session.user) {
     });
 });
 
+router.get("/admin/admin_update", (req, res) => {
 
-let tempAdminData = {
-    MEM_ID: 'admin',
-    MEM_NM: '김성훈',
-    MEM_ST: 'A',
-    REG_DATE: '2026.03.15', // 수정 불가 항목
-    MGR_NM: '홍길동',
-    MGR_EMAIL: 'manager@example.com',
-    MGR_PHONE: '010-1234-5678',
-    MGR_ADDR: '광주광역시 북구 용봉동'
-};
+    const sql = `
+        SELECT *
+        FROM TB_MEMBER
+        WHERE MEM_ID = ?
+    `;
 
+    conn.query(sql, [req.session.user.id], (err, rows) => {
 
-router.get('/admin/admin_update', (req, res) => {
+        if(err){
+            console.log(err);
+            return res.send("DB 오류");
+        }
 
-    res.render('admin/admin_update', {
-        title: '관리자 정보 설정 (데모 버전)',
-        member: tempAdminData
+        if(rows.length===0){
+            return res.redirect("/login");
+        }
+
+        res.render("admin/admin_update",{
+            title:"관리자 정보 수정",
+            member:rows[0]
+        });
     });
 });
+
+// 관리자 정보 수정
+router.post("/admin/admin_update", async (req,res)=>{
+
+    const {
+
+        adminName,
+        adminPw,
+        adminEmail,
+        adminPhone,
+        adminAddr
+
+    } = req.body;
+
+    const id=req.session.user.id;
+
+    let sql;
+    let params;
+
+    if(adminPw.trim()!=""){
+
+        const hash=await bcrypt.hash(adminPw,10);
+
+        sql=`
+        UPDATE TB_MEMBER
+        SET
+        MEM_NAME=?,
+        MEM_PW=?,
+        MEM_EMAIL=?,
+        MEM_CONTACT=?,
+        MEM_ADDR=?
+        WHERE MEM_ID=?
+        `;
+
+        params=[
+            adminName,
+            hash,
+            adminEmail,
+            adminPhone,
+            adminAddr,
+            id
+        ];
+
+    }else{
+
+        sql=`
+        UPDATE TB_MEMBER
+        SET
+        MEM_NAME=?,
+        MEM_EMAIL=?,
+        MEM_CONTACT=?,
+        MEM_ADDR=?
+        WHERE MEM_ID=?
+        `;
+
+        params=[
+            adminName,
+            adminEmail,
+            adminPhone,
+            adminAddr,
+            id
+        ];
+    }
+
+    conn.query(sql, params, (err)=>{
+
+        if(err){
+            console.log(err);
+            return res.send("<script>alert('수정 실패');history.back();</script>");
+        }
+
+        req.session.user.name=adminName;
+
+        res.send(`
+        <script>
+        alert("수정되었습니다.");
+        location.href="/admin/admin_dashboard/admin";
+        </script>
+        `);
+    });
+});
+
+// 관리자 탈퇴
+router.post("/admin/admin_delete",(req,res)=>{
+
+    const sql=`
+    DELETE
+    FROM TB_MEMBER
+    WHERE MEM_ID=?
+    `;
+
+    conn.query(sql,[req.session.user.id],(err)=>{
+
+        if(err){
+            console.log(err);
+            return res.send("<script>alert('탈퇴 실패');history.back();</script>");
+        }
+
+        req.session.destroy(()=>{
+
+            res.send(`
+            <script>
+            alert("탈퇴되었습니다.");
+            location.href="/login";
+            </script>
+            `);
+
+        });
+    });
+});
+
+
+
+
+
+
 
 let tempHistory = [
     { date: '2026.06.30 09:15', target: '전체 회원', type: '일반 안내', title: '정기 서버 점검 안내 사항입니다.' },
@@ -2025,8 +2336,6 @@ router.get("/user/senior_info/senior_schedule", (req, res) => {
 
 // 약 스케줄 등록 POST
 router.post("/user/senior_info/senior_schedule", isLoggedIn, (req, res) => {
-
-    console.log(req.body);
 
     const {
         seniorId,
@@ -2282,9 +2591,14 @@ router.get("/user/senior_info/senior_settings", isLoggedIn, (req, res) => {
 
     // 시니어 정보 조회
     const seniorSql = `
-        SELECT *
-        FROM TB_SENIOR
-        WHERE SENIOR_ID = ?
+        SELECT
+            S.*,
+            M.MEM_ST,
+            M.JOINED_AT
+        FROM TB_SENIOR S
+        JOIN TB_MEMBER M
+            ON S.SENIOR_ID = M.MEM_ID
+        WHERE S.SENIOR_ID = ?
     `;
 
     conn.query(seniorSql, [seniorId], (err, seniorRows) => {
@@ -2346,9 +2660,6 @@ router.get("/user/senior_info/senior_settings", isLoggedIn, (req, res) => {
 // 시니어 계정 정보 수정
 router.post("/user/senior_info/senior_settings/update", isLoggedIn, (req, res) => {
 
-    console.log("시니어 설정 저장");
-    console.log(req.body);
-
     const {
         SENIOR_NAME,
         SENIOR_EMAIL,
@@ -2357,7 +2668,8 @@ router.post("/user/senior_info/senior_settings/update", isLoggedIn, (req, res) =
         PILLBOX_NUM
     } = req.body;
 
-    const sql = `
+    // 1. TB_SENIOR 수정
+    const seniorSql = `
         UPDATE TB_SENIOR
         SET
             SENIOR_NAME = ?,
@@ -2369,7 +2681,7 @@ router.post("/user/senior_info/senior_settings/update", isLoggedIn, (req, res) =
     `;
 
     conn.query(
-        sql,
+        seniorSql,
         [
             SENIOR_NAME,
             SENIOR_EMAIL,
@@ -2378,23 +2690,50 @@ router.post("/user/senior_info/senior_settings/update", isLoggedIn, (req, res) =
             PILLBOX_NUM || null,
             req.session.user.id
         ],
-        (err, result) => {
+        (err) => {
 
             if (err) {
                 console.log(err);
-
-                return res.send(
-                    "<script>alert('수정 실패');history.back();</script>"
-                );
+                return res.send("<script>alert('수정 실패');history.back();</script>");
             }
 
-            console.log(result);
+            // 2. TB_MEMBER 수정
+            const memberSql = `
+                UPDATE TB_MEMBER
+                SET
+                    MEM_NAME = ?,
+                    MEM_EMAIL = ?,
+                    MEM_CONTACT = ?,
+                    MEM_ADDR = ?
+                WHERE MEM_ID = ?
+            `;
 
-            // 세션 이름도 같이 수정
-            req.session.user.name = SENIOR_NAME;
+            conn.query(
+                memberSql,
+                [
+                    SENIOR_NAME,
+                    SENIOR_EMAIL,
+                    SENIOR_CONTACT,
+                    SENIOR_ADDR,
+                    req.session.user.id
+                ],
+                (err2) => {
 
-            return res.send(
-                "<script>alert('회원정보가 수정되었습니다.');location.href='/user/senior_info/senior_settings';</script>"
+                    if (err2) {
+                        console.log(err2);
+                        return res.send("<script>alert('회원정보 수정 중 오류가 발생했습니다.');history.back();</script>");
+                    }
+
+                    // 세션 이름도 변경
+                    req.session.user.name = SENIOR_NAME;
+
+                    res.send(`
+                        <script>
+                            alert('회원정보가 수정되었습니다.');
+                            location.href='/user/senior_info/senior_settings';
+                        </script>
+                    `);
+                }
             );
         }
     );
@@ -2603,361 +2942,9 @@ router.get('/user/user_service/inquiry/:id', isLoggedIn, (req, res) => {
 
         res.render("user/user_service/inquiry_detail", {
             title: "문의 상세",
-            inquiry: rows[0]
-        });
-    });
-});
-
-// 문의 목록
-router.post('/user/user_service/inquiry', isLoggedIn, (req, res) => {
-
-    const sql = `
-        SELECT INQUIRY_CD, INQUIRY_TYPE, INQUIRY_TITLE, INQUIRY_STATUS, CREATED_AT
-        FROM TB_INQUIRY
-        WHERE MEM_ID = ?
-        ORDER BY CREATED_AT DESC
-    `;
-
-    conn.query(sql, [req.session.user.id], (err, rows) => {
-
-        if (err) {
-            console.log(err);
-            return res.send("DB 오류");
-        }
-
-        res.render("user/user_service/inquiry", {
-            title: "문의 목록",
-            inquiries: rows
-        });
-    });
-});
-
-
-
-// 약 스케줄 post
-router.post("/user/senior_info/senior_schedule", (req, res) => {
-
-    const {
-        seniorId,
-        takingDate,
-        pillboxOrder,
-        takingType,
-        takingTime
-    } = req.body;
-
-    const sql = `
-    INSERT INTO TB_SCHEDULE
-    (
-        SENIOR_ID,
-        TAKING_DATE,
-        PILLBOX_ORDER,
-        TAKING_TYPE,
-        TAKING_TIME,
-        TAKING_YN
-    )
-    VALUES
-    (?, ?, ?, ?, ?, 'N')
-    `;
-
-    conn.query(
-        sql,
-        [
-            seniorId,
-            takingDate,
-            pillboxOrder,
-            takingType,
-            takingTime
-        ],
-        (err, result) => {
-
-            if(err){
-                console.log(err);
-
-                return res.send(
-                    "<script>alert('등록 실패');history.back();</script>"
-                );
-            }
-
-            res.send(
-                "<script>alert('복약 스케줄 등록 완료');location.href='/user/user_dashboard/main_dashboard';</script>"
-            );
-        }
-    );
-});
-
-
-
-router.get('/user/senior_service/senior_about', (req, res) => {
-  res.render('user/senior_service/senior_about', { title: '서비스 소개 — 복약안심서비스' });
-});
-
-//7월3일 김성훈 추가router
-
-router.post('/user/senior_service/senior_about', (req, res) => {
-
-  res.render('user/senior_service/senior_about', { 
-    title: '서비스 소개 — 복약안심서비스',
-    user: req.session.user 
-  });
-});
-
-router.get("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
-
-    res.render("user/senior_info/senior_register", {
-        title: "대상자 등록",
-        user: req.session.user
-    });
-});
-
-
-router.get("/user/senior_info/senior_settings", (req, res) => {
-
-    const id = req.session.user.id;
-
-    conn.query(
-        "SELECT * FROM TB_MEMBER WHERE MEM_ID = ? AND MEM_ST = 'S'",
-        [id],
-        (err, memberRows) => {
-
-            if (err) {
-                console.log(err);
-                return res.send("DB 오류");
-            }
-
-            if (memberRows.length === 0) {
-                return res.send("시니어 회원이 아닙니다.");
-            }
-
-            conn.query(
-                "SELECT * FROM TB_SENIOR WHERE SENIOR_ID = ?",
-                [id],
-                (err, seniorRows) => {
-
-                    if (err) {
-                        console.log(err);
-                        return res.send("DB 오류");
-                    }
-
-                    if (seniorRows.length === 0) {
-                        return res.send("시니어 정보를 찾을 수 없습니다.");
-                    }
-
-                    const account = {
-                        ...memberRows[0],
-                        ...seniorRows[0],
-                        lastLogin: "오늘 09:42"
-                    };
-
-                    res.render("user/senior_info/senior_settings", {
-                        pageTitle: "계정 관리",
-                        account,
-                        user: req.session.user
-                    });
-
-                }
-            );
-
-        }
-    );
-
-});
-
-// 태헌님 router 코드
-
-// 복약 기록 페이지 - DB 없이 화면 확인용
-router.get("/user/user_dashboard/dashboard_record", isLoggedIn, (req, res) => {
-  const selectedDate = req.query.date || "2026-06-26";
-
-  const schedules = [
-    {
-      seniorId: "senior01",
-      seniorName: "이민수",
-      takingDate: selectedDate,
-      takingTime: "08:00",
-      takenTime: "08:03",
-      pillboxOrder: 1,
-      takingType: "아침",
-      status: "done",
-      statusLabel: "복용 완료",
-    },
-    {
-      seniorId: "senior02",
-      seniorName: "박영희",
-      takingDate: selectedDate,
-      takingTime: "12:30",
-      takenTime: "",
-      pillboxOrder: 2,
-      takingType: "점심",
-      status: "miss",
-      statusLabel: "미복용",
-    },
-    {
-      seniorId: "senior03",
-      seniorName: "정순자",
-      takingDate: selectedDate,
-      takingTime: "18:30",
-      takenTime: "",
-      pillboxOrder: 3,
-      takingType: "저녁",
-      status: "pending",
-      statusLabel: "복용 예정",
-    },
-  ];
-
-  const summary = {
-    total: schedules.length,
-    done: schedules.filter((item) => item.status === "done").length,
-    miss: schedules.filter((item) => item.status === "miss").length,
-    pending: schedules.filter((item) => item.status === "pending").length,
-  };
-
-  res.render("user/user_dashboard/dashboard_record", {
-    title: "복약 일정",
-    user: req.session.user,
-    selectedDate,
-    schedules,
-    summary,
-  });
-});
-
-// 실시간 상태 페이지 - DB 없이 화면 확인용
-router.get("/user/user_dashboard/dashboard_stat", isLoggedIn, (req, res) => {
-  const statuses = [
-    {
-      seniorId: "senior01",
-      seniorName: "이민수",
-      seniorContact: "010-1111-2222",
-      pillboxNum: "PB-001",
-      todayTotal: 3,
-      todayDone: 3,
-      todayMissed: 0,
-      latestLogType: "SLOT_OPEN",
-      latestSlotNum: 1,
-      latestLoggedAt: "2026-06-26 08:03:00",
-      state: "ok",
-      stateLabel: "정상",
-    },
-    {
-      seniorId: "senior02",
-      seniorName: "박영희",
-      seniorContact: "010-3333-4444",
-      pillboxNum: "PB-002",
-      todayTotal: 2,
-      todayDone: 0,
-      todayMissed: 1,
-      latestLogType: "NO_ACTION",
-      latestSlotNum: 2,
-      latestLoggedAt: "2026-06-26 12:40:00",
-      state: "late",
-      stateLabel: "확인 필요",
-    },
-    {
-      seniorId: "senior03",
-      seniorName: "정순자",
-      seniorContact: "010-5555-6666",
-      pillboxNum: "PB-003",
-      todayTotal: 2,
-      todayDone: 1,
-      todayMissed: 0,
-      latestLogType: "BOX_CLOSED",
-      latestSlotNum: 3,
-      latestLoggedAt: "2026-06-26 09:15:00",
-      state: "warn",
-      stateLabel: "대기",
-    },
-  ];
-
-  const summary = {
-    total: statuses.length,
-    ok: statuses.filter((item) => item.state === "ok").length,
-    warn: statuses.filter((item) => item.state === "warn").length,
-    late: statuses.filter((item) => item.state === "late").length,
-  };
-
-  res.render("user/user_dashboard/dashboard_stat", {
-    title: "실시간 상태",
-    user: req.session.user,
-    statuses,
-    summary,
-  });
-});
-
-// 알림 관리 페이지 - DB 없이 화면 확인용
-router.get("/user/user_dashboard/dashboard_call", isLoggedIn, (req, res) => {
-  const alerts = [
-    {
-      alertCd: 1,
-      seniorId: "senior02",
-      seniorName: "박영희",
-      alertType: "MISSED_MEDICINE",
-      alertMsg: "[복약안심서비스] 박영희님 복약 미확인. 12:30 약통 2번 칸을 확인해주세요.",
-      alertTime: "2026-06-26 12:40:00",
-      createdAt: "2026-06-26 12:40:00",
-      isReceived: "Y",
-      className: "late",
-    },
-    {
-      alertCd: 2,
-      seniorId: "senior01",
-      seniorName: "이민수",
-      alertType: "TAKEN",
-      alertMsg: "이민수님이 아침 복약을 완료했습니다.",
-      alertTime: "2026-06-26 08:03:00",
-      createdAt: "2026-06-26 08:03:00",
-      isReceived: "Y",
-      className: "ok",
-    },
-    {
-      alertCd: 3,
-      seniorId: "senior03",
-      seniorName: "정순자",
-      alertType: "WARN",
-      alertMsg: "저녁 복약 시간이 30분 후 시작됩니다.",
-      alertTime: "2026-06-26 18:00:00",
-      createdAt: "2026-06-26 18:00:00",
-      isReceived: "N",
-      className: "warn",
-    },
-  ];
-
-  const summary = {
-    total: alerts.length,
-    missed: alerts.filter((item) => item.className === "late").length,
-    warn: alerts.filter((item) => item.className === "warn").length,
-    received: alerts.filter((item) => item.isReceived === "Y").length,
-  };
-
-  res.render("user/user_dashboard/dashboard_call", {
-    title: "알림 관리",
-    user: req.session.user,
-    alerts,
-    summary,
-  });
-});
-
-
-router.get('/user/user_service/inquiry/:id', isLoggedIn, (req, res) => {
-
-    const sql = `
-        SELECT *
-        FROM TB_INQUIRY
-        WHERE INQUIRY_CD = ? AND MEM_ID = ?
-    `;
-
-    conn.query(sql, [req.params.id, req.session.user.id], (err, rows) => {
-
-        if (err) {
-            console.log(err);
-            return res.send("DB 오류");
-        }
-
-        if (rows.length === 0) {
-            return res.send("문의를 찾을 수 없습니다.");
-        }
-
-        res.render("user/user_service/inquiry_detail", {
-            title: "문의 상세",
-            inquiry: rows[0]
+            inquiry: rows[0],
+            user: req.session.user,
+            hasPillbox: true
         });
     });
 });
@@ -2996,8 +2983,74 @@ router.post('/user/user_service/inquiry', isLoggedIn, (req, res) => {
 // 문의 작성 폼
 router.get('/index/index_inquiry', isLoggedIn, (req, res) => {
     res.render("index/index_inquiry", {
-        title: "문의하기"
+        title: "문의하기",
+        user: req.session.user
     });
+});
+
+// 문의 등록
+router.post("/index/index_inquiry", isLoggedIn, (req, res) => {
+
+    const {
+        inquiry_type,
+        inquiry_title,
+        inquiry_content
+    } = req.body;
+
+    const user = req.session.user;
+
+    let seniorId = null;
+
+    // 시니어 로그인인 경우
+    if (user.role === "S") {
+        seniorId = user.id;
+    }
+
+    const sql = `
+        INSERT INTO TB_INQUIRY
+        (
+            MEM_ID,
+            SENIOR_ID,
+            INQUIRY_TYPE,
+            INQUIRY_TITLE,
+            INQUIRY_CONTENT,
+            INQUIRY_STATUS
+        )
+        VALUES
+        (?, ?, ?, ?, ?, '대기')
+    `;
+
+    conn.query(
+        sql,
+        [
+            user.id,
+            seniorId,
+            inquiry_type,
+            inquiry_title,
+            inquiry_content
+        ],
+        (err) => {
+
+            if (err) {
+                console.log(err);
+
+                return res.send(`
+                    <script>
+                        alert('문의 등록에 실패했습니다.');
+                        history.back();
+                    </script>
+                `);
+            }
+
+            res.send(`
+                <script>
+                    alert('문의가 등록되었습니다.');
+
+                    location.href='/index/index_inquiry';
+                </script>
+            `);
+        }
+    );
 });
 
 router.get('/user/user_service/inquiry', isLoggedIn, (req, res) => {
@@ -3006,24 +3059,149 @@ router.get('/user/user_service/inquiry', isLoggedIn, (req, res) => {
     });
 });
 
-// 문의 작성 처리
-router.get('/admin/check_inquiry', isLoggedIn, (req, res) => {
-    res.render("admin/check_inquiry", {
-        title: "문의하기"
+// 관리자 문의 목록
+router.get("/admin/check_inquiry", isLoggedIn, (req, res) => {
+
+    const sql = `
+        SELECT *
+        FROM TB_INQUIRY
+        ORDER BY CREATED_AT DESC
+    `;
+
+    conn.query(sql, (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        res.render("admin/check_inquiry", {
+            title: "문의 관리",
+            inquiryList: rows
+        });
+
+    });
+
+});
+
+router.get("/user/user_service/check_inquiry", isLoggedIn, (req, res) => {
+
+    const user = req.session.user;
+
+    let sql;
+    let params;
+
+    if (user.role === "S") {
+
+        sql = `
+            SELECT *
+            FROM TB_INQUIRY
+            WHERE SENIOR_ID = ?
+            ORDER BY CREATED_AT DESC
+        `;
+
+        params = [user.id];
+
+    } else {
+
+        sql = `
+            SELECT *
+            FROM TB_INQUIRY
+            WHERE MEM_ID = ?
+            ORDER BY CREATED_AT DESC
+        `;
+
+        params = [user.id];
+    }
+
+    conn.query(sql, params, (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        res.render("user/user_service/check_inquiry", {
+            title: "문의 내역",
+            user: user,
+            inquiryList: rows
+        });
+
+    });
+
+});
+
+
+// 문의 상세
+router.get("/admin/inquiry/:id", isLoggedIn, (req, res) => {
+
+    const sql = `
+        SELECT *
+        FROM TB_INQUIRY
+        WHERE INQUIRY_CD = ?
+    `;
+
+    conn.query(sql, [req.params.id], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        if (rows.length === 0) {
+            return res.send("문의가 존재하지 않습니다.");
+        }
+
+        res.render("admin/answer_inquiry", {
+            title: "문의 답변",
+            inquiry: rows[0]
+        });
     });
 });
 
-router.get('/user/user_service/check_inquiry', (req, res) => {
-    res.render('user/user_service/check_inquiry', {
-        title: "문의하기"
-    }); 
-});
+router.post("/admin/inquiry/:id", isLoggedIn, (req, res) => {
 
+    const answer = req.body.answer_content;
 
-router.get('/admin/answer_inquiry', isLoggedIn, (req, res) => {
-    res.render("admin/answer_inquiry", {
-        title: "문의하기"
-    });
+    const sql = `
+        UPDATE TB_INQUIRY
+        SET
+            ANSWER_CONTENT = ?,
+            ANSWERED_AT = NOW(),
+            ANSWERED_BY = ?,
+            INQUIRY_STATUS = '답변완료',
+            UPDATED_AT = NOW()
+        WHERE INQUIRY_CD = ?
+    `;
+
+    conn.query(
+        sql,
+        [
+            answer,
+            req.session.user.id,
+            req.params.id
+        ],
+        (err) => {
+
+            if (err) {
+                console.log(err);
+
+                return res.send(`
+                    <script>
+                        alert("답변 등록 실패");
+                        history.back();
+                    </script>
+                `);
+            }
+
+            res.send(`
+                <script>
+                    alert("답변이 등록되었습니다.");
+                    location.href="/admin/check_inquiry";
+                </script>
+            `);
+        }
+    );
 });
 
 router.get('/user/senior_info/senior_register-pillbox', isLoggedIn, (req, res) => {
@@ -3056,15 +3234,11 @@ router.get('/user/senior_info/senior_register-pillbox', isLoggedIn, (req, res) =
             seniors: rows
           });
         }
-    );});
-
+    );
+});
 
 // 7월 4일 시니어 메인 대시보드 라우터
-
-
-
 router.get('/user/senior_dashboard/senior_main_dashboard', (req, res) => {
-
 
   const viewData = {
     title: '나의 복약 현황',
@@ -3117,9 +3291,7 @@ router.get('/user/senior_dashboard/senior_main_dashboard', (req, res) => {
             { time: '19:00', meal: '저녁',   medicineName: '당뇨약 (메트포민)', dose: '2정', status: 'plan' },
             { time: '22:00', meal: '취침 전', medicineName: '수면유도제',        dose: '1정', status: 'plan' },
             ],
-
   };
-
   res.render('user/senior_dashboard/senior_main_dashboard', viewData);
 });
 
