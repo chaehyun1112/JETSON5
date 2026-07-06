@@ -13,13 +13,12 @@
 
         <section class="register-box">
 
-            <h1>스마트 약상자</h1>
-            <p class="subtitle">관리할 대상자 정보를 등록해주세요</p>
+        <div class="logo-area">
+            <h1>약 속 : 藥 束</h1>
+            <p>나에게 알맞은 약상자 케어 시스템</p>
+        </div>
 
-            <div class="icon-box">
-                <div class="handle"></div>
-                <div class="case">
-                    <span>👤</span>
+      <img src="/icon/main6_logo.png" class="logo-icon">
                 </div>
             </div>
 
@@ -36,13 +35,13 @@
                 <label>이메일</label>
                 <div class="email-box">
                     <input type="email" id="email" name="email" placeholder="이메일을 입력해주세요" required>
-                    <button type="button" id="sendBtn"> 인증번호 보내기 </button>
+                    <button type="button" id="sendBtn" class="btn-action"> 인증번호 보내기 </button>
                 </div>
 
                 <label>인증번호</label>
                 <div class="email-box">
                     <input type="text" id="verifyCode" placeholder="인증번호를 입력해주세요">
-                    <button type="button" id="verifyBtn"> 인증번호 확인 </button>
+                    <button type="button" id="verifyBtn" class="btn-action"> 인증번호 확인 </button>
                 </div>
 
                 <input type="hidden" id="emailVerified" name="emailVerified" value="N">
@@ -63,10 +62,8 @@
                 </div>
 
         </section>
-
     </main>
-
-    <script>
+<script>
         let emailVerified = false;
 
         // 인증번호 보내기
@@ -95,11 +92,15 @@
             })
             .then(res => res.json())
             .then(data => {
+                const msg = document.getElementById("emailMessage");
 
-                if (data.success) {
-                    alert("인증번호를 발송했습니다.");
-                } else {
-                    alert(data.message || "회원 정보를 확인해주세요.");
+
+                if(data.success){
+                    msg.innerHTML = "✔ 인증번호를 발송했습니다.";
+                    msg.style.color = "green";
+                }else{
+                    msg.innerHTML = "❌ 메일 발송 실패";
+                    msg.style.color = "red";
                 }
 
             });
@@ -129,23 +130,27 @@
             })
             .then(res => res.json())
             .then(data => {
+                const msg = document.getElementById("verifyMessage");
 
                 if (data.success) {
 
                     emailVerified = true;
 
                     document.getElementById("emailVerified").value = "Y";
-
                     document.getElementById("registerBtn").disabled = false;
 
-                    alert("이메일 인증이 완료되었습니다.");
+                    msg.innerHTML="✔ 이메일 인증이 완료되었습니다.";
+                    msg.style.color="green";
 
                 } else {
 
                     emailVerified = false;
 
-                    alert("인증번호가 올바르지 않습니다.");
+                    document.getElementById("emailVerified").value="N";
+                    document.getElementById("registerBtn").disabled=true;
 
+                    msg.innerHTML="❌ 인증번호가 올바르지 않습니다.";
+                    msg.style.color="red";
                 }
 
             });

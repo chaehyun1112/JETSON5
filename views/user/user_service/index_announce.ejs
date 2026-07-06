@@ -33,26 +33,29 @@
 
   <div class="notice-list">
 
-<% notices.forEach(function(notice) { %>
-<div class="notice-item" data-id="<%= notice.ANN_ID %>" style="display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #eee;">
+<% notices.forEach(function(notice, index) { %>
+<div class="notice-item" data-id="<%= index %>" style="display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #eee;">
   
 
   <div class="notice-view-mode" style="display: flex; flex-grow: 1; justify-content: space-between; align-items: center;">
     <div class="notice-content">
-      <span class="notice-badge notice-badge-text"><%= notice.CATEGORY %></span>
-  <a href="/user/user_service/user_announce/<%= notice.ANN_ID %>"
+      <span class="notice-badge <%= notice.isNew ? 'new' : '' %> notice-badge-text"><%= notice.category %></span>
+  <a href="/user/user_service/user_announce"
      class="notice-link"
      style="margin-left:10px;">
-    <span class="notice-title-text"><%= notice.TITLE %></span>
+    <span class="notice-title-text"><%= notice.title %></span>
   </a>
-      <span class="notice-date" style="margin-left: 10px; color: #888;"><%= new Date(notice.CREATED_AT).toLocaleDateString("ko-KR") %></span>
+      <span class="notice-date" style="margin-left: 10px; color: #888;"><%= notice.date %></span>
     </div>
   </div>
+
+
 </div>
 <% }); %>
+</main>
 
-</div> 
-<div class="clearfix-padding"></div>
+
+</div> </main> <div class="clearfix-padding"></div>
 
 
 
