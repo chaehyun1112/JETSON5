@@ -1,7 +1,9 @@
+
 /* 1. 문의 내역 컨테이너 레이아웃 안정화 */
 .inquiry-container {
-  max-width: 800px;          /* 목록 페이지는 조금 더 넓게 설정 */
-  margin: 4rem auto;
+  width: 100%;
+  max-width: 800px;          
+  margin: 4rem auto; 
   padding: 2.5rem;
   background: #ffffff;
   border-radius: 16px;

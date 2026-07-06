@@ -19,7 +19,15 @@
     <span class="status-badge status-<%= inquiry.INQUIRY_STATUS %>">
       <%= inquiry.INQUIRY_STATUS %>
     </span>
-    <h2><%= inquiry.INQUIRY_TITLE %></h2>
+  <div class="content-group">
+
+      <label>제목</label>
+
+      <div class="content-box title-box">
+          <%= inquiry.INQUIRY_TITLE %>
+      </div>
+
+  </div>
     <p class="inquiry-meta">
       <%= inquiry.INQUIRY_TYPE %> · 
       <%= new Date(inquiry.CREATED_AT).toLocaleDateString('ko-KR') %>
