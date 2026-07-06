@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/user/user_service/style_user_announce.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <%- include('../../partials/user_partials/nav_index') %>
+
+  <section class="announce-detail">
+    <div class="container">
+         <div class="announce-card">
+
+      <div class="announce-header">
+        <span class="notice-badge <%= notice.CATEGORY === '공지' ? 'new' : '' %>">
+          <%= notice.CATEGORY %>
+        </span>
+        <h1 class="announce-title"><%= notice.TITLE %></h1>
+
+        <div class="announce-meta">
+          <span class="announce-date">
+            <%= new Date(notice.CREATED_AT).toLocaleDateString('ko-KR') %>
+          </span>
+          <span class="announce-divider">|</span>
+          <span class="announce-views">조회 <%= notice.VIEW_COUNT %></span>
+        </div>
+      </div>
+
+      <div class="announce-content">
+        <%= notice.CONTENT %>
+      </div>
+
+      <div class="announce-footer">
+        <a href="/index/index_announce" class="btn btn--outline">목록으로</a>
+      </div>
+
+    </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+  </footer>
+
+</body>
+</html>

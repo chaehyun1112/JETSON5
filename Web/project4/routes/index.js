@@ -3296,4 +3296,122 @@ router.get('/user/senior_dashboard/senior_main_dashboard', (req, res) => {
 });
 
 
+router.get('/admin/admin_update_announce', (req, res) => {
+  // 1. 현재 로그인한 유저의 세션 정보 가져오기 (로그인 안 되어 있으면 null이나 빈 객체)
+const notices = [
+    { isNew: true,  category: '공지',    title: '복약안심서비스 정식 오픈 안내',                         date: '2025.06.01' },
+    { isNew: true,  category: '업데이트', title: 'v1.2 업데이트 – 복약 이력 리포트 기능 추가',           date: '2025.05.20' },
+    { isNew: false, category: '점검',    title: '서버 정기 점검 완료 안내 (5월 15일 02:00~04:00)',       date: '2025.05.15' },
+    { isNew: false, category: '공지',    title: '개인정보 처리방침 개정 안내 (2025년 5월)',              date: '2025.05.01' },
+    { isNew: false, category: '업데이트', title: 'v1.1 업데이트 – 알림 설정 세분화 및 UI 개선',          date: '2025.04.10' },
+    { isNew: false, category: '공지',    title: '스마트 약 보관함 펌웨어 업데이트 방법 안내',            date: '2025.03.28' },
+    { isNew: false, category: '공지',    title: '복약안심서비스 베타 테스트 참여자 모집 결과 안내',       date: '2025.03.01' },
+];
+
+if (!req.session.user) {
+        return res.render('admin/admin_update_announce', {
+            title: '공지사항',
+            notices,
+            member: null
+        });
+    }
+
+    // 로그인 안 한 경우
+    if (!req.session.user) {
+        return res.render('admin/admin_update_announce', {
+            title: '공지사항',
+            notices,
+            member: null
+        });
+    }
+
+    // 로그인한 경우에만 DB 조회
+    const sql = `
+        SELECT MEM_ST
+        FROM TB_MEMBER
+        WHERE MEM_ID = ?
+    `;
+
+    conn.query(sql, [req.session.user.id], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        res.render('admin/admin_update_announce', {
+            title: '공지사항',
+            notices,
+            member: rows[0]
+        });
+    });
+});
+
+
+
+
+
+
+// GET /user/user_service/user_announce?id=1
+router.get('/user/user_service/user_announce', function(req, res) {
+ const annId = req.query.id;
+
+  // ⚠️ 임시 더미 데이터 (DB 연결 전 디자인 확인용)
+  const dummyNotice = {
+    ANN_ID: annId || 1,
+    CATEGORY: '공지',
+    TITLE: '복약안심서비스 정식 오픈 안내',
+    CONTENT: `안녕하세요, 복약안심서비스입니다.
+
+저희 서비스가 정식으로 오픈되었습니다.
+
+스마트 약상자와 연동된 실시간 복약 모니터링을 통해
+어르신의 건강을 더 안전하게 관리하실 수 있습니다.
+
+앞으로도 더 나은 서비스로 찾아뵙겠습니다.
+감사합니다.`,
+    VIEW_COUNT: 128,
+    CREATED_AT: '2025-06-01'
+  };
+
+  res.render('user/user_service/user_announce', {
+    title: dummyNotice.TITLE,
+    notice: dummyNotice
+  });
+});
+
+
+
+router.get('/admin/admin_announce', function(req, res) {
+ const annId = req.query.id;
+
+  // ⚠️ 임시 더미 데이터 (DB 연결 전 디자인 확인용)
+  const dummyNotice = {
+    ANN_ID: annId || 1,
+    CATEGORY: '공지',
+    TITLE: '복약안심서비스 정식 오픈 안내',
+    CONTENT: `안녕하세요, 복약안심서비스입니다.
+
+저희 서비스가 정식으로 오픈되었습니다.
+
+스마트 약상자와 연동된 실시간 복약 모니터링을 통해
+어르신의 건강을 더 안전하게 관리하실 수 있습니다.
+
+앞으로도 더 나은 서비스로 찾아뵙겠습니다.
+감사합니다.`,
+    VIEW_COUNT: 128,
+    CREATED_AT: '2025-06-01'
+  };
+
+  res.render('admin/admin_announce', {
+    title: dummyNotice.TITLE,
+    notice: dummyNotice
+  });
+});
+
+
+
+
+
+
 module.exports = router;

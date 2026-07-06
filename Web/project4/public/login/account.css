@@ -24,20 +24,14 @@ body{
     box-shadow:0 10px 30px rgba(0,0,0,0.08);
 }
 
-.logo-area{
-    text-align:center;
-    margin-bottom:30px;
+.logo-area {
+  text-align: center;
 }
-
-.logo-area h1{
-    color:#2359d1;
-    margin-bottom:10px;
-    font-size:36px;
-}
-
-.logo-area p{
-    color:#5b7ec7;
-    font-size:15px;
+.logo-icon {
+  display: block; 
+  margin: 0 auto 10px;  
+  width: 100px;
+  height: 100px;
 }
 
 .pill-icon{
@@ -119,3 +113,5 @@ body{
     color:#666;
     text-decoration:none;
 }
+
+

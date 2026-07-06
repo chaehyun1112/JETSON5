@@ -271,11 +271,7 @@ body {
 }
 
 
-.admin-buttons {
-  flex-shrink: 0;
-}
-
-.btn-edit {
+.btn-action {
   padding: 7px 16px;
   font-size: 13px;
   font-weight: 600;
@@ -287,8 +283,15 @@ body {
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
-.btn-edit:hover {
+.btn-action:hover {
   background: #3b5bdb;
   color: #fff;
   border-color: #3b5bdb;
+}
+
+
+.logo-icon {
+  width: 100px;
+  height:100px;
+  margin-right: 0px;
 }

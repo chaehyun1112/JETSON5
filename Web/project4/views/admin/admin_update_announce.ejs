@@ -76,46 +76,62 @@
         </div>
       </div>
     </div>
-  
-<% notices.forEach(function(notice, index) { %>
+  <% notices.forEach(function(notice, index) { %>
+
 <div class="notice-item" data-id="<%= index %>" style="display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #eee;">
-  
-    <input type="checkbox" class="notice-checkbox" value="<%= index %>" style="width: 18px; height: 18px; cursor: pointer;">
 
+  <input type="checkbox" class="notice-checkbox" value="<%= index %>" style="width:18px; height:18px; cursor:pointer;">
 
-  <div class="notice-view-mode" style="display: flex; flex-grow: 1; justify-content: space-between; align-items: center;">
+  <div class="notice-view-mode" style="display:flex; flex-grow:1; justify-content:space-between; align-items:center;">
+
     <div class="notice-content">
-      <span class="notice-badge <%= notice.isNew ? 'new' : '' %> notice-badge-text"><%= notice.category %></span>
-      <span class="notice-title-text" style="margin-left: 10px;"><%= notice.title %></span>
-      <span class="notice-date" style="margin-left: 10px; color: #888;"><%= notice.date %></span>
-    </div>
-    
+      <span class="notice-badge <%= notice.isNew ? 'new' : '' %> notice-badge-text">
+        <%= notice.category %>
+      </span>
 
-      <div class="admin-buttons">
-        <button class="btn-edit" onclick="toggleEditMode('<%= index %>', true)">수정</button>
-      </div>
-  
+      <a href="/admin/admin_announce"
+         class="notice-link"
+         style="margin-left:10px; text-decoration:none; color:inherit;">
+        <span class="notice-title-text"><%= notice.title %></span>
+      </a>
+
+      <span class="notice-date" style="margin-left:10px; color:#888;">
+        <%= notice.date %>
+      </span>
+    </div>
+
+    <div class="admin-buttons">
+      <button class="btn-edit" onclick="toggleEditMode('<%= index %>', true)">
+        수정
+      </button>
+    </div>
+
   </div>
 
+  <div class="notice-edit-mode" style="display:none; flex-grow:1; justify-content:space-between; align-items:center; gap:10px;">
 
-  <div class="notice-edit-mode" style="display: none; flex-grow: 1; justify-content: space-between; align-items: center; gap: 10px;">
-    <div class="edit-inputs" style="display: flex; gap: 10px; flex-grow: 1;">
-      <select class="edit-category" style="padding: 5px; border-radius: 4px;">
+    <div class="edit-inputs" style="display:flex; gap:10px; flex-grow:1;">
+      <select class="edit-category">
         <option value="공지" <%= notice.category === '공지' ? 'selected' : '' %>>공지</option>
         <option value="업데이트" <%= notice.category === '업데이트' ? 'selected' : '' %>>업데이트</option>
         <option value="점검" <%= notice.category === '점검' ? 'selected' : '' %>>점검</option>
       </select>
-      <input type="text" class="edit-title-input" value="<%= notice.title %>" style="flex-grow: 1; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+
+      <input type="text"
+             class="edit-title-input"
+             value="<%= notice.title %>">
     </div>
-    <div class="admin-buttons" style="display: flex; gap: 5px;">
-      <button style="background-color: #4caf50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="saveNotice('<%= index %>')">완료</button>
-      <button style="background-color: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="toggleEditMode('<%= index %>', false)">취소</button>
+
+    <div class="admin-buttons">
+      <button onclick="saveNotice('<%= index %>')">완료</button>
+      <button onclick="toggleEditMode('<%= index %>', false)">취소</button>
     </div>
+
   </div>
 
 </div>
-<% }); %>
 
+<% }); %>
     </div>
 
 </div>

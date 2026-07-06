@@ -40,7 +40,11 @@
   <div class="notice-view-mode" style="display: flex; flex-grow: 1; justify-content: space-between; align-items: center;">
     <div class="notice-content">
       <span class="notice-badge <%= notice.isNew ? 'new' : '' %> notice-badge-text"><%= notice.category %></span>
-      <span class="notice-title-text" style="margin-left: 10px;"><%= notice.title %></span>
+  <a href="/user/user_service/user_announce"
+     class="notice-link"
+     style="margin-left:10px;">
+    <span class="notice-title-text"><%= notice.title %></span>
+  </a>
       <span class="notice-date" style="margin-left: 10px; color: #888;"><%= notice.date %></span>
     </div>
   </div>
