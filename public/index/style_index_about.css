@@ -1,0 +1,47 @@
+
+
+/* =============================================
+   서비스 소개 페이지 (about)
+   ============================================= */
+
+/* 문구 섹션들 */
+.about-sections {
+  width: 700px;
+  margin: 0 auto;
+}
+.about-section {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem 0;
+  border-bottom: 0.5px solid #e8eef8;
+}
+.about-section:last-child { border-bottom: none; }
+
+.about-section__num {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #3b5bdb;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(59, 91, 219, .25);
+  margin-top: 2px;
+}
+
+.about-section__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 10px;
+}
+
+.about-section__text {
+  font-size: 14px;
+  color: #4b5a7a;
+  line-height: 1.9;
+}

@@ -1,0 +1,176 @@
+
+/* =============================================
+   약통 미등록 / 등록 페이지 (no-pillbox, register-pillbox)
+   ============================================= */
+.nopill-main {
+  min-height: calc(100vh - 60px - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: #f0f4fa;
+}
+
+.nopill-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 0.5px solid #d8e2f0;
+  padding: 3rem 2.5rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nopill-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.nopill-card__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.nopill-card__desc {
+  font-size: 14px;
+  color: #6b7a9a;
+  line-height: 1.8;
+}
+
+.nopill-card__link {
+  font-size: 13px;
+  color: #2563eb;
+  margin-top: 0.5rem;
+  transition: opacity 0.2s;
+}
+.nopill-card__link:hover { opacity: 0.7; }
+
+@media (max-width: 560px) {
+  .about-actions { grid-template-columns: 1fr; }
+  .about-section { flex-direction: column; gap: 0.5rem; }
+  .about-section__num { font-size: 24px; width: auto; }
+}
+
+
+/* =============================================
+   구매 완료 페이지 (medicine_buy_complete)
+   ============================================= */
+.buy-complete-card {
+  max-width: 460px;
+}
+
+.buy-complete__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.buy-complete__code-wrap {
+  width: 100%;
+  background: #f0f7ff;
+  border-radius: 12px;
+  border: 1px solid #bfdbfe;
+  padding: 1.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.buy-complete__code-label {
+  font-size: 12px;
+  color: #6b7a9a;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.buy-complete__code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.buy-complete__code span {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e3a8a;
+  letter-spacing: 0.12em;
+  font-family: 'Courier New', monospace;
+}
+
+.buy-complete__copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7a9a;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+.buy-complete__copy-btn:hover { color: #2563eb; }
+
+.buy-complete__code-hint {
+  font-size: 12px;
+  color: #6b7a9a;
+}
+
+
+.footer {
+  background: #0f1f4a;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.footer p {
+  font-size: 13px;
+  color: #6b7a9a;
+}
+
+/* 1. 화면 전체 높이를 확보하기 위한 기본 설정 */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh; /* 브라우저 화면 높이를 100% 채움 */
+}
+
+/* 2. body를 세로형 Flex 컨테이너로 지정 */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 3. 푸터 바로 위에 있는 모든 콘텐츠 영역을 늘려주는 설정 */
+/* footer의 이전 형제 요소들(헤더, 메인 컨텐츠 등)이 남는 공간을 다 차지하게 합니다 */
+body > *:not(.footer) {
+  flex: 1; 
+  /* 만약 특정 본문 태그(예: <main> 또는 <div class="content">)에만 
+     적용하고 싶다면, 이 부분을 해당 클래스명으로 바꾸셔도 됩니다. */
+}
+
+/* 4. 푸터 스타일 (기존 스타일에 맞춰 여백이나 배경색을 유지) */
+.footer {
+  width: 100%;
+  background-color: #0b132b; /* 대시보드 하단의 짙은 네이비 색상 */
+  color: #8fa0c4;            /* 글자 색상 */
+  padding: 20px 0;           /* 위아래 여백 */
+  text-align: center;
+}

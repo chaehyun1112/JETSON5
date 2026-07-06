@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>admin</title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/admin/admin_dashboard/style_admin.css" />
+</head>
+<body>
+  <div class="wrapper">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <strong>스마트 약 상자</strong>
+        <span>관리자</span>
+      </div>
+
+      <nav class="admin-menu">
+        <a href="/admin/admin_dashboard/admin" class="active">대시보드</a>
+        <a href="/admin/admin_dashboard/members">회원관리</a>
+        <a href="/admin/admin_dashboard/medicine_boxes">약 상자 관리</a>
+        <a href="/admin/admin_dashboard/messages">알림 메시지</a>
+        <a href="/admin/check_inquiry">문의사항 확인</a>
+        <a href="/admin/admin_update_announce">공지사항 수정</a>
+
+
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1>관리자 대시보드</h1>
+          <p>스마트 약 상자 서비스 현황을 확인할 수 있습니다.</p>
+        </div>
+          <div class="admin-user-menu">
+    <button type="button" class="admin-user-button" id="adminUserButton">
+      <%= adminName %>
+      <span>▼</span>
+    </button>
+
+    <div class="admin-user-dropdown" id="adminUserDropdown">
+      <a href="/admin/admin_update">개인정보 수정</a>
+      <form action="/logout" method="POST" class="logout-form">
+          <button type="submit" class="admin-user-item">
+              로그아웃
+          </button>
+      </form>
+    </div>
+  </div>
+
+
+      </header>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <span>전체 회원</span>
+          <strong><%= stats.totalMembers %></strong>
+          <p>등록된 전체 사용자</p>
+        </article>
+
+        <article class="stat-card">
+          <span>보호자 회원</span>
+          <strong><%= stats.parentMembers %></strong>
+          <p>회원 구분 P</p>
+        </article>
+
+        <article class="stat-card">
+          <span>시니어 회원</span>
+          <strong><%= stats.seniorMembers %></strong>
+          <p>회원 구분 S</p>
+        </article>
+
+        <article class="stat-card">
+          <span>관리자</span>
+          <strong><%= stats.adminMembers %></strong>
+          <p>회원 구분 A</p>
+        </article>
+      </section>
+
+      <section class="admin-content">
+        <div class="admin-panel">
+          <div class="panel-header">
+            <h2>최근 가입 회원</h2>
+            <button type="button" id="toggleMemberBtn">전체보기</button>
+          </div>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>아이디</th>
+                <th>이름</th>
+                <th>회원 구분</th>
+                <th>가입일</th>
+              </tr>
+            </thead>
+            <!-- tbody태그 DB연동 (박건희) -->
+            <tbody>
+              <% if (recentMembers.length === 0) { %>
+                <tr>
+                  <td colspan="4">최근 가입 회원이 없습니다.</td>
+                </tr>
+              <% } else { %>
+                <% recentMembers.forEach((member, index) => { %>
+                  <tr class="<%= index >= 5 ? 'hidden-member' : '' %>">
+                    <td><%= member.id %></td>
+                    <td><%= member.name %></td>
+                    <td><%= member.type %></td>
+                    <td><%= member.joinedAt %></td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="admin-panel">
+          <div class="panel-header">
+            <h2>서비스 알림</h2>
+          </div>
+
+          <ul class="notice-list">
+            <% notices.forEach((notice) => { %>
+              <li>
+                <strong><%= notice.title %></strong>
+                <span><%= notice.content %></span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+  <script>
+  const adminUserButton = document.querySelector("#adminUserButton");
+  const adminUserDropdown = document.querySelector("#adminUserDropdown");
+
+  adminUserButton.addEventListener("click", () => {
+    adminUserDropdown.classList.toggle("show");
+  });
+
+  document.addEventListener("click", (event) => {
+    const isMenuClick = event.target.closest(".admin-user-menu");
+
+    if (!isMenuClick) {
+      adminUserDropdown.classList.remove("show");
+    }
+  });
+
+  const btn = document.getElementById("toggleMemberBtn");
+  const hiddenRows = document.querySelectorAll(".hidden-member");
+
+  let opened = false;
+
+  btn.addEventListener("click", () => {
+
+      opened = !opened;
+
+      hiddenRows.forEach(row=>{
+          row.style.display = opened ? "table-row" : "none";
+      });
+
+      btn.textContent = opened ? "접기" : "전체보기";
+  });
+</script>
+
+
+</body>
+</html>

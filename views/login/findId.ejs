@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>아이디 찾기</title>
+<link rel="stylesheet" href="/common.css">
+<link rel="stylesheet" href="/login/account.css">
+</head>
+<body>
+
+<div class="page">
+    <div class="box">
+
+        <div class="logo-area">
+            <h1>약 속 : 藥 束</h1>
+            <p>나에게 알맞은 약상자 케어 시스템</p>
+        </div>
+
+      <img src="/icon/main_log.png" class="logo-icon">
+
+        <h2 class="page-title">아이디 찾기</h2>
+
+        <form action="/findId" method="post">
+
+            <div class="form-group">
+                <label>이름</label>
+                <input type="text" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label>이메일</label>
+                <input type="email" name="email" required>
+            </div>
+
+            <button class="submit-btn">
+                아이디 찾기
+            </button>
+
+        </form>
+
+        <div class="bottom-link">
+            <a href="/login">로그인으로 돌아가기</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
