@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
-  <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/admin/admin_dashboard/style_medicines.css" />
 </head>
 <body>
-  <div class="wrapper">
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="admin-logo">
@@ -33,7 +31,7 @@
 
     <div class="admin-user-menu">
     <button type="button" class="admin-user-button" id="adminUserButton">
-      관리자
+      <%= adminName %>
       <span>▼</span>
     </button>
 
@@ -52,7 +50,7 @@
 
         </header>
 
-<div class="top-row">
+
       <section class="box-summary-grid">
         <article class="stat-card">
           <span>전체 약상자</span>
@@ -60,19 +58,6 @@
           <p>등록된 약상자 수</p>
         </article>
       </section>
-      
-
-
-      <section class="member-toolbar">
-        <input type="text" id="memberSearch" placeholder="이름 또는 아이디 검색" />
-
-        <select id="memberTypeFilter">
-          <option value="all">전체 회원</option>
-          <option value="P">보호자</option>
-          <option value="S">시니어</option>
-        </select>
-      </section>
-</div>
 
       <section class="medicine-box-layout">
         <div class="admin-panel medicine-box-list-panel">
@@ -88,7 +73,7 @@
                 <th>사용자</th>
                 <th>전원</th>
                 <th>개폐</th>
-                <th>무게</th>
+                <th>약 유무</th>
                 <th>최근 갱신</th>
               </tr>
             </thead>
@@ -99,11 +84,9 @@
                   data-id="<%= box.id %>"
                   data-owner="<%= box.owner %>"
                   data-status="<%= box.status %>"
-                  data-weight="<%= box.weight %>"
                   data-open="<%= box.isOpen ? '열림' : '닫힘' %>"
-                  data-lcd="<%= box.lcdTime %>"
-                  data-buzzer="<%= box.buzzer ? '작동' : '꺼짐' %>"
-                  data-led="<%= box.led ? '작동' : '꺼짐' %>"
+                  data-pill="<%= box.pillStatus %>"
+                  data-pill-checked="<%= box.lastPillCheckedAt %>"
                   data-updated="<%= box.lastUpdated %>"
                 >
                   <td>
@@ -120,7 +103,7 @@
                       <%= box.isOpen ? "열림" : "닫힘" %>
                     </span>
                   </td>
-                  <td><%= box.weight %></td>
+                  <td><%= box.pillStatus %></td>
                   <td><%= box.lastUpdated %></td>
                 </tr>
               <% }) %>
@@ -150,32 +133,22 @@
               </div>
 
               <div>
-                <dt>약 무게</dt>
-                <dd id="detailWeight"></dd>
+                <dt>약 유무</dt>
+                <dd id="detailPill"></dd>
               </div>
 
+              <div>
+                
+                <dt>약 유무 확인 시간</dt>
+                <dd id="detailPillChecked"></dd>
+              </div>
               <div>
                 <dt>개폐 여부</dt>
                 <dd id="detailOpen"></dd>
               </div>
 
               <div>
-                <dt>LCD 화면 켜진 시간</dt>
-                <dd id="detailLcd"></dd>
-              </div>
-
-              <div>
-                <dt>부저 알람 여부</dt>
-                <dd id="detailBuzzer"></dd>
-              </div>
-
-              <div>
-                <dt>LED 작동 여부</dt>
-                <dd id="detailLed"></dd>
-              </div>
-
-              <div>
-                <dt>최근 데이터 갱신</dt>
+                <dt>최근 생존 신호</dt>
                 <dd id="detailUpdated"></dd>
               </div>
             </dl>
@@ -184,7 +157,7 @@
       </section>
     </main>
   </div>
-</div>
+
   
   <script>
   const adminUserButton = document.querySelector("#adminUserButton");
@@ -205,18 +178,14 @@
 
   <script>
     const boxRows = document.querySelectorAll(".medicine-box-row");
-
     const emptyBoxDetail = document.querySelector("#emptyBoxDetail");
     const boxDetail = document.querySelector("#boxDetail");
-
     const detailBoxId = document.querySelector("#detailBoxId");
     const detailPower = document.querySelector("#detailPower");
     const detailOwner = document.querySelector("#detailOwner");
-    const detailWeight = document.querySelector("#detailWeight");
     const detailOpen = document.querySelector("#detailOpen");
-    const detailLcd = document.querySelector("#detailLcd");
-    const detailBuzzer = document.querySelector("#detailBuzzer");
-    const detailLed = document.querySelector("#detailLed");
+    const detailPill = document.querySelector("#detailPill");
+    const detailPillChecked = document.querySelector("#detailPillChecked");
     const detailUpdated = document.querySelector("#detailUpdated");
 
     boxRows.forEach((row) => {
@@ -227,13 +196,10 @@
         detailBoxId.textContent = row.dataset.id;
         detailPower.textContent = row.dataset.status === "ON" ? "켜짐" : "꺼짐";
         detailOwner.textContent = row.dataset.owner;
-        detailWeight.textContent = row.dataset.weight;
         detailOpen.textContent = row.dataset.open;
-        detailLcd.textContent = row.dataset.lcd;
-        detailBuzzer.textContent = row.dataset.buzzer;
-        detailLed.textContent = row.dataset.led;
         detailUpdated.textContent = row.dataset.updated;
-
+        detailPill.textContent = row.dataset.pill;
+        detailPillChecked.textContent = row.dataset.pillChecked;
         emptyBoxDetail.classList.add("hidden");
         boxDetail.classList.remove("hidden");
       });

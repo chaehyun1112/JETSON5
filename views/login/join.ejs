@@ -173,7 +173,7 @@
 
     // 이메일 인증번호 확인
     document.getElementById("verifyEmailBtn").addEventListener("click",()=>{
-
+        const email = document.getElementById("email").value.trim();
         const code=document.getElementById("emailCode").value.trim();
 
         if(code===""){
@@ -188,6 +188,7 @@
                 "Content-Type":"application/json"
             },
             body:JSON.stringify({
+                email,
                 code
             })
         })
