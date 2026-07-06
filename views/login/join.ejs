@@ -12,14 +12,10 @@
 <body>
   <main class="join-page">
     <section class="join-box">
-      <h1>스마트 약상자</h1>
+      <h1>약 속 : 藥 束</h1>
       <p class="subtitle">나에게 알맞은 약상자 케어 시스템</p>
-
-```
   <div class="icon-box">
-    <div class="handle"></div>
-    <div class="case">
-      <span>💊</span>
+      <img src="/icon/main_log.png" class="logo-icon">
     </div>
   </div>
 
@@ -38,7 +34,7 @@
     <label>아이디</label>
       <div class="input-row">
         <input type="text" name="id" id="id" placeholder="아이디를 입력하세요">
-        <button type="button" id="checkIdBtn"> 중복확인 </button>
+        <button type="button" id="checkIdBtn" class="btn-action"> 중복확인 </button>
       </div>
       <p id="idCheckMessage"></p>
 
@@ -51,14 +47,14 @@
     <label>이메일</label>
     <div class="input-row">
       <input type="email" id="email" name="email" placeholder="이메일을 입력해주세요" required>
-      <button type="button" id="sendEmailBtn">인증번호 보내기</button>
+      <button type="button" id="sendEmailBtn" class="btn-action">인증번호 보내기</button>
     </div>
     <p id="emailMessage"></p>
 
     <label>인증번호</label>
     <div class="input-row">
       <input type="text" id="emailCode"  placeholder="인증번호 입력">
-      <button type="button" id="verifyEmailBtn"> 인증하기 </button>
+      <button type="button" id="verifyEmailBtn" class="btn-action"> 인증하기 </button>
     </div>
     <p id="verifyMessage"></p>
 
@@ -68,6 +64,8 @@
     <label>주소 (선택)</label>
     <input type="text" name="addr" placeholder="주소를 입력해주세요">
 
+
+  
   <div class="terms-list">
     <label class="terms-item">
       <input type="checkbox" class="terms-checkbox item-check" name="terms_privacy" required>
@@ -101,6 +99,7 @@
     </label>
   </div>
 
+
     <button type="submit" class="join-btn">회원가입</button>
   </form>
 
@@ -110,7 +109,7 @@
 </section>
 
   </main>
-    <script>
+<script>
 
     let idChecked = false;
     let checkedId = "";

@@ -23,8 +23,17 @@ html, body {
 /* ===== 상단 헤더 (로고 위치) ===== */
 .site-header {
   padding: 16px 40px;   /* 24px → 16px */
-  background: #fff;
   border-bottom: 1px solid #eee;
+}
+
+
+.site-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+}
+
+.site-header__sub {
+  font-size: 15px;
+  color: #bfdbfe;
 }
 
 .join-box {
@@ -51,7 +60,7 @@ html, body {
   display: inline-flex;
   align-items: center;
   font-family: "궁서", "궁서체", Gungsuh, serif;
-  color: #1b1b1b;
+  color: #fff;
 }
 
 .logo-left {
@@ -214,4 +223,11 @@ html, body {
     border-radius:20px;
     padding:40px;
     box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.logo-title a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
 }

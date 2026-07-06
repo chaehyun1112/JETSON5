@@ -731,7 +731,6 @@ router.get("/admin/admin_dashboard/admin", async (req, res) => {
       DATE_FORMAT(JOINED_AT, '%Y-%m-%d') AS joinedAt
     FROM TB_MEMBER
     ORDER BY JOINED_AT DESC
-    LIMIT 5
   `;
 
   try {
@@ -1532,10 +1531,172 @@ router.get("/admin/admin_dashboard/messages", async (req, res) => {
   }
 });
 
+// 관리자 공지사항 관리
+router.get("/admin/admin_update_announce", isLoggedIn, (req, res) => {
+
+    const sql = `
+        SELECT *
+        FROM TB_NOTICE
+        WHERE IS_VISIBLE = 'Y'
+        ORDER BY CREATED_AT DESC
+    `;
+
+    conn.query(sql, (err, notices) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        res.render("admin/admin_update_announce", {
+            title: "공지사항 수정",
+            adminName: req.session.user.name,
+            notices
+        });
+    });
+});
+
+// 공지사항 등록
+router.post("/admin/notice/add", isLoggedIn, (req, res) => {
+
+    const { category, title, content } = req.body;
+
+    const sql = `
+        INSERT INTO TB_NOTICE
+        (
+            MEM_ID,
+            CATEGORY,
+            TITLE,
+            CONTENT
+        )
+        VALUES (?, ?, ?, ?)
+    `;
+
+    conn.query(
+        sql,
+        [
+            req.session.user.id,
+            category,
+            title,
+            content
+        ],
+        (err) => {
+
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ success: false });
+            }
+
+            res.json({ success: true });
+
+        }
+    );
+});
+
+// 공지사항 수정
+router.post("/admin/notice/update/:id", isLoggedIn, (req, res) => {
+
+    const { category, title, content } = req.body;
+
+    const sql = `
+        UPDATE TB_NOTICE
+        SET
+            CATEGORY = ?,
+            TITLE = ?,
+            CONTENT = ?
+        WHERE ANN_ID = ?
+    `;
+
+    conn.query(
+        sql,
+        [
+            category,
+            title,
+            content,
+            req.params.id
+        ],
+        (err) => {
+
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ success: false });
+            }
+
+            res.json({ success: true });
+
+        }
+    );
+});
+
+// 공지 수정 페이지
+router.get("/admin/admin_announce/:id", isLoggedIn, (req, res) => {
+
+    const sql = `
+        SELECT *
+        FROM TB_NOTICE
+        WHERE ANN_ID = ?
+    `;
+
+    conn.query(sql, [req.params.id], (err, rows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        if (rows.length === 0) {
+            return res.send("공지사항이 존재하지 않습니다.");
+        }
+
+        res.render("admin/admin_announce", {
+            title: "공지사항 수정",
+            adminName: req.session.user.name,
+            notice: rows[0]
+        });
+
+    });
+
+});
+
+// 공지사항 삭제
+router.post("/admin/notice/delete", isLoggedIn, (req, res) => {
+
+    console.log(req.body);      // 추가
+    console.log(req.body.ids);  // 추가
+    const ids = req.body.ids;
+
+    if (!ids || ids.length === 0) {
+        return res.json({ success: false });
+    }
+
+    const sql = `
+        UPDATE TB_NOTICE
+        SET IS_VISIBLE='N'
+        WHERE ANN_ID IN (?)
+    `;
+
+    conn.query(
+        sql,
+        [ids],
+        (err) => {
+
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ success: false });
+            }
+
+            res.json({ success: true });
+
+        }
+    );
+});
+
+// 아이디 찾기
 router.get("/findId", (req, res) => {
     res.render("login/findId");
 });
 
+// 비밀번호 변경
 router.get("/resetPw", (req, res) => {
     res.render("login/resetPw");
 });
@@ -2069,54 +2230,60 @@ router.get('/index/index_HowToUse', (req, res) => {
 
 
 router.get('/index/index_announce', (req, res) => {
-  // 1. 현재 로그인한 유저의 세션 정보 가져오기 (로그인 안 되어 있으면 null이나 빈 객체)
-const notices = [
-    { isNew: true,  category: '공지',    title: '복약안심서비스 정식 오픈 안내',                         date: '2025.06.01' },
-    { isNew: true,  category: '업데이트', title: 'v1.2 업데이트 – 복약 이력 리포트 기능 추가',           date: '2025.05.20' },
-    { isNew: false, category: '점검',    title: '서버 정기 점검 완료 안내 (5월 15일 02:00~04:00)',       date: '2025.05.15' },
-    { isNew: false, category: '공지',    title: '개인정보 처리방침 개정 안내 (2025년 5월)',              date: '2025.05.01' },
-    { isNew: false, category: '업데이트', title: 'v1.1 업데이트 – 알림 설정 세분화 및 UI 개선',          date: '2025.04.10' },
-    { isNew: false, category: '공지',    title: '스마트 약 보관함 펌웨어 업데이트 방법 안내',            date: '2025.03.28' },
-    { isNew: false, category: '공지',    title: '복약안심서비스 베타 테스트 참여자 모집 결과 안내',       date: '2025.03.01' },
-];
 
-if (!req.session.user) {
-        return res.render('index/index_announce', {
-            title: '공지사항',
-            notices,
-            member: null
-        });
-    }
-
-    // 로그인 안 한 경우
-    if (!req.session.user) {
-        return res.render('index/index_announce', {
-            title: '공지사항',
-            notices,
-            member: null
-        });
-    }
-
-    // 로그인한 경우에만 DB 조회
-    const sql = `
-        SELECT MEM_ST
-        FROM TB_MEMBER
-        WHERE MEM_ID = ?
+    const noticeSql = `
+        SELECT
+            ANN_ID,
+            CATEGORY,
+            TITLE,
+            CREATED_AT
+        FROM TB_NOTICE
+        WHERE IS_VISIBLE = 'Y'
+        ORDER BY CREATED_AT DESC
     `;
 
-    conn.query(sql, [req.session.user.id], (err, rows) => {
+    conn.query(noticeSql, (noticeErr, notices) => {
 
-        if (err) {
-            console.log(err);
-            return;
+        if (noticeErr) {
+            console.log(noticeErr);
+            return res.send("DB 오류");
         }
 
-        res.render('index/index_announce', {
-            title: '공지사항',
-            notices,
-            member: rows[0]
+        // 로그인 안 한 경우
+        if (!req.session.user) {
+            return res.render("index/index_announce", {
+                title: "공지사항",
+                notices,
+                user: null,
+                member: null
+            });
+        }
+
+        // 로그인한 경우 회원구분 조회
+        const memberSql = `
+            SELECT MEM_ST
+            FROM TB_MEMBER
+            WHERE MEM_ID = ?
+        `;
+
+        conn.query(memberSql, [req.session.user.id], (memberErr, rows) => {
+
+            if (memberErr) {
+                console.log(memberErr);
+                return res.send("DB 오류");
+            }
+
+            res.render("index/index_announce", {
+                title: "공지사항",
+                notices,
+                user: req.session.user,
+                member: rows[0]
+            });
+
         });
+
     });
+
 });
 
 router.get("/admin/admin_update", (req, res) => {
@@ -2578,6 +2745,7 @@ router.post("/user/senior_info/senior_register", isLoggedIn, (req, res) => {
                             </script>
                         `);
                     }
+
                 );
             }
         );
@@ -3077,13 +3245,15 @@ router.get("/admin/check_inquiry", isLoggedIn, (req, res) => {
 
         res.render("admin/check_inquiry", {
             title: "문의 관리",
-            inquiryList: rows
+            inquiryList: rows,
+            adminName: req.session.user.name || "관리자"
         });
 
     });
 
 });
 
+// 사용자 문의 목록
 router.get("/user/user_service/check_inquiry", isLoggedIn, (req, res) => {
 
     const user = req.session.user;
@@ -3294,6 +3464,55 @@ router.get('/user/senior_dashboard/senior_main_dashboard', (req, res) => {
   };
   res.render('user/senior_dashboard/senior_main_dashboard', viewData);
 });
+
+// 사용자 공지사항 상세
+router.get("/user/user_service/user_announce/:id", (req, res) => {
+
+    const annId = req.params.id;
+
+    // 조회수 증가
+    const updateSql = `
+        UPDATE TB_NOTICE
+        SET VIEW_COUNT = VIEW_COUNT + 1
+        WHERE ANN_ID = ?
+        AND IS_VISIBLE = 'Y'
+    `;
+
+    conn.query(updateSql, [annId], (updateErr) => {
+
+        if (updateErr) {
+            console.log(updateErr);
+            return res.send("DB 오류");
+        }
+
+        // 공지 조회
+        const selectSql = `
+            SELECT *
+            FROM TB_NOTICE
+            WHERE ANN_ID = ?
+            AND IS_VISIBLE = 'Y'
+        `;
+
+        conn.query(selectSql, [annId], (err, rows) => {
+
+            if (err) {
+                console.log(err);
+                return res.send("DB 오류");
+            }
+
+            if (rows.length === 0) {
+                return res.send("공지사항이 존재하지 않습니다.");
+            }
+
+            res.render("user/user_service/user_announce", {
+                title: rows[0].TITLE,
+                notice: rows[0],
+                user: req.session.user || null
+            });
+        });
+    });
+});
+
 
 
 module.exports = router;

@@ -286,3 +286,7 @@ body {
   background: #f2f6ff;
   color: #1f4fbf;
 }
+
+.hidden-member{
+    display:none;
+}

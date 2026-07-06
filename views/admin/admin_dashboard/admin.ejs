@@ -22,6 +22,8 @@
         <a href="/admin/admin_dashboard/medicine_boxes">약 상자 관리</a>
         <a href="/admin/admin_dashboard/messages">알림 메시지</a>
         <a href="/admin/check_inquiry">문의사항 확인</a>
+        <a href="/admin/admin_update_announce">공지사항 수정</a>
+
 
       </nav>
     </aside>
@@ -40,7 +42,6 @@
 
     <div class="admin-user-dropdown" id="adminUserDropdown">
       <a href="/admin/admin_update">개인정보 수정</a>
-      <a href="/index/index_announce">공지사항 수정</a>
       <form action="/logout" method="POST" class="logout-form">
           <button type="submit" class="admin-user-item">
               로그아웃
@@ -82,7 +83,7 @@
         <div class="admin-panel">
           <div class="panel-header">
             <h2>최근 가입 회원</h2>
-            <button type="button">전체보기</button>
+            <button type="button" id="toggleMemberBtn">전체보기</button>
           </div>
 
           <table class="admin-table">
@@ -101,8 +102,8 @@
                   <td colspan="4">최근 가입 회원이 없습니다.</td>
                 </tr>
               <% } else { %>
-                <% recentMembers.forEach((member) => { %>
-                  <tr>
+                <% recentMembers.forEach((member, index) => { %>
+                  <tr class="<%= index >= 5 ? 'hidden-member' : '' %>">
                     <td><%= member.id %></td>
                     <td><%= member.name %></td>
                     <td><%= member.type %></td>
@@ -146,6 +147,22 @@
     if (!isMenuClick) {
       adminUserDropdown.classList.remove("show");
     }
+  });
+
+  const btn = document.getElementById("toggleMemberBtn");
+  const hiddenRows = document.querySelectorAll(".hidden-member");
+
+  let opened = false;
+
+  btn.addEventListener("click", () => {
+
+      opened = !opened;
+
+      hiddenRows.forEach(row=>{
+          row.style.display = opened ? "table-row" : "none";
+      });
+
+      btn.textContent = opened ? "접기" : "전체보기";
   });
 </script>
 
