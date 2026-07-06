@@ -36,27 +36,6 @@
           </div>
           <span class="status-pill"><span class="status-dot"></span> 본인 인증 완료</span>
         </div>
-        <nav class="side-nav" aria-label="설정 메뉴">
-          <a class="is-current" href="#account"><span class="nav-icon">ID</span>계정 정보</a>
-          <a href="#notifications"><span class="nav-icon">ON</span>알림 설정</a>
-          <a href="#privacy"><span class="nav-icon">PW</span>개인정보 관리</a>
-        </nav>
-
-
-<script>
-  // 사이드바의 모든 링크를 가져옵니다.
-  const navLinks = document.querySelectorAll('.side-nav a');
-
-  navLinks.forEach(link => {
-    link.addEventListener('click', function() {
-      // 1. 기존에 'is-current'가 붙어있던 메뉴에서 클래스 제거
-      document.querySelector('.side-nav a.is-current')?.classList.remove('is-current');
-      
-      // 2. 방금 내가 클릭한 메뉴에 'is-current' 클래스 추가
-      this.classList.add('is-current');
-    });
-  });
-</script>
       </aside>
 
       <div class="content-panel">
@@ -114,7 +93,6 @@
             </div>
           </section>
 
-
         <section class="section" id="notifications">
           <div class="section-head">
             <div>
@@ -139,25 +117,21 @@
             </div>
         </section>
 
-        <section class="section" id="privacy">
-          <div class="section-head">
-            <div>
-              <h2>계정 및 데이터 삭제</h2>
-              <p>서비스 탈퇴 시 계정 정보와 일부 데이터가 삭제될 수 있으며, 삭제된 정보는 복구할 수 없습니다.</p>
-
-
-                  <button type="button" class="btn btn--danger" onclick="deleteAccount()"> 탈퇴하기 </button>
-
+          <section class="section" id="privacy">
+            <div class="section-head">
+              <article class="privacy-card danger-zone">
+                <h3>계정 및 데이터 삭제</h3>
+                <p>서비스 탈퇴 시 계정 정보와 일부 데이터가 삭제될 수 있으며, 삭제된 정보는 복구할 수 없습니다.</p>
+                <button type="button" class="btn btn--danger" onclick="deleteAccount()"> 탈퇴하기 </button>
+              </article>
             </div>
 
-
-
-          </div>
-            <div class="action-row">
-              <button class="btn btn--outline" type="button" data-action="cancel" onclick="location.href='/user/senior_service/senior_about'">변경 취소</button>
-              <button class="btn btn--primary" type="button" data-action="save" data-label="설정 저장" onclick="location.href='/user/senior_service/senior_about'">설정 저장</button>
+              <div class="action-row">
+                <button type="button" class="btn btn--outline" onclick="location.href='/user/user_info/settings'"> 변경 취소 </button>
+                <button type="submit" class="btn btn--primary"> 설정 저장 </button>
+              </div>
             </div>
-          </div>
+          </form>
         </section>
       </div>
     </div>

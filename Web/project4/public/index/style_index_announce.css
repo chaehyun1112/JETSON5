@@ -66,3 +66,12 @@ main {
   white-space: nowrap;
 }
 
+.notice-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.notice-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
