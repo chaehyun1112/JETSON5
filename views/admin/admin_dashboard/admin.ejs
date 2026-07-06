@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>admin</title>
-    <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/admin/admin_dashboard/style_admin.css" />
 </head>
 <body>
-  <div class="wrapper">
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="admin-logo">
@@ -32,7 +30,7 @@
         </div>
           <div class="admin-user-menu">
     <button type="button" class="admin-user-button" id="adminUserButton">
-      관리자
+      <%= adminName %>
       <span>▼</span>
     </button>
 
@@ -40,7 +38,6 @@
       <a href="/admin/admin_update">개인정보 수정</a>
       <a href="/admin/members_update">회원정보 수정</a>
       <a href="/index/index_announce">공지사항 수정</a>
-      <a href="/admin/check_inquiry">문의사항 확인</a>
       <form action="/logout" method="POST" class="logout-form">
           <button type="submit" class="admin-user-item">
               로그아웃
@@ -55,25 +52,25 @@
       <section class="stats-grid">
         <article class="stat-card">
           <span>전체 회원</span>
-          <strong>128</strong>
+          <strong><%= stats.totalMembers %></strong>
           <p>등록된 전체 사용자</p>
         </article>
 
         <article class="stat-card">
           <span>보호자 회원</span>
-          <strong>42</strong>
+          <strong><%= stats.parentMembers %></strong>
           <p>회원 구분 P</p>
         </article>
 
         <article class="stat-card">
           <span>시니어 회원</span>
-          <strong>76</strong>
+          <strong><%= stats.seniorMembers %></strong>
           <p>회원 구분 S</p>
         </article>
 
         <article class="stat-card">
           <span>관리자</span>
-          <strong>10</strong>
+          <strong><%= stats.adminMembers %></strong>
           <p>회원 구분 A</p>
         </article>
       </section>
@@ -94,25 +91,22 @@
                 <th>가입일</th>
               </tr>
             </thead>
+            <!-- tbody태그 DB연동 (박건희) -->
             <tbody>
-              <tr>
-                <td>senior01</td>
-                <td>김민수</td>
-                <td>S</td>
-                <td>2026-06-22</td>
-              </tr>
-              <tr>
-                <td>parent02</td>
-                <td>이지은</td>
-                <td>P</td>
-                <td>2026-06-22</td>
-              </tr>
-              <tr>
-                <td>admin01</td>
-                <td>관리자</td>
-                <td>A</td>
-                <td>2026-06-21</td>
-              </tr>
+              <% if (recentMembers.length === 0) { %>
+                <tr>
+                  <td colspan="4">최근 가입 회원이 없습니다.</td>
+                </tr>
+              <% } else { %>
+                <% recentMembers.forEach((member) => { %>
+                  <tr>
+                    <td><%= member.id %></td>
+                    <td><%= member.name %></td>
+                    <td><%= member.type %></td>
+                    <td><%= member.joinedAt %></td>
+                  </tr>
+                <% }) %>
+              <% } %>
             </tbody>
           </table>
         </div>
@@ -123,24 +117,17 @@
           </div>
 
           <ul class="notice-list">
-            <li>
-              <strong>알림</strong>
-              <span>오늘 확인이 필요한 알림 5건</span>
-            </li>
-            <li>
-              <strong>기기 연결 상태</strong>
-              <span>오프라인 약 상자 2대</span>
-            </li>
-            <li>
-              <strong>신규 문의</strong>
-              <span>확인 대기 문의 3건</span>
-            </li>
+            <% notices.forEach((notice) => { %>
+              <li>
+                <strong><%= notice.title %></strong>
+                <span><%= notice.content %></span>
+              </li>
+            <% }) %>
           </ul>
         </div>
       </section>
     </main>
   </div>
-</div>
   <script>
   const adminUserButton = document.querySelector("#adminUserButton");
   const adminUserDropdown = document.querySelector("#adminUserDropdown");

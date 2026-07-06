@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
-      <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/admin/admin_dashboard/style_messages.css" />
 </head>
 <body>
@@ -32,7 +31,7 @@
 
     <div class="admin-user-menu">
     <button type="button" class="admin-user-button" id="adminUserButton">
-      관리자
+      <%= adminName %>
       <span>▼</span>
     </button>
 
@@ -51,47 +50,45 @@
         </header>
 
 
-
+      <!-- 관리자 대시보드 센서 및 기기 알림 제거 (박건희)-->
       <section class="message-summary-grid">
         <article class="stat-card">
           <span>전체 메시지</span>
           <strong><%= messages.length %></strong>
-          <p>문의 및 이상사항</p>
+          <p>전체 문의 건수</p>
         </article>
 
         <article class="stat-card">
           <span>문의</span>
-          <strong><%= messages.filter(message => message.type === "문의").length %></strong>
+          <strong><%= messages.length %></strong>
           <p>회원 문의 메시지</p>
-        </article>
-
-        <article class="stat-card">
-          <span>이상사항</span>
-          <strong><%= messages.filter(message => message.type === "이상사항").length %></strong>
-          <p>센서 및 기기 알림</p>
         </article>
 
         <article class="stat-card">
           <span>확인 필요</span>
           <strong><%= messages.filter(message => message.status !== "완료").length %></strong>
-          <p>처리 대기 항목</p>
+          <p>처리 대기 문의</p>
+        </article>
+
+        <article class="stat-card">
+          <span>확인 완료</span>
+          <strong><%= messages.filter(message => message.status === "완료").length %></strong>
+          <p>처리 완료 문의</p>
         </article>
       </section>
 
       <section class="message-toolbar">
         <input type="text" id="messageSearch" placeholder="제목, 작성자, 아이디 검색" />
-
+        <!-- 문의만 보여주다보니 굳이 싶어서 일단 주석 처리
         <select id="messageTypeFilter">
           <option value="all">전체</option>
           <option value="문의">문의</option>
-          <option value="이상사항">이상사항</option>
-        </select>
+        </select> -->
 
         <select id="messageStatusFilter">
           <option value="all">전체 상태</option>
-          <option value="대기">대기</option>
           <option value="확인 필요">확인 필요</option>
-          <option value="완료">완료</option>
+          <option value="완료">확인 완료</option>
         </select>
       </section>
 
@@ -235,33 +232,30 @@
 
     function filterMessages() {
       const keyword = messageSearch.value.trim().toLowerCase();
-      const selectedType = messageTypeFilter.value;
       const selectedStatus = messageStatusFilter.value;
 
       messageItems.forEach((item) => {
-        const title = item.dataset.title.toLowerCase();
-        const sender = item.dataset.sender.toLowerCase();
-        const memberId = item.dataset.memberId.toLowerCase();
-        const type = item.dataset.type;
-        const status = item.dataset.status;
+        const title = (item.dataset.title || "").toLowerCase();
+        const sender = (item.dataset.sender || "").toLowerCase();
+        const memberId = (item.dataset.memberId || "").toLowerCase();
+        const status = item.dataset.status || "";
 
         const matchesKeyword =
           title.includes(keyword) ||
           sender.includes(keyword) ||
           memberId.includes(keyword);
 
-        const matchesType = selectedType === "all" || selectedType === type;
         const matchesStatus =
           selectedStatus === "all" || selectedStatus === status;
 
         item.style.display =
-          matchesKeyword && matchesType && matchesStatus ? "" : "none";
+          matchesKeyword && matchesStatus ? "" : "none";
       });
     }
 
-    messageSearch.addEventListener("input", filterMessages);
-    messageTypeFilter.addEventListener("change", filterMessages);
-    messageStatusFilter.addEventListener("change", filterMessages);
+messageSearch.addEventListener("input", filterMessages);
+messageStatusFilter.addEventListener("change", filterMessages);
+
   </script>
 </body>
 </html>

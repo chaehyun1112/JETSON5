@@ -106,6 +106,9 @@
         
         <div class="divider"></div>
 
+        <form action="/user/user_info/protected/schedule/update/<%= person.SENIOR_ID %>"
+      method="post">
+
                 <!-- ════════════════════════════
                      섹션 2: 복약 스케줄 수정
                 ════════════════════════════ -->
@@ -310,6 +313,7 @@
                 <div class="btn-row">
                     <a href="/user/user_info/protected" class="btn-cancel">취소</a>
                     <button type="submit" class="btn-submit">수정 완료</button>
+                    </form>
                 </div>
 
             </form>
