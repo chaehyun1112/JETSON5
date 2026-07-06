@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
-
+    <link rel="stylesheet" href="/common.css">
     <link rel="stylesheet" href="/user/user_service/style_inquiry_detail.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -57,12 +56,10 @@
         </div>
 
         <div class="detail-title">
-            <h3><%= inquiry.INQUIRY_TITLE %></h3>
+            <h3>제목 : <%= inquiry.INQUIRY_TITLE %></h3>
         </div>
 
-        <div class="detail-content">
-            <%= inquiry.INQUIRY_CONTENT %>
-        </div>
+        <div class="detail-content"><%= inquiry.INQUIRY_CONTENT %></div>
 
         <hr>
 
@@ -70,9 +67,7 @@
 
         <% if(inquiry.ANSWER_CONTENT){ %>
 
-            <div class="answer-box">
-                <%= inquiry.ANSWER_CONTENT %>
-            </div>
+            <div class="answer-box"><%= inquiry.ANSWER_CONTENT %></div>
 
             <p class="answer-date">
                 답변일 :
@@ -97,8 +92,8 @@
 
 </main>
 
-<footer>
-    © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+<footer class="footer">
+  © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
 </footer>
 
 </body>

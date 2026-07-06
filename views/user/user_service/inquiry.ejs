@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/index/style_index_about.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,7 +19,15 @@
     <span class="status-badge status-<%= inquiry.INQUIRY_STATUS %>">
       <%= inquiry.INQUIRY_STATUS %>
     </span>
-    <h2><%= inquiry.INQUIRY_TITLE %></h2>
+  <div class="content-group">
+
+      <label>제목</label>
+
+      <div class="content-box title-box">
+          <%= inquiry.INQUIRY_TITLE %>
+      </div>
+
+  </div>
     <p class="inquiry-meta">
       <%= inquiry.INQUIRY_TYPE %> · 
       <%= new Date(inquiry.CREATED_AT).toLocaleDateString('ko-KR') %>
@@ -49,6 +58,6 @@
 </main>
 
 
-<footer>
+<footer class="footer">
   © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
 </footer>

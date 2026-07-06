@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
-  
+
+  <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/user/user_dashboard/style_main_dashboard.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,10 +35,10 @@
 
       <section class="db-section">
         <div class="db-section__header">
-          <h2 class="db-section__title">오늘 복용현황 <span class="db-section__hint">(❌,✔ 선택)</span></h2>
+          <h2 class="db-section__title">오늘 복용현황 <span class="db-section__hint"></span></h2>
         </div>
         <div class="db-today-list">
-          <% const mealLabels = ['아침', '점심', '저녁', '자기전'];
+          <% const mealLabels = ['아침', '점심', '저녁', '취침 전'];
              const mealIcons  = ['🌅', '☀️', '🌙', '😴'];
              [today.morning, today.lunch, today.dinner, today.bedtime].forEach((rate, i) => {
                const statusClass = rate.includes('✅') ? 'db-meal-card--ok' : (rate.includes('❌') ? 'db-meal-card--miss' : '');
@@ -166,6 +167,8 @@
         </div>
 
       </div>
+
+
       <section class="db-section">
         <div class="db-card">
           <div class="db-card__header">
@@ -180,7 +183,7 @@
 
               <% ['morning','lunch','dinner','bedtime'].forEach((slot, i) => {
                    const status = day[slot] || 'unset';
-                   const slotLabel = ['아침','점심','저녁','자기전'][i];
+                   const slotLabel = ['아침','점심','저녁','취침 전'][i];
               %>
               <div class="db-week-cell db-week-cell--<%= status %>"><%= slotLabel %></div>
               <% }) %>
@@ -231,11 +234,10 @@
     </div>
   </main>
 
-  <footer class="footer">
-    <div class="container">
-      <p>© 2025 복약안심서비스 &nbsp;|&nbsp; Team Jetson5 &nbsp;|&nbsp; 스마트 약상자 기반 복약 관리 플랫폼</p>
-    </div>
-  </footer>
+
+<footer class="footer">
+  © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
 
   <script>
     const alertToggle = document.getElementById('alertToggle');

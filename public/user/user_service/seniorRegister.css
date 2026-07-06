@@ -114,18 +114,3 @@ body{
     text-decoration:none;
     font-size:13px;
 }
-
-.email-box{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:15px;
-}
-
-.email-box input{
-    flex:1;
-}
-
-.email-box button{
-    white-space:nowrap;
-}
