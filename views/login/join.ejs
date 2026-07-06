@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>회원가입</title>
+  <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/login/join.css">
 </head>
 
@@ -66,6 +67,39 @@
     
     <label>주소 (선택)</label>
     <input type="text" name="addr" placeholder="주소를 입력해주세요">
+
+  <div class="terms-list">
+    <label class="terms-item">
+      <input type="checkbox" class="terms-checkbox item-check" name="terms_privacy" required>
+      <span class="checkbox-custom"></span>
+      <span class="terms-text">개인정보 수집 및 이용 <span class="badge-required">(필수)</span></span>
+    </label>
+
+    <label class="terms-item">
+      <input type="checkbox" class="terms-checkbox item-check" name="terms_connection" required>
+      <span class="checkbox-custom"></span>
+      <span class="terms-text">연결 정보 사용 <span class="badge-required">(필수)</span></span>
+    </label>
+
+    <label class="terms-item">
+      <input type="checkbox" class="terms-checkbox item-check" name="terms_provider" required>
+      <span class="checkbox-custom"></span>
+      <span class="terms-text">서비스 공급자 이용약관 <span class="badge-required">(필수)</span></span>
+    </label>
+
+    <label class="terms-item">
+      <input type="checkbox" class="terms-checkbox item-check" name="terms_use" required>
+      <span class="checkbox-custom"></span>
+      <span class="terms-text">이용약관 <span class="badge-required">(필수)</span></span>
+    </label>
+ 
+
+    <label class="terms-item terms-item--all">
+      <input type="checkbox" id="allCheck" class="terms-checkbox">
+      <span class="checkbox-custom"></span>
+      <span class="terms-text terms-text--all">위의 내용을 모두 읽었으며 이에 동의합니다.</span>
+    </label>
+  </div>
 
     <button type="submit" class="join-btn">회원가입</button>
   </form>
@@ -234,5 +268,41 @@
     });
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const allCheck = document.getElementById('allCheck');
+    const itemChecks = document.querySelectorAll('.item-check');
+    const joinForm = document.getElementById('joinForm');
+
+    // 1. 전체 동의 체크박스 제어
+    if (allCheck) {
+        allCheck.addEventListener('change', (e) => {
+        itemChecks.forEach(cb => {
+            cb.checked = e.target.checked;
+        });
+        });
+    }
+
+    // 2. 하위 체크박스 변경 시 전체 동의 상태 동기화
+    itemChecks.forEach(cb => {
+        cb.addEventListener('change', () => {
+        const allChecked = Array.from(itemChecks).every(item => item.checked);
+        allCheck.checked = allChecked;
+        });
+    });
+
+    // 3. 폼 서브밋 시 필수 약관 체크 검증 기본 방어
+    if (joinForm) {
+        joinForm.addEventListener('submit', (e) => {
+        const allChecked = Array.from(itemChecks).every(item => item.checked);
+        if (!allChecked) {
+            e.preventDefault();
+            alert('본인 인증을 위한 모든 필수 약관에 동의하셔야 회원가입이 가능합니다.');
+        }
+        });
+    }
+    });
+
+    </script>
   </body>
 </html>

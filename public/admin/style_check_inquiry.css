@@ -1,191 +1,230 @@
-
-
-.inquiry-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 32px 20px;
+* {
+  box-sizing: border-box;
 }
 
-.inquiry-header {
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eaf3ff;
+  color: #1f2d3d;
+}
+
+.admin-layout {
+  min-height: 100vh;
+  display: flex;
+  background: #f4f7fb;
+}
+
+.admin-sidebar {
+  width: 230px;
+  padding: 28px 20px;
+  background: #1f4fbf;
+  color: #fff;
+}
+
+.admin-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 36px;
+}
+
+.admin-logo strong {
+  font-size: 20px;
+}
+
+.admin-logo span {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.admin-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-menu a {
+  padding: 12px 14px;
+  border-radius: 6px;
+  color: #dce7ff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.admin-menu a:hover,
+.admin-menu a.active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 32px;
+}
+
+.admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
-.btn-write {
-  background-color: #4a90e2;
-  color: #fff;
-  padding: 10px 18px;
-  border-radius: 6px;
-  text-decoration: none;
+.admin-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  color: #1f2d3d;
+}
+
+.admin-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+/* ---------- 관리자 유저 메뉴 (드롭다운) ---------- */
+.admin-user-menu {
+  position: relative;
+}
+
+.admin-user-button {
+  height: 38px;
+  min-width: 96px;
+  border: 1px solid #d7ddea;
+  border-radius: 5px;
+  background: #fff;
+  color: #1f4fbf;
   font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-user-button span {
+  margin-left: 6px;
+  font-size: 10px;
+}
+
+.admin-user-dropdown {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  width: 150px;
+  padding: 6px;
+  border: 1px solid #e1e6ef;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(31, 45, 61, 0.12);
+  display: none;
+  z-index: 10;
+}
+
+.admin-user-dropdown.show {
+  display: block;
+}
+
+.admin-user-dropdown a,
+.admin-user-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 9px;
+  border-radius: 4px;
+  color: #1f2d3d;
+  text-decoration: none;
+  font-size: 13px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.admin-user-dropdown a:hover,
+.admin-user-dropdown button:hover {
+  background: #f2f6ff;
+  color: #1f4fbf;
+}
+
+.logout-form {
+  margin: 0;
+}
+
+.logout-form button:hover {
+  background: #f3f4f6;
+}
+
+/* ---------- 문의 목록 패널 ---------- */
+.inquiry-container {
+  padding: 22px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e1e6ef;
 }
 
 .inquiry-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
+}
+
+.inquiry-table th,
+.inquiry-table td {
+  padding: 13px 10px;
+  border-bottom: 1px solid #edf0f5;
+  text-align: left;
 }
 
 .inquiry-table th {
-  background-color: #f5f6f8;
-  padding: 12px;
-  text-align: left;
-  font-size: 14px;
-  color: #555;
-  border-bottom: 1px solid #e0e0e0;
+  color: #6b7280;
+  font-weight: 600;
 }
 
-.inquiry-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.inquiry-table tr:hover {
-  background-color: #fafafa;
+.inquiry-table tbody tr:hover {
+  background: #f8faff;
 }
 
 .inquiry-title-cell {
-  max-width: 300px;
+  max-width: 420px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* ---------- 상태 뱃지 ---------- */
 .status-badge {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-대기 {
-  background-color: #fff3cd;
-  color: #997404;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .status-답변완료 {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background: #e6f7ee;
+  color: #1e8e5a;
 }
 
-.inquiry-empty {
-  text-align: center;
-  padding: 60px 0;
-  color: #999;
+.status-답변대기 {
+  background: #fff4e5;
+  color: #b8860b;
 }
 
-/* 작성 폼 */
-.inquiry-form .form-group {
-  margin-bottom: 20px;
+/* ---------- 반응형 ---------- */
+@media (max-width: 900px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+    gap: 16px;
+    flex-direction: column;
+  }
+
+  .inquiry-title-cell {
+    max-width: 160px;
+  }
 }
-
-.inquiry-form label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.inquiry-form input,
-.inquiry-form select,
-.inquiry-form textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-.inquiry-form textarea {
-  resize: vertical;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 24px;
-}
-
-.btn-cancel {
-  padding: 10px 20px;
-  border-radius: 6px;
-  text-decoration: none;
-  color: #555;
-  background-color: #f0f0f0;
-}
-
-.btn-submit {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  background-color: #4a90e2;
-  color: #fff;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-/* 상세보기 */
-.inquiry-detail-header {
-  border-bottom: 1px solid #eee;
-  padding-bottom: 16px;
-  margin-bottom: 20px;
-}
-
-.inquiry-detail-header h2 {
-  margin: 10px 0 6px;
-}
-
-.inquiry-meta {
-  color: #888;
-  font-size: 13px;
-}
-
-.inquiry-content-box {
-  padding: 16px 0;
-  line-height: 1.6;
-  white-space: pre-line;
-}
-
-.inquiry-answer-box {
-  margin-top: 24px;
-  padding: 16px;
-  background-color: #f5f8ff;
-  border-radius: 8px;
-}
-
-.answer-date {
-  font-size: 12px;
-  color: #888;
-  margin-bottom: 8px;
-}
-
-.answer-content {
-  line-height: 1.6;
-  white-space: pre-line;
-}
-
-.inquiry-waiting {
-  margin-top: 24px;
-  padding: 20px;
-  text-align: center;
-  background-color: #fafafa;
-  border-radius: 8px;
-  color: #999;
-}
-
-.btn-back {
-  display: inline-block;
-  margin-top: 24px;
-  color: #555;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-

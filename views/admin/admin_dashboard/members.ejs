@@ -4,21 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
   <link rel="stylesheet" href="/admin/admin_dashboard/style_members.css" />
 </head>
 <body>
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="admin-logo">
-        <strong>스마트 약상자</strong>
+        <strong>스마트 약 상자</strong>
         <span>관리자</span>
       </div>
 
       <nav class="admin-menu">
         <a href="/admin/admin_dashboard/admin" >대시보드</a>
         <a href="/admin/admin_dashboard/members" class="active">회원관리</a>
-        <a href="/admin/admin_dashboard/medicine_boxes">약상자 관리</a>
+        <a href="/admin/admin_dashboard/medicine_boxes">약 상자 관리</a>
         <a href="/admin/admin_dashboard/messages">알림 메시지</a>
+        <a href="/admin/check_inquiry">문의사항 확인</a>
       </nav>
     </aside>
 
@@ -37,7 +39,6 @@
 
     <div class="admin-user-dropdown" id="adminUserDropdown">
       <a href="/admin/admin_update">개인정보 수정</a>
-      <a href="/admin/members_update">회원정보 수정</a>
       <a href="/index/index_announce">공지사항 수정</a>
       <form action="/logout" method="POST" class="logout-form">
           <button type="submit" class="admin-user-item">
