@@ -1,0 +1,57 @@
+.announce-detail {
+  padding: 4rem 1.5rem;
+  min-height: 60vh;
+}
+
+.announce-detail .container {
+  max-width: 640px;
+  margin: 0 auto;  
+}
+.announce-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 3rem 3.5rem;
+  box-shadow: 0 2px 16px rgba(59, 91, 219, .08);
+}
+
+.announce-header {
+  border-bottom: 1px solid #e8eef8;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.announce-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 12px 0 10px;
+  line-height: 1.4;
+}
+
+.announce-meta {
+  font-size: 13px;
+  color: #8a9ac0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.announce-divider {
+  color: #d8e2f0;
+}
+
+.announce-content {
+  font-size: 15px;
+  line-height: 1.9;
+  color: #1a2340;
+  white-space: pre-line;
+  min-height: 200px;
+  text-align: center;
+}
+
+.announce-footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  text-align: center;
+}

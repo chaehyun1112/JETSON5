@@ -1,0 +1,153 @@
+.inquiry-container {
+  width: 100%;
+  max-width: 800px;          
+  margin: 4rem auto; 
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.about-header{
+    background:#fff;
+    border-bottom:1px solid #e5e7eb;
+    padding:48px 20px;
+}
+
+.about-header__inner{
+    max-width:1100px;
+    margin:0 auto;
+}
+
+.section-tag{
+    color:#3563e9;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.about-header__title{
+    font-size:34px;
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+.about-header__sub{
+    color:#64748b;
+    font-size:16px;
+}
+
+/* ===== 본문 ===== */
+
+.detail-container{
+    max-width:900px;
+    margin:50px auto;
+    padding:0 20px;
+}
+
+.detail-card{
+    background:#fff;
+    border-radius:18px;
+    padding:40px;
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+}
+
+.detail-row{
+    display:flex;
+    margin-bottom:18px;
+    align-items:center;
+}
+
+.label{
+    width:120px;
+    font-weight:700;
+    color:#334155;
+}
+
+.status{
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:700;
+}
+
+.done{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.wait{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+.detail-title{
+    margin-top:30px;
+    margin-bottom:15px;
+}
+
+.detail-title h3{
+    font-size:24px;
+}
+
+.detail-content{
+    min-height:180px;
+    padding:20px;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    line-height:1.8;
+    white-space:pre-wrap;
+    background:#fafafa;
+}
+
+hr{
+    margin:35px 0;
+    border:none;
+    border-top:1px solid #e5e7eb;
+}
+
+.answer-box{
+    margin-top:20px;
+    padding:20px;
+    background:#f8fafc;
+
+    border-radius:10px;
+    line-height:1.8;
+    white-space:pre-wrap;
+}
+
+.answer-empty{
+    margin-top:20px;
+    padding:25px;
+    border:2px dashed #d1d5db;
+    border-radius:10px;
+    text-align:center;
+    color:#64748b;
+}
+
+.answer-date{
+    margin-top:15px;
+    color:#64748b;
+    font-size:14px;
+}
+
+.btn-area{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:35px;
+}
+
+.btn-back{
+    background:#3563e9;
+    color:#fff;
+    text-decoration:none;
+    padding:12px 26px;
+    border-radius:10px;
+    font-weight:700;
+    transition:.2s;
+}
+
+.btn-back:hover{
+    background:#244fd0;
+}

@@ -1,0 +1,343 @@
+/* ==========================================================================
+   관리자 문의 답변 페이지
+   ========================================================================== */
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:#eef5ff;
+  color:#1f2937;
+}
+
+/* ==========================
+   전체 컨테이너
+========================== */
+
+.inquiry-container{
+  max-width:1000px;
+  margin:50px auto;
+  padding:40px;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+/* ==========================
+   상단 헤더
+========================== */
+
+.admin-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-bottom:20px;
+  margin-bottom:30px;
+  border-bottom:2px solid #e5e7eb;
+}
+
+.admin-header h2{
+  font-size:30px;
+  color:#2563eb;
+  font-weight:700;
+}
+
+.status-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 18px;
+  border-radius:30px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.status-답변대기{
+  background:#fff7ed;
+  color:#d97706;
+}
+
+.status-답변완료{
+  background:#ecfdf5;
+  color:#16a34a;
+}
+
+/* ==========================
+   문의 정보 카드
+========================== */
+
+.user-inquiry-section{
+
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:14px;
+  padding:28px;
+  margin-bottom:30px;
+
+}
+
+.inquiry-meta-grid{
+
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin-bottom:25px;
+
+}
+
+.meta-item{
+
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:18px;
+
+}
+
+.meta-item strong{
+
+  display:block;
+  color:#64748b;
+  font-size:14px;
+  margin-bottom:8px;
+
+}
+
+.meta-item span{
+
+  color:#1e293b;
+  font-weight:600;
+  font-size:16px;
+
+}
+
+/* ==========================
+   제목
+========================== */
+
+.user-question-title{
+
+  font-size:24px;
+  color:#1d4ed8;
+  margin-bottom:18px;
+  padding-bottom:15px;
+  border-bottom:1px solid #e5e7eb;
+
+}
+
+/* ==========================
+   문의 내용
+========================== */
+
+.user-question-body{
+
+    background:#fff;
+    border:1px solid #dbe4f0;
+    border-radius:12px;
+
+    min-height:220px;
+
+    padding:30px;
+
+    font-size:16px;
+    line-height:1.9;
+
+    color:#1f2937;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+
+}
+
+/* ==========================
+   답변 영역
+========================== */
+
+.admin-answer-section{
+
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:14px;
+  padding:30px;
+
+}
+
+.inquiry-form{
+
+  display:flex;
+  flex-direction:column;
+
+}
+
+.form-group{
+
+  display:flex;
+  flex-direction:column;
+
+}
+
+.form-group label{
+
+  font-size:18px;
+  font-weight:700;
+  color:#2563eb;
+  margin-bottom:15px;
+
+}
+
+textarea{
+
+  width:100%;
+  min-height:280px;
+
+  padding:18px;
+
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+
+  font-size:15px;
+  line-height:1.8;
+
+  font-family:'Noto Sans KR',sans-serif;
+
+  resize:vertical;
+
+  transition:.2s;
+
+}
+
+textarea:focus{
+
+  outline:none;
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,.12);
+
+}
+
+/* ==========================
+   버튼
+========================== */
+
+.btn-row{
+
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+
+  margin-top:30px;
+  padding-top:25px;
+
+  border-top:1px solid #e5e7eb;
+
+}
+
+.btn-cancel{
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  width:120px;
+  height:46px;
+
+  text-decoration:none;
+
+  background:#e5e7eb;
+  color:#374151;
+
+  border-radius:10px;
+
+  font-weight:700;
+
+  transition:.2s;
+
+}
+
+.btn-cancel:hover{
+
+  background:#d1d5db;
+
+}
+
+.btn-submit{
+
+  width:150px;
+  height:46px;
+
+  border:none;
+  border-radius:10px;
+
+  background:#2563eb;
+  color:#fff;
+
+  font-size:15px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:.2s;
+
+}
+
+.btn-submit:hover{
+
+  background:#1d4ed8;
+
+}
+
+/* ==========================
+   반응형
+========================== */
+
+@media(max-width:900px){
+
+.inquiry-container{
+
+padding:25px;
+
+}
+
+.admin-header{
+
+flex-direction:column;
+align-items:flex-start;
+gap:15px;
+
+}
+
+.inquiry-meta-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.user-question-title{
+
+font-size:20px;
+
+}
+
+textarea{
+
+min-height:220px;
+
+}
+
+.btn-row{
+
+flex-direction:column;
+
+}
+
+.btn-cancel,
+.btn-submit{
+
+width:100%;
+
+}
+
+}

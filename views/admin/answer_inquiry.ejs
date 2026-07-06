@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>관리자 - 문의사항 답변</title>
+
+    <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/admin/style_answer_inquiry.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<main class="inquiry-container">
+
+    <div class="admin-header">
+        <h2>문의사항 답변</h2>
+
+        <% if(inquiry.INQUIRY_STATUS === "답변완료"){ %>
+
+            <span class="status-badge status-답변완료">
+                답변완료
+            </span>
+
+        <% }else{ %>
+
+            <span class="status-badge status-답변대기">
+                답변대기
+            </span>
+
+        <% } %>
+
+
+
+    </div>
+
+
+    <section class="user-inquiry-section">
+
+        <div class="inquiry-meta-grid">
+
+            <div class="meta-item">
+                <strong>작성자</strong>
+                <span><%= inquiry.MEM_ID %></span>
+            </div>
+
+            <div class="meta-item">
+                <strong>문의유형</strong>
+                <span><%= inquiry.INQUIRY_TYPE %></span>
+            </div>
+
+            <div class="meta-item">
+                <strong>작성일</strong>
+                <span>
+                    <%= new Date(inquiry.CREATED_AT).toLocaleString("ko-KR") %>
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="user-question-box">
+
+            <h3 class="user-question-title">
+                제목 : <%= inquiry.INQUIRY_TITLE %>
+            </h3>
+
+          <div class="user-question-body"><%= inquiry.INQUIRY_CONTENT %></div>
+
+        </div>
+
+    </section>
+
+
+
+    <section class="admin-answer-section">
+
+        <form
+            action="/admin/inquiry/<%= inquiry.INQUIRY_CD %>"
+            method="POST"
+            class="inquiry-form">
+
+            <div class="form-group">
+
+                <label for="answer_content">
+
+                    관리자 답변
+
+                </label>
+
+                <textarea
+                    name="answer_content"
+                    id="answer_content"
+                    rows="12"
+                    placeholder="사용자에게 전달할 답변을 입력하세요."
+                    required><%= inquiry.ANSWER_CONTENT || "" %></textarea>
+
+            </div>
+
+
+            <div class="btn-row">
+
+                <a href="/admin/check_inquiry" class="btn-cancel">
+
+                    목록으로
+
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn-submit">
+
+                    답변 저장
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+</body>
+</html>
