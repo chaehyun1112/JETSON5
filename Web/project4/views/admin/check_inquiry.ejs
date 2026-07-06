@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>문의 내역 목록</title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/admin/style_check_inquiry.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <strong>스마트 약 상자</strong>
+        <span>관리자</span>
+      </div>
+
+      <nav class="admin-menu">
+        <a href="/admin/admin_dashboard/admin">대시보드</a>
+        <a href="/admin/admin_dashboard/members">회원관리</a>
+        <a href="/admin/admin_dashboard/medicine_boxes">약 상자 관리</a>
+        <a href="/admin/admin_dashboard/messages">알림 메시지</a>
+        <a href="/admin/check_inquiry" class="active">문의사항 확인</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1>관리자 대시보드</h1>
+          <p>스마트 약 상자 서비스 현황을 확인할 수 있습니다.</p>
+        </div>
+
+        <div class="admin-user-menu">
+          <button type="button" class="admin-user-button" id="adminUserButton">
+            관리자
+            <span>▼</span>
+          </button>
+
+          <div class="admin-user-dropdown" id="adminUserDropdown">
+            <a href="/admin/admin_update">개인정보 수정</a>
+            <a href="/index/index_announce">공지사항 수정</a>
+            <form action="/logout" method="POST" class="logout-form">
+              <button type="submit" class="admin-user-item">로그아웃</button>
+            </form>
+          </div>
+        </div>
+      </header>
+
+      <div class="inquiry-container">
+        <table class="inquiry-table">
+          <thead>
+            <tr>
+              <th>유형</th>
+              <th>제목</th>
+              <th>상태</th>
+              <th>작성일</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr onclick="location.href='/admin/answer_inquiry'" style="cursor: pointer;">
+              <td>기술문의</td>
+              <td class="inquiry-title-cell">스마트 약상자 와이파이 연결이 자꾸 끊어집니다.</td>
+              <td><span class="status-badge status-답변완료">답변완료</span></td>
+              <td>2026. 07. 02.</td>
+            </tr>
+            <tr onclick="location.href='/admin/answer_inquiry'" style="cursor: pointer;">
+              <td>배송문의</td>
+              <td class="inquiry-title-cell">추가 약통 세트 배송 주소를 변경하고 싶습니다.</td>
+              <td><span class="status-badge status-답변대기">답변대기</span></td>
+              <td>2026. 07. 01.</td>
+            </tr>
+            <tr onclick="location.href='/admin/answer_inquiry'" style="cursor: pointer;">
+              <td>서비스문의</td>
+              <td class="inquiry-title-cell">부모님 계정과 제 계정을 연동하는 방법이 궁금합니다.</td>
+              <td><span class="status-badge status-답변완료">답변완료</span></td>
+              <td>2026. 06. 28.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const adminUserButton = document.getElementById('adminUserButton');
+    const adminUserDropdown = document.getElementById('adminUserDropdown');
+    adminUserButton.addEventListener('click', () => {
+      adminUserDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', (e) => {
+      if (!adminUserButton.contains(e.target) && !adminUserDropdown.contains(e.target)) {
+        adminUserDropdown.classList.remove('show');
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/css/common.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="/user/user_dashboard/dashboard_pages.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body class="db-page">
+  <%- include('../../partials/user_partials/nav_dashboard') %>
+
+  <section class="db-header">
+    <div class="db-header__inner">
+      <div>
+        <p class="db-header__greeting">알림 이력을 확인하는 페이지 입니다.</p>
+        <h1 class="db-header__title">알림 관리</h1>
+        <p class="db-header__date">건강을 위한 알림 입니다.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <main class="db-main">
+    <div class="db-container">
+      <section class="db-stats">
+        <div class="db-stat-card">
+          <span class="db-stat-card__emoji">🔔</span>
+          <div>
+            <p class="db-stat-card__label">전체 알림</p>
+            <p class="db-stat-card__num"><%= summary.total %><span>건</span></p>
+          </div>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-card__emoji">💊</span>
+          <div>
+            <p class="db-stat-card__label">미복용 알림</p>
+            <p class="db-stat-card__num db-stat-card__num--red"><%= summary.missed %><span>건</span></p>
+          </div>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-card__emoji">⚠️</span>
+          <div>
+            <p class="db-stat-card__label">주의 알림</p>
+            <p class="db-stat-card__num db-stat-card__num--purple"><%= summary.warn %><span>건</span></p>
+          </div>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-card__emoji">📨</span>
+          <div>
+            <p class="db-stat-card__label">수신 처리</p>
+            <p class="db-stat-card__num db-stat-card__num--green"><%= summary.received %><span>건</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="db-card">
+        <div class="db-card__header db-card__header--record">
+          <h2 class="db-card__title">최근 알림 내역</h2>
+          <div class="db-query-box">
+            <form method="GET" action="/user/user_dashboard/dashboard_call" class="db-query-form">
+              <div class="db-query-fields" data-fields="daily">
+                <input type="text" id="callDate" name="date" value="<%= typeof selectedDate !== 'undefined' ? selectedDate : '' %>" title="기준 날짜" placeholder="연도-월-일" readonly />
+                <input type="time" name="time" value="<%= typeof selectedTime !== 'undefined' ? selectedTime : '' %>" title="기준 시간" />
+              </div>
+              <button type="submit">조회</button>
+            </form>
+          </div>
+        </div>
+        <div class="db-query-hint-row">
+          <p class="db-query-hint">날짜·시간을 입력하고 조회하면 해당 시점 기준 최근 6개월 내역을 보여줍니다.</p>
+          <% if (alerts.length > 5) { %>
+          <a href="#" id="alertToggle" class="db-card__more">전체 보기 →</a>
+          <% } %>
+        </div>
+
+        <% if (alerts.length === 0) { %>
+          <p class="db-empty">저장된 알림이 없습니다.</p>
+        <% } else { %>
+          <ul class="db-alert-list">
+            <% alerts.forEach((item, i) => { %>
+              <li class="db-alert db-alert--<%= item.className %><%= i >= 5 ? ' db-alert--extra' : '' %>">
+                <div class="db-alert__body">
+                  <div class="db-alert__head">
+                    <strong><%= item.seniorName %></strong>
+                    <span><%= ({ TAKEN: '복용 완료', MISSED_MEDICINE: '복약 누락', WARN: '경고', SYSTEM: '시스템' })[item.alertType] || item.alertType %></span>
+                  </div>
+                  <p class="db-alert__msg"><%= item.alertMsg %></p>
+                  <p class="db-alert__time">
+                    <%= item.alertTime ? new Date(item.alertTime.replace(' ', 'T')).toLocaleString('ko-KR') : '-' %>
+                    · 수신 여부 <%= item.isReceived || 'N' %>
+                  </p>
+                </div>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const alertToggle = document.getElementById('alertToggle');
+    if (alertToggle) {
+      let expanded = false;
+      alertToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        expanded = !expanded;
+        document.querySelectorAll('.db-alert--extra').forEach((item) => {
+          item.classList.toggle('db-alert--extra-visible', expanded);
+        });
+        alertToggle.textContent = expanded ? '접기 ←' : '전체 보기 →';
+      });
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+  <script>
+    flatpickr("#callDate", {
+      locale: "ko",
+      dateFormat: "Y-m-d",
+      minDate: "2020-01-01",
+      maxDate: "2030-12-31"
+    });
+  </script>
+  
+<footer class="footer">
+  © 2025 <span>복약안심서비스</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
+</body>
+</html>

@@ -1,0 +1,49 @@
+
+/* ───────────────────────────────────────
+   howto.css  –  이용 방법 페이지 전용
+─────────────────────────────────────── */
+
+main {
+  max-width: 740px;
+  margin: 64px auto 96px;
+  padding: 0 24px;
+}
+
+/* ── 단계 카드 ── */
+.step {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 52px;
+  align-items: flex-start;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #3b5bdb;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(59, 91, 219, .25);
+  margin-top: 2px;
+}
+
+.step-body { flex: 1; }
+
+.step-body h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a2a5e;
+  margin-bottom: 8px;
+}
+
+.step-body p {
+  font-size: 14.5px;
+  color: #5a6a8a;
+  line-height: 1.75;
+}
