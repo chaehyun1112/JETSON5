@@ -191,8 +191,7 @@ router.get('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
     SELECT *
     FROM TB_SENIOR
     WHERE MEM_ID = ?
-    AND (PILLBOX_NUM IS NULL OR PILLBOX_NUM = '')
-    `;
+    AND (PILLBOX_NUM IS NULL OR PILLBOX_NUM = '')`;
 
     conn.query(
         sql,
@@ -226,24 +225,19 @@ router.post('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
     UPDATE TB_SENIOR
     SET PILLBOX_NUM = ?
     WHERE SENIOR_ID = ?
-    AND (PILLBOX_NUM IS NULL OR PILLBOX_NUM = '')
-
-    `;
+    AND (PILLBOX_NUM IS NULL OR PILLBOX_NUM = '')`;
 
     conn.query(
         sql,
         [pillboxId, seniorId],
         (err, result) => {
-
             if(err){
                 console.log(err);
-
                 return res.send(
                     "<script>alert('약통 등록 실패');history.back();</script>"
                 );
             }
             req.session.user.pillboxId = pillboxId;
-
             res.send(
                 "<script>alert('약통 등록 완료');location.href='/user/user_service/schedule_register';</script>"
             );
@@ -253,7 +247,6 @@ router.post('/user/user_service/register-pillbox', isLoggedIn, (req, res) => {
 
 // 시니어 웹페이지 약통 등록 get
 router.get("/user/senior_info/senior_register-pillbox", isLoggedIn, (req, res) => {
-
     res.render("user/senior_info/senior_register-pillbox", {
         title: "약통 등록",
         user: req.session.user,
@@ -263,39 +256,31 @@ router.get("/user/senior_info/senior_register-pillbox", isLoggedIn, (req, res) =
 
 // 시니어 웹페이지 약통 등록 POST
 router.post("/user/senior_info/senior_register-pillbox", isLoggedIn, (req, res) => {
-
     const { pillboxNum } = req.body;
     const seniorId = req.session.user.id;
-
     if (!pillboxNum) {
         return res.send("<script>alert('약통 번호를 입력해주세요.');history.back();</script>");
     }
-
     const mySql = `
         SELECT PILLBOX_NUM
         FROM TB_SENIOR
-        WHERE SENIOR_ID = ?
-    `;
+        WHERE SENIOR_ID = ?`;
 
     conn.query(mySql, [seniorId], (err, rows) => {
-
         if (err) {
             console.log(err);
             return res.send("<script>alert('DB 오류');history.back();</script>");
         }
-
         if (rows[0].PILLBOX_NUM) {
             return res.send("<script>alert('이미 약통이 등록되어 있습니다.');history.back();</script>");
         }
-
         // 여기서 checkSql 실행
         // 이미 다른 시니어가 사용 중인지 확인
         const checkSql = `
             SELECT SENIOR_ID
             FROM TB_SENIOR
             WHERE PILLBOX_NUM = ?
-            AND SENIOR_ID <> ?
-        `;
+            AND SENIOR_ID <> ?`;
 
         conn.query(checkSql, [pillboxNum, seniorId], (err, rows) => {
 
@@ -311,8 +296,7 @@ router.post("/user/senior_info/senior_register-pillbox", isLoggedIn, (req, res) 
             const updateSql = `
                 UPDATE TB_SENIOR
                 SET PILLBOX_NUM = ?
-                WHERE SENIOR_ID = ?
-            `;
+                WHERE SENIOR_ID = ?`;
 
             conn.query(updateSql, [pillboxNum, seniorId], (err, result) => {
 
@@ -331,11 +315,8 @@ router.post("/user/senior_info/senior_register-pillbox", isLoggedIn, (req, res) 
                         location.href='/user/senior_service/senior_about';
                     </script>
                 `);
-
             });
-
         });
-
     });
 });
 
@@ -429,8 +410,6 @@ router.post("/join", async (req, res) => {
                         (?, ?, ?, ?, ?, ?, ?, ?)
                     `;
 
-                    console.log(seniorSql);
-
                     console.log([
                         id,
                         hashedPw,
@@ -503,8 +482,6 @@ router.post("/sendEmailCode", (req, res) => {
     `;
 
     conn.query(checkSql, [id, name, email, role], (err, rows) => {
-        console.log(rows);
-
         if (err) {
             console.log(err);
             return res.json({
@@ -525,6 +502,7 @@ router.post("/sendEmailCode", (req, res) => {
     });
 });
 
+// 인증번호 발송
 async function sendEmail(email, req, res) {
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -685,82 +663,6 @@ router.post("/logout", (req, res) => {
         res.clearCookie("connect.sid");
         res.redirect("/");
     });
-
-});
-
-// 로그인 안 한 사람 접근 차단
-// TB_MEMBER, TB_SENIOR, TB_ALERT, TB_PILLBOX_LOG, TB_INQUIRY 기준으로 관리자 메인 현황을 만든다.
-router.get("/admin/admin_dashboard/admin", async (req, res) => {
-  if (!req.session.user || req.session.user.role !== "A") {
-    return res.redirect("/");
-  }
-
-  const sql = `
-    SELECT
-      (SELECT COUNT(*) FROM TB_MEMBER) AS totalMembers,
-      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'P') AS parentMembers,
-      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'S') AS seniorMembers,
-      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'A') AS adminMembers,
-
-      (SELECT COUNT(*)
-       FROM TB_ALERT
-       WHERE IS_RECEIVED = 'N') AS uncheckedAlertCount,
-
-      (SELECT COUNT(*)
-        FROM TB_SENIOR S
-        LEFT JOIN TB_PILLBOX_STATUS PS
-        ON PS.PILLBOX_NUM = S.PILLBOX_NUM
-        WHERE S.PILLBOX_NUM IS NOT NULL
-        AND S.PILLBOX_NUM <> ''
-        AND (
-            PS.LAST_HEARTBEAT_AT IS NULL
-            OR PS.LAST_HEARTBEAT_AT < DATE_SUB(NOW(), INTERVAL 1 MINUTE)
-        )
-      ) AS offlinePillboxCount,
-
-      (SELECT COUNT(*)
-       FROM TB_INQUIRY
-       WHERE INQUIRY_STATUS <> '완료') AS pendingInquiryCount
-  `;
-
-  const recentMembersSql = `
-    SELECT
-      MEM_ID AS id,
-      MEM_NAME AS name,
-      MEM_ST AS type,
-      DATE_FORMAT(JOINED_AT, '%Y-%m-%d') AS joinedAt
-    FROM TB_MEMBER
-    ORDER BY JOINED_AT DESC
-  `;
-
-  try {
-    const [[stats]] = await conn.promise().query(sql);
-    const [recentMembers] = await conn.promise().query(recentMembersSql);
-
-    res.render("admin/admin_dashboard/admin", {
-      title: "관리자 대시보드",
-      adminName: req.session.user.name || "관리자",
-      stats,
-      recentMembers,
-      notices: [
-        {
-          title: "알림",
-          content: `오늘 확인이 필요한 알림 ${stats.uncheckedAlertCount}건`,
-        },
-        {
-          title: "기기 연결 상태",
-          content: `오프라인 약 상자 ${stats.offlinePillboxCount}대`,
-        },
-        {
-          title: "신규 문의",
-          content: `확인 대기 문의 ${stats.pendingInquiryCount}건`,
-        },
-      ],
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("관리자 대시보드 조회 중 DB 오류가 발생했습니다.");
-  }
 });
 
 // 아이디 찾기
@@ -1108,7 +1010,7 @@ router.post('/user/user_service/medicine_buy', (req, res) => {
   });
 });
 
-// 기존 코드를 이렇게 교체하세요 (37번째 줄 근처)
+// 사용자 메인 대시보드 get
 router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
     let sql;
     let params;
@@ -1121,7 +1023,6 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
             FROM TB_SENIOR
             WHERE MEM_ID = ?
         `;
-
         params = [req.session.user.id];
 
     }
@@ -1133,102 +1034,465 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
             FROM TB_SENIOR
             WHERE SENIOR_ID = ?
         `;
-
         params = [req.session.user.id];
 
     }
     // 관리자
     else {
-
         return res.redirect("/");
     }
 
     conn.query(sql, params, (err, rows) => {
 
-        if (err) {
+        if(err){
             console.log(err);
             return res.send("DB 오류");
         }
 
-        // 시니어가 등록되지 않았거나 약통번호가 없는 경우
-        if (rows.length === 0 || !rows[0].PILLBOX_NUM) {
-            return res.render('user/user_service/no-pillbox', {
-                title: '약통 미등록 — 복약안심서비스'
+        if(rows.length===0){
+            return res.render("user/user_service/no-pillbox",{
+                title:"약통 미등록 — 복약안심서비스"
             });
         }
 
-        res.render('user/user_dashboard/main_dashboard', {
-            title: '대시보드 — 복약안심서비스',
-            user: req.session.user,
+        const seniorSql=`
+            SELECT
+                SENIOR_ID,
+                SENIOR_NAME,
+                PILLBOX_NUM
+            FROM TB_SENIOR
+            WHERE MEM_ID=?
+            ORDER BY SENIOR_NAME
+        `;
 
-            seniorList: [
-                { id: 'senior01', name: '이민수' },
-                { id: 'senior02', name: '박영희' },
-                { id: 'senior03', name: '정순자' },
-            ],
-            selectedSenior: req.query.senior || 'senior01',
+        conn.query(seniorSql,[req.session.user.id],(err,seniorRows)=>{
 
-            stats: {
-            total: 12,
-            completed: 9,
-            warning: 3,
-            rate: 75,
-            },
+            if(err){
+                console.log(err);
+                return res.send("DB 오류");
+            }
 
-            today: {
-            morning: "✅",
-            lunch: "❌",
-            dinner: "❌",
-            bedtime: "❌",
-            },
+            if(seniorRows.length===0){
+                return res.send("보호대상이 없습니다.");
+            }
 
-            weekly: {
-            avgRate: 76,
-            takenDays: 5,
-            missedCount: 4,
-            table: {
-                range: '6월 9일 ~ 15일',
-                days: [
-                    { label: '월', morning: 'done',    lunch: 'done',    dinner: 'done',    bedtime: 'done',    rate: 100 },
-                    { label: '화', morning: 'done',    lunch: 'missed',  dinner: 'done',    bedtime: 'done',    rate: 75  },
-                    { label: '수', morning: 'done',    lunch: 'done',    dinner: 'done',    bedtime: 'done',    rate: 100 },
-                    { label: '목', morning: 'done',    lunch: 'done',    dinner: 'pending', bedtime: 'pending', rate: 50  },
-                    { label: '금', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
-                    { label: '토', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
-                    { label: '일', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
-                ],
-            },
-            },
+            const selectedSeniorId=
+                req.query.senior || seniorRows[0].SENIOR_ID;
 
-            schedule: [
-            { time: '08:00', meal: '아침',   medicineName: '아스피린 100mg',    dose: '1정', status: 'ok'   },
-            { time: '12:30', meal: '점심',   medicineName: '혈압약 (암로디핀)', dose: '1정', status: 'warn' },
-            { time: '19:00', meal: '저녁',   medicineName: '당뇨약 (메트포민)', dose: '2정', status: 'plan' },
-            { time: '22:00', meal: '자기전', medicineName: '수면유도제',        dose: '1정', status: 'plan' },
-            ],
+            const currentSenior=
+                seniorRows.find(s=>s.SENIOR_ID===selectedSeniorId)
+                || seniorRows[0];
 
-            sensor: {
-            lidOpen:      false,
-            dbSync:       true,
-            lastSync:     '2분 전',
-            lastDetected: '오늘 08:03',
-            updatedAt:    '09:15',
-            },
+            const todaySql=`
+                SELECT
+                    MS.TAKING_TYPE,
+                    MS.TAKING_TIME,
+                    SC.TAKING_YN,
+                    SC.TAKEN_TIME
+                FROM TB_MEDICINE_SCHEDULE MS
+                LEFT JOIN TB_SCHEDULE SC
+                ON MS.MEDI_SCHE_CD=SC.MEDI_SCHE_CD
+                AND SC.TAKING_DATE=CURDATE()
+                WHERE MS.SENIOR_ID=?
+                AND MS.USE_YN='Y'
+                ORDER BY MS.TAKING_TIME
+                `;
 
-            alerts: [
-            { seniorName: '김영희', alertType: 'WARN',            alertMsg: '오늘 점심 복약을 아직 하지 않았습니다.',                       alertTime: '2026-06-26 12:45:00', isReceived: 'Y', className: 'warn' },
-            { seniorName: '이철수', alertType: 'MISSED_MEDICINE', alertMsg: '3일 연속 저녁 복약 누락 감지.',                              alertTime: '2026-06-25 20:10:00', isReceived: 'Y', className: 'late' },
-            { seniorName: '박순자', alertType: 'TAKEN',            alertMsg: '아침 복약 완료 확인.',                                       alertTime: '2026-06-26 08:03:00', isReceived: 'Y', className: 'ok'   },
-            { seniorName: '시스템', alertType: 'SYSTEM',           alertMsg: '스마트 약상자 펌웨어 업데이트 완료.',                         alertTime: '2026-06-24 14:22:00', isReceived: 'Y', className: 'warn' },
-            { seniorName: '정민호', alertType: 'TAKEN',            alertMsg: '저녁 복약 완료 확인.',                                       alertTime: '2026-06-23 19:02:00', isReceived: 'Y', className: 'ok'   },
-            { seniorName: '최영자', alertType: 'MISSED_MEDICINE', alertMsg: '아침 복약을 하지 않아 보호자에게 알림을 발송했습니다.',        alertTime: '2026-06-22 08:20:00', isReceived: 'Y', className: 'late' },
-            { seniorName: '시스템', alertType: 'SYSTEM',           alertMsg: '약상자 배터리 잔량이 20% 이하로 낮아졌습니다.',               alertTime: '2026-06-21 09:11:00', isReceived: 'N', className: 'warn' },
-            { seniorName: '김순자', alertType: 'TAKEN',            alertMsg: '점심 복약 완료 확인.',                                       alertTime: '2026-06-20 12:31:00', isReceived: 'Y', className: 'ok'   },
-            { seniorName: '이민수', alertType: 'MISSED_MEDICINE', alertMsg: '저녁 복약 누락 감지.',                                       alertTime: '2026-06-19 20:05:00', isReceived: 'Y', className: 'late' },
-            { seniorName: '시스템', alertType: 'SYSTEM',           alertMsg: '스마트 약상자 정기 점검이 예정되어 있습니다.',                alertTime: '2026-06-18 10:00:00', isReceived: 'N', className: 'warn' },
-            ],
+                conn.query(todaySql,[selectedSeniorId],(err,todayRows)=>{
+
+                    if(err){
+                        console.log(err);
+                        return res.send("DB 오류");
+                    }
+
+                    const today={
+                        morning:"⏳ 대기중",
+                        lunch:"⏳ 대기중",
+                        dinner:"⏳ 대기중",
+                        bedtime:"⏳ 대기중"
+                    };
+
+                    const schedule=[];
+
+                    todayRows.forEach(row=>{
+
+                        let text="⏳ 대기중";
+                        let status="plan";
+
+                        if(row.TAKING_YN==="Y"){
+                            text="✅";
+                            status="ok";
+                        }else if(row.TAKING_YN==="N"){
+                            text="❌";
+                            status="warn";
+                        }
+
+                        switch(row.TAKING_TYPE){
+                            case "아침":
+                                today.morning=text;
+                                break;
+                            case "점심":
+                                today.lunch=text;
+                                break;
+                            case "저녁":
+                                today.dinner=text;
+                                break;
+                            case "취침 전":
+                                today.bedtime=text;
+                                break;
+                        }
+
+                        schedule.push({
+                            time:row.TAKING_TIME.toString().substring(0,5),
+                            meal:row.TAKING_TYPE,
+                            status
+                        });
+
+                    });
+
+                    const weeklySql=`
+                        SELECT
+                            TAKING_DATE,
+                            TAKING_TYPE,
+                            TAKING_YN
+                        FROM TB_SCHEDULE
+                        WHERE SENIOR_ID=?
+                        AND YEARWEEK(TAKING_DATE,1)=YEARWEEK(CURDATE(),1)
+                        ORDER BY TAKING_DATE
+                        `;
+
+                        conn.query(weeklySql,[selectedSeniorId],(err,weekRows)=>{
+
+                            if(err){
+                                console.log(err);
+                                return res.send("DB 오류");
+                            }
+
+                            let total=0;
+                            let success=0;
+                            let miss=0;
+
+                            const takenDays=new Set();
+
+                            weekRows.forEach(row=>{
+
+                                total++;
+
+                                if(row.TAKING_YN==="Y"){
+                                    success++;
+                                    takenDays.add(
+                                        row.TAKING_DATE.toISOString().slice(0,10)
+                                    );
+                                }else{
+                                    miss++;
+                                }
+
+                            });
+
+                            const avgRate=
+                                total===0
+                                ?0
+                                :Math.round(success/total*100);
+
+                            const week={
+                                월:{label:"월"},
+                                화:{label:"화"},
+                                수:{label:"수"},
+                                목:{label:"목"},
+                                금:{label:"금"},
+                                토:{label:"토"},
+                                일:{label:"일"}
+                            };
+
+                            Object.values(week).forEach(day=>{
+                                day.morning="unset";
+                                day.lunch="unset";
+                                day.dinner="unset";
+                                day.bedtime="unset";
+                            });
+
+                            const dayNames=[
+                                "일","월","화","수","목","금","토"
+                            ];
+
+                            weekRows.forEach(row=>{
+
+                                const day=
+                                    dayNames[
+                                        new Date(row.TAKING_DATE).getDay()
+                                    ];
+
+                                if(!week[day]) return;
+
+                                const state=
+                                    row.TAKING_YN==="Y"
+                                    ?"done"
+                                    :"missed";
+
+                                switch(row.TAKING_TYPE){
+
+                                    case "아침":
+                                        week[day].morning=state;
+                                        break;
+
+                                    case "점심":
+                                        week[day].lunch=state;
+                                        break;
+
+                                    case "저녁":
+                                        week[day].dinner=state;
+                                        break;
+
+                                    case "취침 전":
+                                        week[day].bedtime=state;
+                                        break;
+                                }
+
+                            });
+
+                            Object.values(week).forEach(day=>{
+
+                                let count=0;
+                                let ok=0;
+
+                                ["morning","lunch","dinner","bedtime"].forEach(meal=>{
+
+                                    if(day[meal]!=="unset"){
+                                        count++;
+                                    }
+
+                                    if(day[meal]==="done"){
+                                        ok++;
+                                    }
+
+                                });
+
+                                day.rate=
+                                    count===0
+                                    ?null
+                                    :Math.round(ok/count*100);
+
+                            });
+
+                            const weekly={
+
+                                avgRate,
+                                takenDays:takenDays.size,
+                                missedCount:miss,
+
+                                table:{
+                                    range:"이번주",
+                                    days:[
+                                        week.월,
+                                        week.화,
+                                        week.수,
+                                        week.목,
+                                        week.금,
+                                        week.토,
+                                        week.일
+                                    ]
+                                }
+
+                            };
+
+                        const sensorSql=`
+                            SELECT
+                                PS.POWER_STATUS,
+                                PS.LAST_HEARTBEAT_AT,
+                                PS.UPDATED_AT,
+                                (
+                                    SELECT LOG_TYPE
+                                    FROM TB_PILLBOX_LOG
+                                    WHERE SENIOR_ID=?
+                                    ORDER BY LOGGED_AT DESC
+                                    LIMIT 1
+                                ) AS LAST_LOG,
+                                (
+                                    SELECT LOGGED_AT
+                                    FROM TB_PILLBOX_LOG
+                                    WHERE SENIOR_ID=?
+                                    ORDER BY LOGGED_AT DESC
+                                    LIMIT 1
+                                ) AS LAST_TIME
+                            FROM TB_PILLBOX_STATUS PS
+                            WHERE SENIOR_ID=?
+                            `;
+
+                        conn.query(sensorSql,
+                        [
+                            selectedSeniorId,
+                            selectedSeniorId,
+                            selectedSeniorId
+                        ],
+                        (err,sensorRows)=>{
+
+                            if(err){
+                                console.log(err);
+                                return res.send("DB 오류");
+                            }
+
+                            let sensor={
+                                lidOpen:false,
+                                dbSync:false,
+                                updatedAt:"-",
+                                lastSync:"-",
+                                lastDetected:"-"
+                            };
+
+                            if(sensorRows.length){
+
+                                const row=sensorRows[0];
+
+                                sensor.lidOpen=row.LAST_LOG==="OPEN";
+                                sensor.dbSync=row.POWER_STATUS==="Y";
+
+                                sensor.updatedAt=row.UPDATED_AT
+                                    ?row.UPDATED_AT.toLocaleString("ko-KR")
+                                    :"-";
+
+                                sensor.lastSync=row.LAST_HEARTBEAT_AT
+                                    ?row.LAST_HEARTBEAT_AT.toLocaleString("ko-KR")
+                                    :"-";
+
+                                sensor.lastDetected=row.LAST_TIME
+                                    ?row.LAST_TIME.toLocaleString("ko-KR")
+                                    :"-";
+                            }
+
+                            const alertSql=`
+                            SELECT
+                                A.ALERT_TYPE,
+                                A.ALERT_MSG,
+                                A.ALERT_TIME,
+                                A.IS_RECEIVED,
+                                S.SENIOR_NAME
+                            FROM TB_ALERT A
+                            JOIN TB_SENIOR S
+                            ON A.SENIOR_ID=S.SENIOR_ID
+                            WHERE A.SENIOR_ID=?
+                            ORDER BY A.ALERT_TIME DESC
+                            LIMIT 10
+                            `;
+
+                        conn.query(alertSql,[selectedSeniorId],(err,alerts)=>{
+
+                            if(err){
+                                console.log(err);
+                                return res.send("DB 오류");
+                            }
+
+                            alerts.forEach(a=>{
+
+                                if(a.ALERT_TYPE==="TAKEN"){
+                                    a.className="ok";
+                                }else if(a.ALERT_TYPE==="WARN"){
+                                    a.className="warn";
+                                }else{
+                                    a.className="late";
+                                }
+
+                            });
+
+                            res.render("user/user_dashboard/main_dashboard",{
+
+                                title:"대시보드 — 복약안심서비스",
+
+                                user:req.session.user,
+
+                                seniorList:seniorRows,
+                                selectedSenior:selectedSeniorId,
+
+                                currentSenior,
+
+                                today,
+                                weekly,
+                                schedule,
+                                sensor,
+                                alerts
+
+                            });
+                        });
+                    });
+                });
+            });
         });
     });
+});
+
+
+// 로그인 안 한 사람 접근 차단
+// TB_MEMBER, TB_SENIOR, TB_ALERT, TB_PILLBOX_LOG, TB_INQUIRY 기준으로 관리자 메인 현황을 만든다.
+router.get("/admin/admin_dashboard/admin", async (req, res) => {
+  if (!req.session.user || req.session.user.role !== "A") {
+    return res.redirect("/");
+  }
+
+  const sql = `
+    SELECT
+      (SELECT COUNT(*) FROM TB_MEMBER) AS totalMembers,
+      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'P') AS parentMembers,
+      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'S') AS seniorMembers,
+      (SELECT COUNT(*) FROM TB_MEMBER WHERE MEM_ST = 'A') AS adminMembers,
+
+      (SELECT COUNT(*)
+       FROM TB_ALERT
+       WHERE IS_RECEIVED = 'N') AS uncheckedAlertCount,
+
+      (SELECT COUNT(*)
+        FROM TB_SENIOR S
+        LEFT JOIN TB_PILLBOX_STATUS PS
+        ON PS.PILLBOX_NUM = S.PILLBOX_NUM
+        WHERE S.PILLBOX_NUM IS NOT NULL
+        AND S.PILLBOX_NUM <> ''
+        AND (
+            PS.LAST_HEARTBEAT_AT IS NULL
+            OR PS.LAST_HEARTBEAT_AT < DATE_SUB(NOW(), INTERVAL 1 MINUTE)
+        )
+      ) AS offlinePillboxCount,
+
+      (SELECT COUNT(*)
+       FROM TB_INQUIRY
+       WHERE INQUIRY_STATUS <> '완료') AS pendingInquiryCount
+  `;
+
+  const recentMembersSql = `
+    SELECT
+      MEM_ID AS id,
+      MEM_NAME AS name,
+      MEM_ST AS type,
+      DATE_FORMAT(JOINED_AT, '%Y-%m-%d') AS joinedAt
+    FROM TB_MEMBER
+    ORDER BY JOINED_AT DESC
+  `;
+
+  try {
+    const [[stats]] = await conn.promise().query(sql);
+    const [recentMembers] = await conn.promise().query(recentMembersSql);
+
+    res.render("admin/admin_dashboard/admin", {
+      title: "관리자 대시보드",
+      adminName: req.session.user.name || "관리자",
+      stats,
+      recentMembers,
+      notices: [
+        {
+          title: "알림",
+          content: `오늘 확인이 필요한 알림 ${stats.uncheckedAlertCount}건`,
+        },
+        {
+          title: "기기 연결 상태",
+          content: `오프라인 약 상자 ${stats.offlinePillboxCount}대`,
+        },
+        {
+          title: "신규 문의",
+          content: `확인 대기 문의 ${stats.pendingInquiryCount}건`,
+        },
+      ],
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("관리자 대시보드 조회 중 DB 오류가 발생했습니다.");
+  }
 });
 
 // 보호자는 연결된 모든 보호대상자 ID와 약통 번호를 표시하고,
@@ -1660,9 +1924,6 @@ router.get("/admin/admin_announce/:id", isLoggedIn, (req, res) => {
 
 // 공지사항 삭제
 router.post("/admin/notice/delete", isLoggedIn, (req, res) => {
-
-    console.log(req.body);      // 추가
-    console.log(req.body.ids);  // 추가
     const ids = req.body.ids;
 
     if (!ids || ids.length === 0) {
@@ -1869,8 +2130,6 @@ router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
         });
     });
 });
-
-
 
 // 시니어 정보 수정 화면 GET
 router.get("/user/user_info/user_update/:id", (req, res) => {
@@ -2128,6 +2387,7 @@ router.get("/user/user_info/protected/delete/:seniorId", isLoggedIn, (req, res) 
     });
 
 });
+
 // 개인정보 관리
 router.get('/user/user_info/settings', isLoggedIn, (req, res) => {
 
@@ -2190,8 +2450,6 @@ router.post("/user/user_info/settings/update", isLoggedIn, (req, res) => {
                 return res.send("<script>alert('수정 실패');history.back();</script>");
             }
 
-            console.log(result);
-
             req.session.user.name = MEM_NAME;
 
             res.send(
@@ -2224,11 +2482,7 @@ router.get('/index/index_HowToUse', (req, res) => {
   });
 });
 
-
-
-// 김성훈 6월 30일 추가한 router (admin_update, send_message)
-
-
+// 공지사항 get
 router.get('/index/index_announce', (req, res) => {
 
     const noticeSql = `
@@ -2279,13 +2533,11 @@ router.get('/index/index_announce', (req, res) => {
                 user: req.session.user,
                 member: rows[0]
             });
-
         });
-
     });
-
 });
 
+// 관리자 정보 수정 get
 router.get("/admin/admin_update", (req, res) => {
 
     const sql = `
@@ -2312,7 +2564,7 @@ router.get("/admin/admin_update", (req, res) => {
     });
 });
 
-// 관리자 정보 수정
+// 관리자 정보 수정 post
 router.post("/admin/admin_update", async (req,res)=>{
 
     const {
@@ -2421,12 +2673,6 @@ router.post("/admin/admin_delete",(req,res)=>{
         });
     });
 });
-
-
-
-
-
-
 
 let tempHistory = [
     { date: '2026.06.30 09:15', target: '전체 회원', type: '일반 안내', title: '정기 서버 점검 안내 사항입니다.' },
@@ -2609,8 +2855,6 @@ router.post("/user/senior_info/senior_schedule", isLoggedIn, (req, res) => {
     });
 
 });
-
-
 
 router.get('/user/senior_service/senior_about', (req, res) => {
   res.render('user/senior_service/senior_about', { title: '서비스 소개 — 복약안심서비스' });
@@ -2909,186 +3153,447 @@ router.post("/user/senior_info/senior_settings/update", isLoggedIn, (req, res) =
 
 // 태헌님 router 코드
 
-// 복약 기록 페이지 - DB 없이 화면 확인용
-router.get("/user/user_dashboard/dashboard_record", isLoggedIn, (req, res) => {
-  const selectedDate = req.query.date || "2026-06-26";
+// 복약 기록 페이지
+router.get("/user/user_dashboard/dashboard_record", isLoggedIn, (req,res)=>{
 
-  const schedules = [
-    {
-      seniorId: "senior01",
-      seniorName: "이민수",
-      takingDate: selectedDate,
-      takingTime: "08:00",
-      takenTime: "08:03",
-      pillboxOrder: 1,
-      takingType: "아침",
-      status: "done",
-      statusLabel: "복용 완료",
-    },
-    {
-      seniorId: "senior02",
-      seniorName: "박영희",
-      takingDate: selectedDate,
-      takingTime: "12:30",
-      takenTime: "",
-      pillboxOrder: 2,
-      takingType: "점심",
-      status: "miss",
-      statusLabel: "미복용",
-    },
-    {
-      seniorId: "senior03",
-      seniorName: "정순자",
-      takingDate: selectedDate,
-      takingTime: "18:30",
-      takenTime: "",
-      pillboxOrder: 3,
-      takingType: "저녁",
-      status: "pending",
-      statusLabel: "복용 예정",
-    },
-  ];
+    const selectedDate=req.query.date || new Date().toISOString().slice(0,10);
 
-  const seniorOptions = schedules.map((s) => ({ id: s.seniorId, name: s.seniorName }));
-  const selectedSeniorId = req.query.senior || seniorOptions[0].id;
-  const filteredSchedules = schedules.filter((s) => s.seniorId === selectedSeniorId);
+    const seniorSql=`
+    SELECT
+        SENIOR_ID,
+        SENIOR_NAME
+    FROM TB_SENIOR
+    WHERE MEM_ID=?
+    ORDER BY SENIOR_NAME
+    `;
 
-  const summary = {
-    total: filteredSchedules.length,
-    done: filteredSchedules.filter((item) => item.status === "done").length,
-    miss: filteredSchedules.filter((item) => item.status === "miss").length,
-    pending: filteredSchedules.filter((item) => item.status === "pending").length,
-  };
+    conn.query(seniorSql,[req.session.user.id],(err,seniorRows)=>{
 
-  res.render("user/user_dashboard/dashboard_record", {
-    title: "복약 기록",
-    user: req.session.user,
-    selectedDate,
-    schedules: filteredSchedules,
-    summary,
-    seniorOptions,
-    selectedSeniorId,
-  });
+        if(err){
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        if(seniorRows.length===0){
+            return res.send("등록된 보호대상이 없습니다.");
+        }
+
+        const selectedSeniorId=
+            req.query.senior || seniorRows[0].SENIOR_ID;
+        
+        const recordSql=`
+            SELECT
+                SC.SCHE_CD,
+                SC.TAKING_DATE,
+                SC.TAKING_YN,
+                SC.TAKEN_TIME,
+                MS.TAKING_TIME,
+                MS.TAKING_TYPE,
+                MS.PILLBOX_ORDER,
+                S.SENIOR_ID,
+                S.SENIOR_NAME
+            FROM TB_SCHEDULE SC
+            JOIN TB_MEDICINE_SCHEDULE MS
+            ON SC.MEDI_SCHE_CD=MS.MEDI_SCHE_CD
+            AND SC.SENIOR_ID=MS.SENIOR_ID
+            JOIN TB_SENIOR S
+            ON SC.SENIOR_ID=S.SENIOR_ID
+            WHERE SC.SENIOR_ID=?
+            AND SC.TAKING_DATE=?
+            ORDER BY MS.TAKING_TIME
+            `;
+
+        conn.query(recordSql,[selectedSeniorId,selectedDate],(err,rows)=>{
+
+            if(err){
+                console.log(err);
+                return res.send("DB 오류");
+            }
+
+            const schedules=rows.map(r=>{
+
+                let status="pending";
+                let statusLabel="복용 예정";
+
+                if(r.TAKING_YN==="Y"){
+                    status="done";
+                    statusLabel="복용 완료";
+                }else if(r.TAKING_YN==="N"){
+                    status="miss";
+                    statusLabel="미복용";
+                }
+
+                return{
+                    seniorId:r.SENIOR_ID,
+                    seniorName:r.SENIOR_NAME,
+                    takingDate:r.TAKING_DATE,
+                    takingTime:r.TAKING_TIME.toString().substring(0,5),
+                    takenTime:r.TAKEN_TIME
+                        ?r.TAKEN_TIME.toString().substring(0,5)
+                        :"",
+                    pillboxOrder:r.PILLBOX_ORDER,
+                    takingType:r.TAKING_TYPE,
+                    status,
+                    statusLabel
+                };
+            });
+
+            const summary={
+                total:schedules.length,
+                done:schedules.filter(s=>s.status==="done").length,
+                miss:schedules.filter(s=>s.status==="miss").length,
+                pending:schedules.filter(s=>s.status==="pending").length
+            };
+            res.render("user/user_dashboard/dashboard_record",{
+                title:"복약 기록",
+                user:req.session.user,
+                selectedDate,
+                schedules,
+                summary,
+                seniorOptions:seniorRows,
+                selectedSeniorId
+            });
+        });
+    });
 });
 
-// 실시간 상태 페이지 - DB 없이 화면 확인용
-router.get("/user/user_dashboard/dashboard_stat", isLoggedIn, (req, res) => {
-  const statuses = [
-    {
-      seniorId: "senior01",
-      seniorName: "이민수",
-      seniorContact: "010-1111-2222",
-      pillboxNum: "PB-001",
-      todayTotal: 3,
-      todayDone: 3,
-      todayMissed: 0,
-      latestLogType: "SLOT_OPEN",
-      latestSlotNum: 1,
-      latestLoggedAt: "2026-06-26 08:03:00",
-      state: "ok",
-      stateLabel: "정상",
-    },
-    {
-      seniorId: "senior02",
-      seniorName: "박영희",
-      seniorContact: "010-3333-4444",
-      pillboxNum: "PB-002",
-      todayTotal: 2,
-      todayDone: 0,
-      todayMissed: 1,
-      latestLogType: "NO_ACTION",
-      latestSlotNum: 2,
-      latestLoggedAt: "2026-06-26 12:40:00",
-      state: "late",
-      stateLabel: "확인 필요",
-    },
-    {
-      seniorId: "senior03",
-      seniorName: "정순자",
-      seniorContact: "010-5555-6666",
-      pillboxNum: "PB-003",
-      todayTotal: 2,
-      todayDone: 1,
-      todayMissed: 0,
-      latestLogType: "BOX_CLOSED",
-      latestSlotNum: 3,
-      latestLoggedAt: "2026-06-26 09:15:00",
-      state: "warn",
-      stateLabel: "대기",
-    },
-  ];
+// 실시간 상태 페이지
+router.get("/user/user_dashboard/dashboard_stat", isLoggedIn, (req,res)=>{
 
-  const summary = {
-    total: statuses.length,
-    ok: statuses.filter((item) => item.state === "ok").length,
-    warn: statuses.filter((item) => item.state === "warn").length,
-    late: statuses.filter((item) => item.state === "late").length,
-  };
+    const seniorSql=`
+    SELECT
+        SENIOR_ID,
+        SENIOR_NAME,
+        PILLBOX_NUM
+    FROM TB_SENIOR
+    WHERE MEM_ID=?
+    ORDER BY SENIOR_NAME
+    `;
 
-  const selectedSeniorId = req.query.senior || statuses[0].seniorId;
+    conn.query(seniorSql,[req.session.user.id],(err,seniorRows)=>{
 
-  res.render("user/user_dashboard/dashboard_stat", {
-    title: "실시간 상태",
-    user: req.session.user,
-    statuses,
-    summary,
-    selectedSeniorId,
-  });
+        if(err){
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        if(seniorRows.length===0){
+            return res.send("등록된 보호대상이 없습니다.");
+        }
+
+        const selectedSeniorId=
+            req.query.senior || seniorRows[0].SENIOR_ID;
+        const selectedSenior=
+            seniorRows.find(s=>s.SENIOR_ID===selectedSeniorId)
+            || seniorRows[0];
+        
+        const summarySql=`
+            SELECT
+
+                COUNT(DISTINCT S.SENIOR_ID) AS total,
+
+                COUNT(DISTINCT CASE
+                    WHEN NOT EXISTS(
+                        SELECT 1
+                        FROM TB_SCHEDULE SC
+                        WHERE SC.SENIOR_ID=S.SENIOR_ID
+                        AND SC.TAKING_DATE=CURDATE()
+                        AND SC.TAKING_YN='N'
+                    )
+                    THEN S.SENIOR_ID
+                END) AS ok,
+
+                COUNT(DISTINCT CASE
+                    WHEN EXISTS(
+                        SELECT 1
+                        FROM TB_SCHEDULE SC
+                        WHERE SC.SENIOR_ID=S.SENIOR_ID
+                        AND SC.TAKING_DATE=CURDATE()
+                        AND SC.TAKING_YN IS NULL
+                    )
+                    THEN S.SENIOR_ID
+                END) AS warn,
+
+                COUNT(DISTINCT CASE
+                    WHEN EXISTS(
+                        SELECT 1
+                        FROM TB_SCHEDULE SC
+                        WHERE SC.SENIOR_ID=S.SENIOR_ID
+                        AND SC.TAKING_DATE=CURDATE()
+                        AND SC.TAKING_YN='N'
+                    )
+                    THEN S.SENIOR_ID
+                END) AS late
+
+            FROM TB_SENIOR S
+
+            WHERE S.MEM_ID=?;
+            `;
+
+            conn.query(summarySql,[req.session.user.id],(err,summaryRows)=>{
+
+                if(err){
+                    console.log(err);
+                    return res.send("DB 오류");
+                }
+
+                const summary=summaryRows[0];
+
+                const statusSql=`
+                    SELECT
+                        S.SENIOR_ID,
+                        S.SENIOR_NAME,
+                        S.PILLBOX_NUM,
+
+                        COUNT(SC.SCHE_CD) AS todayTotal,
+
+                        SUM(CASE
+                            WHEN SC.TAKING_YN='Y'
+                            THEN 1
+                            ELSE 0
+                        END) AS todayDone,
+
+                        SUM(CASE
+                            WHEN SC.TAKING_YN='N'
+                            THEN 1
+                            ELSE 0
+                        END) AS todayMissed,
+
+                        AL.ALERT_TYPE,
+                        AL.ALERT_TIME,
+
+                        CASE
+                            WHEN SUM(CASE WHEN SC.TAKING_YN='N' THEN 1 ELSE 0 END)>0
+                                THEN 'late'
+                            WHEN SUM(CASE WHEN SC.TAKING_YN IS NULL THEN 1 ELSE 0 END)>0
+                                THEN 'warn'
+                            ELSE 'ok'
+                        END AS state
+
+                    FROM TB_SENIOR S
+
+                    LEFT JOIN TB_SCHEDULE SC
+                    ON S.SENIOR_ID=SC.SENIOR_ID
+                    AND SC.TAKING_DATE=CURDATE()
+
+                    LEFT JOIN TB_ALERT AL
+                    ON AL.ALERT_CD=(
+                        SELECT ALERT_CD
+                        FROM TB_ALERT
+                        WHERE SENIOR_ID=S.SENIOR_ID
+                        ORDER BY ALERT_TIME DESC
+                        LIMIT 1
+                    )
+
+                    WHERE S.SENIOR_ID=?
+
+                    GROUP BY
+                        S.SENIOR_ID,
+                        S.SENIOR_NAME,
+                        S.PILLBOX_NUM,
+                        AL.ALERT_TYPE,
+                        AL.ALERT_TIME
+                    `;
+
+                conn.query(statusSql,[selectedSeniorId],(err,statusRows)=>{
+
+                    if(err){
+                        console.log(err);
+                        return res.send("DB 오류");
+                    }
+
+                    const row=statusRows[0];
+
+                    const statuses=[{
+                        seniorId:row.SENIOR_ID,
+                        seniorName:row.SENIOR_NAME,
+                        pillboxNum:row.PILLBOX_NUM,
+                        todayTotal:row.todayTotal||0,
+                        todayDone:row.todayDone||0,
+                        todayMissed:row.todayMissed||0,
+                        latestLogType:row.ALERT_TYPE,
+                        latestLoggedAt:row.ALERT_TIME,
+                        state:row.state,
+                        stateLabel:
+                            row.state==="ok"
+                                ?"정상"
+                                :row.state==="warn"
+                                ?"대기"
+                                :"확인 필요"
+                    }];
+                    res.render("user/user_dashboard/dashboard_stat",{
+                    title:"실시간 상태",
+                    user:req.session.user,
+                    statuses,
+                    summary,
+                    seniorOptions:seniorRows,
+                    selectedSeniorId
+                });
+            });
+        });
+    });
 });
 
-// 알림 관리 페이지 - DB 없이 화면 확인용
+// 알림 관리 페이지
 router.get("/user/user_dashboard/dashboard_call", isLoggedIn, (req, res) => {
-  const alerts = [
-    {
-      alertCd: 1,
-      seniorId: "senior02",
-      seniorName: "박영희",
-      alertType: "MISSED_MEDICINE",
-      alertMsg: "[복약안심서비스] 박영희님 복약 미확인. 12:30 약통 2번 칸을 확인해주세요.",
-      alertTime: "2026-06-26 12:40:00",
-      createdAt: "2026-06-26 12:40:00",
-      isReceived: "Y",
-      className: "late",
-    },
-    {
-      alertCd: 2,
-      seniorId: "senior01",
-      seniorName: "이민수",
-      alertType: "TAKEN",
-      alertMsg: "이민수님이 아침 복약을 완료했습니다.",
-      alertTime: "2026-06-26 08:03:00",
-      createdAt: "2026-06-26 08:03:00",
-      isReceived: "Y",
-      className: "ok",
-    },
-    {
-      alertCd: 3,
-      seniorId: "senior03",
-      seniorName: "정순자",
-      alertType: "WARN",
-      alertMsg: "저녁 복약 시간이 30분 후 시작됩니다.",
-      alertTime: "2026-06-26 18:00:00",
-      createdAt: "2026-06-26 18:00:00",
-      isReceived: "N",
-      className: "warn",
-    },
-  ];
 
-  const summary = {
-    total: alerts.length,
-    missed: alerts.filter((item) => item.className === "late").length,
-    warn: alerts.filter((item) => item.className === "warn").length,
-    received: alerts.filter((item) => item.isReceived === "Y").length,
-  };
+    const seniorSql = `
+        SELECT
+            SENIOR_ID,
+            SENIOR_NAME
+        FROM TB_SENIOR
+        WHERE MEM_ID = ?
+        ORDER BY SENIOR_NAME
+    `;
 
-  res.render("user/user_dashboard/dashboard_call", {
-    title: "알림 관리",
-    user: req.session.user,
-    alerts,
-    summary,
-  });
+    conn.query(seniorSql, [req.session.user.id], (err, seniorRows) => {
+
+        if (err) {
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        const selectedSeniorId =
+            req.query.senior || "";
+
+        const selectedDate =
+            req.query.date || "";
+
+        const summarySql = `
+            SELECT
+                COUNT(*) AS total,
+
+                SUM(
+                    CASE
+                        WHEN ALERT_TYPE='MISSED_MEDICINE'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS missed,
+
+                SUM(
+                    CASE
+                        WHEN ALERT_TYPE='WARN'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS warn,
+
+                SUM(
+                    CASE
+                        WHEN IS_RECEIVED='Y'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS received
+
+            FROM TB_ALERT
+
+            WHERE MEM_ID=?
+        `;
+
+        conn.query(summarySql,[req.session.user.id],(err,summaryRows)=>{
+
+            if(err){
+                console.log(err);
+                return res.send("DB 오류");
+            }
+
+            const summary={
+                total:summaryRows[0].total||0,
+                missed:summaryRows[0].missed||0,
+                warn:summaryRows[0].warn||0,
+                received:summaryRows[0].received||0
+            };
+
+            let alertSql = `
+                SELECT
+                    A.ALERT_CD,
+                    A.SENIOR_ID,
+                    S.SENIOR_NAME,
+                    A.ALERT_TYPE,
+                    A.ALERT_MSG,
+                    A.ALERT_TIME,
+                    A.CREATED_AT,
+                    A.IS_RECEIVED
+                FROM TB_ALERT A
+                JOIN TB_SENIOR S
+                ON A.SENIOR_ID = S.SENIOR_ID
+                WHERE A.MEM_ID = ?
+            `;
+
+            const params = [req.session.user.id];
+
+            if(selectedSeniorId){
+                alertSql += ` AND A.SENIOR_ID = ? `;
+                params.push(selectedSeniorId);
+            }
+
+            if(selectedDate){
+                alertSql += ` AND DATE(A.ALERT_TIME) = ? `;
+                params.push(selectedDate);
+            }
+
+            alertSql += `
+                ORDER BY A.ALERT_TIME DESC
+            `;
+
+            conn.query(alertSql, params, (err, rows)=>{
+
+                if(err){
+                    console.log(err);
+                    return res.send("DB 오류");
+                }
+
+                const alerts = rows.map(row=>{
+                    let className = "warn";
+                    switch(row.ALERT_TYPE){
+
+                        case "MISSED_MEDICINE":
+                            className = "late";
+                            break;
+
+                        case "TAKEN":
+                            className = "ok";
+                            break;
+
+                        case "WARN":
+                            className = "warn";
+                            break;
+
+                        case "SYSTEM":
+                            className = "system";
+                            break;
+                    }
+
+                    return{
+                        alertCd: row.ALERT_CD,
+                        seniorId: row.SENIOR_ID,
+                        seniorName: row.SENIOR_NAME,
+                        alertType: row.ALERT_TYPE,
+                        alertMsg: row.ALERT_MSG,
+                        alertTime: row.ALERT_TIME,
+                        createdAt: row.CREATED_AT,
+                        isReceived: row.IS_RECEIVED,
+                        className
+                    };
+                });
+
+                res.render("user/user_dashboard/dashboard_call",{
+                    title:"알림 관리",
+                    user:req.session.user,
+                    alerts,
+                    summary,
+                    seniorOptions:seniorRows,
+                    selectedSeniorId,
+                    selectedDate
+                });
+            });
+        });
+    });
 });
 
+// 문의 
 router.get('/user/user_service/inquiry/:id', isLoggedIn, (req, res) => {
 
     const sql = `
@@ -3146,7 +3651,6 @@ router.post('/user/user_service/inquiry', isLoggedIn, (req, res) => {
 
 
 // 김성훈 7월 2일 수정
-
 
 // 문의 작성 폼
 router.get('/index/index_inquiry', isLoggedIn, (req, res) => {
@@ -3408,62 +3912,334 @@ router.get('/user/senior_info/senior_register-pillbox', isLoggedIn, (req, res) =
 });
 
 // 7월 4일 시니어 메인 대시보드 라우터
-router.get('/user/senior_dashboard/senior_main_dashboard', (req, res) => {
+router.get("/user/senior_dashboard/senior_main_dashboard", (req, res) => {
 
-  const viewData = {
-    title: '나의 복약 현황',
-    senior: {
-      name: '홍길동',
-    },
-    today: {
-      morning: '✅ 복용완료',
-      lunch: '✅ 복용완료',
-      dinner: '❌ 미복용',
-      bedtime: '⏳ 대기중',
-    },
-    weekly: {
-      avgRate: 85,
-      takenDays: 5,
-      missedCount: 2,
-    },
-    schedule: [
-      { time: '08:00', meal: '아침', status: 'ok' },
-      { time: '12:30', meal: '점심', status: 'ok' },
-      { time: '18:30', meal: '저녁', status: 'warn' },
-      { time: '21:00', meal: '취침 전', status: 'pending' },
-    ],
-    sensor: {
-      lidOpen: false,
-      lastDetected: '2026-07-04 18:32',
-      updatedAt: '18:35',
-    },
-                weekly: {
-            avgRate: 76,
-            takenDays: 5,
-            missedCount: 4,
-            table: {
-                range: '6월 9일 ~ 15일',
-                days: [
-                    { label: '월', morning: 'done',    lunch: 'done',    dinner: 'done',    bedtime: 'done',    rate: 100 },
-                    { label: '화', morning: 'done',    lunch: 'missed',  dinner: 'done',    bedtime: 'done',    rate: 75  },
-                    { label: '수', morning: 'done',    lunch: 'done',    dinner: 'done',    bedtime: 'done',    rate: 100 },
-                    { label: '목', morning: 'done',    lunch: 'done',    dinner: 'pending', bedtime: 'pending', rate: 50  },
-                    { label: '금', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
-                    { label: '토', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
-                    { label: '일', morning: 'unset',   lunch: 'unset',   dinner: 'unset',   bedtime: 'unset',   rate: null },
-                ],
-            },
-            },
+    if (!req.session.user) {
+        return res.redirect("/");
+    }
 
-            schedule: [
-            { time: '08:00', meal: '아침',   medicineName: '아스피린 100mg',    dose: '1정', status: 'ok'   },
-            { time: '12:30', meal: '점심',   medicineName: '혈압약 (암로디핀)', dose: '1정', status: 'warn' },
-            { time: '19:00', meal: '저녁',   medicineName: '당뇨약 (메트포민)', dose: '2정', status: 'plan' },
-            { time: '22:00', meal: '취침 전', medicineName: '수면유도제',        dose: '1정', status: 'plan' },
-            ],
-  };
-  res.render('user/senior_dashboard/senior_main_dashboard', viewData);
+    const memId = req.session.user.id;
+
+    const seniorSql = `
+    SELECT
+        M.MEM_ID,
+        M.MEM_NAME,
+        S.SENIOR_ID,
+        S.SENIOR_NAME,
+        S.PILLBOX_NUM
+    FROM TB_MEMBER M
+    INNER JOIN TB_SENIOR S
+        ON M.MEM_ID = S.SENIOR_ID
+    WHERE M.MEM_ID = ?
+    `;
+
+    conn.query(seniorSql,[memId],(err,seniorRows)=>{
+
+        const memId = req.session.user.id;
+
+        if(err){
+            console.log(err);
+            return res.send("DB 오류");
+        }
+
+        if(seniorRows.length===0){
+            return res.send("시니어 정보가 없습니다.");
+        }
+
+        const senior=seniorRows[0];
+
+        const todaySql=`
+
+            SELECT
+                MS.TAKING_TYPE,
+                MS.TAKING_TIME,
+
+                SC.TAKING_YN,
+                SC.TAKEN_TIME
+
+            FROM TB_MEDICINE_SCHEDULE MS
+
+            LEFT JOIN TB_SCHEDULE SC
+
+            ON MS.MEDI_SCHE_CD=SC.MEDI_SCHE_CD
+
+            AND SC.TAKING_DATE=CURDATE()
+
+            WHERE
+                MS.SENIOR_ID=?
+            AND
+                MS.USE_YN='Y'
+            ORDER BY MS.TAKING_TIME
+            `;
+
+            conn.query(todaySql,[senior.SENIOR_ID],(err,todayRows)=>{
+
+                if(err){
+                    console.log(err);
+                    return res.send("DB 오류");
+                }
+                const today={
+                    morning:"⏳ 대기중",
+                    lunch:"⏳ 대기중",
+                    dinner:"⏳ 대기중",
+                    bedtime:"⏳ 대기중"
+                };
+                 const schedule=[];
+
+                todayRows.forEach(row=>{
+                    let text="⏳ 대기중";
+                    let status="plan";
+                    if(row.TAKING_YN==="Y"){
+                        text="✅ 복용완료";
+                        status="ok";
+                    }
+
+                    else if(row.TAKING_YN==="N"){
+                        text="❌ 미복용";
+                        status="warn";
+                    }
+
+                    switch(row.TAKING_TYPE){
+                        case "아침":
+                            today.morning=text;
+                            break;
+                        case "점심":
+                            today.lunch=text;
+                            break;
+                        case "저녁":
+                            today.dinner=text;
+                            break;
+                        case "취침 전":
+                            today.bedtime=text;
+                            break;
+                    }
+                    schedule.push({
+                        meal:row.TAKING_TYPE,
+                        time:row.TAKING_TIME.toString().substring(0,5),
+                        status
+                    });
+                    const weeklySql = `
+
+                        SELECT
+                            TAKING_DATE,
+                            TAKING_TYPE,
+                            TAKING_YN
+
+                        FROM TB_SCHEDULE
+                        WHERE SENIOR_ID=?
+                        AND YEARWEEK(TAKING_DATE,1)=YEARWEEK(CURDATE(),1)
+                        ORDER BY TAKING_DATE
+                        `;
+
+                        conn.query(weeklySql,[senior.SENIOR_ID],(err,weekRows)=>{
+                            if(err){
+                                console.log(err);
+                                return res.send("DB 오류");
+                            }
+
+                            let total=0;
+                            let success=0;
+                            let miss=0;
+                            const takenDays=new Set();
+
+                            weekRows.forEach(row=>{
+                                total++;
+                                if(row.TAKING_YN==="Y"){
+                                    success++;
+                                    takenDays.add(
+                                        row.TAKING_DATE.toISOString().slice(0,10)
+                                    );
+
+                                }else{
+                                    miss++;
+                                }
+                            });
+
+                            const avgRate=
+                                total===0
+                                ?0
+                                :Math.round(success/total*100);
+                            const week={
+                                월:{label:"월"},
+                                화:{label:"화"},
+                                수:{label:"수"},
+                                목:{label:"목"},
+                                금:{label:"금"},
+                                토:{label:"토"},
+                                일:{label:"일"}
+                            };
+                            Object.values(week).forEach(day=>{
+                                day.morning="unset";
+                                day.lunch="unset";
+                                day.dinner="unset";
+                                day.bedtime="unset";
+                            });
+                            const dayNames=[
+                                "일",
+                                "월",
+                                "화",
+                                "수",
+                                "목",
+                                "금",
+                                "토"
+                            ];
+                            weekRows.forEach(row=>{
+
+                                const day=
+                                    dayNames[
+                                        new Date(row.TAKING_DATE).getDay()
+                                    ];
+                                if(!week[day]) return;
+                                const state=
+                                    row.TAKING_YN==="Y"
+                                    ?"done"
+                                    :"missed";
+                                switch(row.TAKING_TYPE){
+                                    case "아침":
+                                        week[day].morning=state;
+                                        break;
+                                    case "점심":
+                                        week[day].lunch=state;
+                                        break;
+                                    case "저녁":
+                                        week[day].dinner=state;
+                                        break;
+                                    case "취침 전":
+                                        week[day].bedtime=state;
+                                        break;
+                                }
+                            });
+                            Object.values(week).forEach(day=>{
+                                let count=0;
+                                let ok=0;
+                                ["morning","lunch","dinner","bedtime"].forEach(meal=>{
+                                    if(day[meal]!=="unset"){
+                                        count++;
+                                    }
+
+                                    if(day[meal]==="done"){
+                                        ok++;
+                                    }
+                                });
+
+                                day.rate=
+                                    count===0
+                                    ?null
+                                    :Math.round(ok/count*100);
+                            });
+                            const weekly={
+
+                                avgRate,
+                                takenDays:takenDays.size,
+                                missedCount:miss,
+                                table:{
+                                    range:"이번주",
+                                    days:[
+                                        week.월,
+                                        week.화,
+                                        week.수,
+                                        week.목,
+                                        week.금,
+                                        week.토,
+                                        week.일
+                                    ]
+                                }
+                            };
+                            const sensorSql = `
+
+                            SELECT
+
+                                PS.POWER_STATUS,
+                                PS.LAST_HEARTBEAT_AT,
+                                PS.UPDATED_AT,
+
+                                (
+                                    SELECT LOG_TYPE
+                                    FROM TB_PILLBOX_LOG
+                                    WHERE SENIOR_ID=?
+                                    ORDER BY LOGGED_AT DESC
+                                    LIMIT 1
+                                ) AS LAST_LOG,
+
+                                (
+
+                                    SELECT LOGGED_AT
+                                    FROM TB_PILLBOX_LOG
+                                    WHERE SENIOR_ID=?
+                                    ORDER BY LOGGED_AT DESC
+                                    LIMIT 1
+                                ) AS LAST_TIME
+                            FROM TB_PILLBOX_STATUS PS
+                            WHERE SENIOR_ID=?
+
+                            `;
+
+                            conn.query(
+                                sensorSql,
+                                [
+                                    senior.SENIOR_ID,
+                                    senior.SENIOR_ID,
+                                    senior.SENIOR_ID
+                                ],
+
+                                (err,sensorRows)=>{
+
+                                    if(err){
+                                        console.log(err);
+                                        return res.send("DB 오류");
+
+                                    }
+
+                                    let sensor={
+                                        lidOpen:false,
+                                        dbSync:false,
+                                        updatedAt:"-",
+                                        lastSync:"-",
+                                        lastDetected:"-"
+
+                                    };
+                                    if(sensorRows.length){
+
+                                        const row=sensorRows[0];
+                                        sensor.lidOpen=
+                                            row.LAST_LOG==="OPEN";
+                                        sensor.dbSync=
+                                            row.POWER_STATUS==="Y";
+                                        sensor.updatedAt=
+                                            row.UPDATED_AT
+                                            ?row.UPDATED_AT.toLocaleString("ko-KR")
+                                            :"-";
+                                        sensor.lastSync=
+                                            row.LAST_HEARTBEAT_AT
+                                            ?row.LAST_HEARTBEAT_AT.toLocaleString("ko-KR")
+                                            :"-";
+                                        sensor.lastDetected=
+                                            row.LAST_TIME
+                                            ?row.LAST_TIME.toLocaleString("ko-KR")
+                                            :"-";
+                                    }
+                                    res.render(
+                                        "user/senior_dashboard/senior_main_dashboard",
+                                        {
+                                            title:"나의 복약 현황",
+                                            user:{
+                                                id:senior.MEM_ID,
+                                                name:senior.SENIOR_NAME
+                                            },
+                                            today,
+                                            weekly,
+                                            schedule,
+                                            sensor
+                                }
+                             );
+                        }
+                    );
+                });
+            });
+        });
+    });
 });
+
 
 // 사용자 공지사항 상세
 router.get("/user/user_service/user_announce/:id", (req, res) => {

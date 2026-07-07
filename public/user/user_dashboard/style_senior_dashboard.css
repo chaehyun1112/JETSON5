@@ -745,6 +745,19 @@ html { scrollbar-gutter: stable; overflow-x: hidden; }
   white-space: nowrap !important;
 }
 
+.db-sensor-updated{
+    font-size:13px;
+    color:#64748b;
+    text-align:right;
+    line-height:1.4;
+}
+
+.db-sensor-updated strong{
+    display:block;
+    color:#1e3a8a;
+    font-weight:600;
+}
+
 /* ===========================
    복약 일정
 =========================== */

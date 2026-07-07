@@ -62,18 +62,57 @@
       <section class="db-card">
         <div class="db-card__header db-card__header--record">
           <h2 class="db-card__title">최근 알림 내역</h2>
-          <div class="db-query-box">
-            <form method="GET" action="/user/user_dashboard/dashboard_call" class="db-query-form">
-              <div class="db-query-fields" data-fields="daily">
-                <input type="text" id="callDate" name="date" value="<%= typeof selectedDate !== 'undefined' ? selectedDate : '' %>" title="기준 날짜" placeholder="연도-월-일" readonly />
-                <input type="time" name="time" value="<%= typeof selectedTime !== 'undefined' ? selectedTime : '' %>" title="기준 시간" />
-              </div>
-              <button type="submit">조회</button>
-            </form>
-          </div>
+            <div class="db-query-box">
+              <form method="GET"
+                    action="/user/user_dashboard/dashboard_call"
+                    class="db-query-form">
+                <div class="db-query-fields">
+                <div class="db-date-select">
+                    <label for="recordDate"></label>
+                    <input
+                        type="date"
+                        id="recordDate"
+                        value="<%= selectedDate %>">
+                </div>
+                  <div class="db-senior-select" id="seniorDropdown">
+                      <% const currentSenior =
+                          seniorOptions.find(s => s.SENIOR_ID === selectedSeniorId)
+                          || seniorOptions[0];
+                      %>
+                      <span class="db-senior-select__label">
+                          보호대상
+                      </span>
+                      <span class="db-senior-select__value">
+                          <%= currentSenior ? currentSenior.SENIOR_NAME : "전체 보호대상" %>
+                      </span>
+                      <span class="db-senior-select__caret">
+                          <svg width="12" height="12" viewBox="0 0 24 24"
+                              fill="none" stroke="currentColor" stroke-width="2.5">
+                              <polyline points="6 9 12 15 18 9"/>
+                          </svg>
+                      </span>
+                      <div class="db-senior-select__menu">
+                          <div class="db-senior-select__menu-inner">
+                              <a href="?date=<%= selectedDate || '' %>"
+                                class="<%= !selectedSeniorId ? 'is-active' : '' %>">
+                                  전체 보호대상
+                              </a>
+                              <% seniorOptions.forEach(s=>{ %>
+                              <a href="?date=<%= selectedDate || '' %>&senior=<%= s.SENIOR_ID %>"
+                                class="<%= s.SENIOR_ID===selectedSeniorId ? 'is-active':'' %>">
+                                  <%= s.SENIOR_NAME %>
+                              </a>
+                              <% }) %>
+                          </div>
+                      </div>
+                  </div>
+                </div>
+                <button type="submit"> 조회 </button>
+              </form>
+            </div>
         </div>
         <div class="db-query-hint-row">
-          <p class="db-query-hint">날짜·시간을 입력하고 조회하면 해당 시점 기준 최근 6개월 내역을 보여줍니다.</p>
+          <p class="db-query-hint">날짜와 보호대상을 선택하면 조건에 맞는 알림 내역을 조회합니다.</p>
           <% if (alerts.length > 5) { %>
           <a href="#" id="alertToggle" class="db-card__more">전체 보기 →</a>
           <% } %>
@@ -92,7 +131,7 @@
                   </div>
                   <p class="db-alert__msg"><%= item.alertMsg %></p>
                   <p class="db-alert__time">
-                    <%= item.alertTime ? new Date(item.alertTime.replace(' ', 'T')).toLocaleString('ko-KR') : '-' %>
+                    <%= item.alertTime ? new Date(item.alertTime).toLocaleString('ko-KR') : '-' %>
                     · 수신 여부 <%= item.isReceived || 'N' %>
                   </p>
                 </div>
@@ -116,6 +155,26 @@
         });
         alertToggle.textContent = expanded ? '접기 ←' : '전체 보기 →';
       });
+    }
+
+    const seniorDropdown = document.getElementById("seniorDropdown");
+
+    if (seniorDropdown) {
+
+        seniorDropdown.addEventListener("click",(e)=>{
+
+            e.stopPropagation();
+
+            seniorDropdown.classList.toggle("is-open");
+
+        });
+
+        document.addEventListener("click",()=>{
+
+            seniorDropdown.classList.remove("is-open");
+
+        });
+
     }
   </script>
 

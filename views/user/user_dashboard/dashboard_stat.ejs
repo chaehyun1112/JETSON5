@@ -22,7 +22,6 @@
       </div>
     </div>
   </section>
-
   <main class="db-main">
     <div class="db-container">
       <section class="db-stats">
@@ -55,39 +54,44 @@
           </div>
         </div>
       </section>
-
       <section class="db-card">
         <div class="db-card__header">
           <h2 class="db-card__title">보호대상별 상태</h2>
           <div class="db-senior-select" id="seniorDropdown">
             <span class="db-senior-select__label">보호대상</span>
-            <% const currentStatus = statuses.find(s => s.seniorId === selectedSeniorId) || statuses[0]; %>
-            <span class="db-senior-select__value"><%= currentStatus ? currentStatus.seniorName : '-' %></span>
-            <span class="db-senior-select__caret">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </span>
-            <div class="db-senior-select__menu">
-              <div class="db-senior-select__menu-inner">
-                <% statuses.forEach(s => { %>
-                <a href="?senior=<%= s.seniorId %>" class="<%= s.seniorId === (currentStatus ? currentStatus.seniorId : '') ? 'is-active' : '' %>"><%= s.seniorName %></a>
-                <% }) %>
+                <% const currentSenior = seniorOptions.find(s=>s.SENIOR_ID===selectedSeniorId) || seniorOptions[0]; %>
+                <span class="db-senior-select__value">
+                    <%= currentSenior.SENIOR_NAME %>
+                </span>
+                <span class="db-senior-select__caret">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </span>
+                <div class="db-senior-select__menu">
+                    <div class="db-senior-select__menu-inner">
+                        <% seniorOptions.forEach(s=>{ %>
+                        <a href="?senior=<%= s.SENIOR_ID %>"
+                            class="<%= s.SENIOR_ID===selectedSeniorId ? 'is-active':'' %>">
+                            <%= s.SENIOR_NAME %>
+                        </a>
+                        <% }) %>
+                    </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+
 
         <% if (statuses.length === 0) { %>
           <p class="db-empty">등록된 보호대상이 없습니다.</p>
         <% } else { %>
           <div class="db-status-grid">
-            <% (currentStatus ? [currentStatus] : []).forEach((item) => { %>
+            <% statuses.forEach(item=>{ %>
               <article class="db-status-card db-status-card--<%= item.state %>">
                 <div class="db-status-card__top">
                   <div>
                     <p class="db-status-card__name"><%= item.seniorName %></p>
-                    <p class="db-status-card__meta">약통 번호 <%= item.pillboxNum || '-' %></p>
+                    <p class="db-status-card__meta"> 약통 번호 <%= item.pillboxNum ? item.pillboxNum : "-" %> </p>
                   </div>
                   <span class="db-status db-status--<%= item.state === 'ok' ? 'ok' : item.state === 'late' ? 'late' : 'warn' %>">
                     <%= item.stateLabel %>
@@ -100,13 +104,14 @@
                 </div>
                 <div class="db-log-box">
                   <p>최근 로그</p>
-                  <% const logTypeLabels = {
-                       SLOT_OPEN: '약통 열림',
-                       NO_ACTION: '움직임 없음',
-                       BOX_CLOSED: '약통 닫힘',
-                     }; %>
-                  <strong><%= logTypeLabels[item.latestLogType] || item.latestLogType %></strong>
-                  <span>칸: <%= item.latestSlotNum %> · <%= item.latestLoggedAt ? new Date(item.latestLoggedAt).toLocaleString('ko-KR') : '기록 없음' %></span>
+                    <% const logTypeLabels={
+                        SLOT_OPEN:"약통 열림",
+                        BOX_CLOSED:"약통 닫힘",
+                        TAKEN:"복약 완료",
+                        WARN:"경고",
+                        SYSTEM:"시스템" }; %>
+                    <strong> <%= logTypeLabels[item.latestLogType] || item.latestLogType || "-" %> </strong>
+                    <span> <%= item.latestLoggedAt ? new Date(item.latestLoggedAt).toLocaleString("ko-KR") : "기록 없음" %> </span>
                 </div>
               </article>
             <% }) %>

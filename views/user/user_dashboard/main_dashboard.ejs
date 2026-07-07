@@ -35,7 +35,33 @@
 
       <section class="db-section">
         <div class="db-section__header">
-          <h2 class="db-section__title">오늘 복용현황 <span class="db-section__hint"></span></h2>
+
+    <h2 class="db-section__title">
+        오늘 복용 현황
+    </h2>
+          <div class="db-senior-select" id="seniorDropdown">
+            <span class="db-senior-select__label">보호대상</span>
+            <% const currentSenior = seniorList.find(s=>s.SENIOR_ID===selectedSenior) || seniorList[0]; %>            
+            <span class="db-senior-select__value"><%= currentSenior ? currentSenior.SENIOR_NAME : '-' %></span>
+            <span class="db-senior-select__caret">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </span>
+            <div class="db-senior-select__menu">
+              <div class="db-senior-select__menu-inner">
+                <% seniorList.forEach(s => { %>
+                  <a
+                      href="?senior=<%= s.SENIOR_ID %>"
+                      class="<%= s.SENIOR_ID===selectedSenior ? 'is-active':'' %>">
+
+                      <%= s.SENIOR_NAME %>
+
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="db-today-list">
           <% const mealLabels = ['아침', '점심', '저녁', '취침 전'];
@@ -90,7 +116,7 @@
               </div>
               <div>
                 <p class="db-stat-card__label">총 등록 보호대상</p>
-                <p class="db-stat-card__num db-stat-card__num--purple"><%= stats.total %><span>명</span></p>
+                <p class="db-stat-card__num db-stat-card__num--purple"><%= seniorList.length %><span>명</span></p>
               </div>
             </div>
           </div>
@@ -214,18 +240,44 @@
           </div>
           <ul class="db-alert-list">
             <% alerts.forEach((a, i) => { %>
+
             <li class="db-alert db-alert--<%= a.className %><%= i >= 3 ? ' db-alert--extra' : '' %>">
+
               <div class="db-alert__body">
+
                 <div class="db-alert__head">
-                  <strong><%= a.seniorName %></strong>
-                  <span><%= ({ TAKEN: '복용 완료', MISSED_MEDICINE: '복약 누락', WARN: '경고', SYSTEM: '시스템' })[a.alertType] || a.alertType %></span>
+
+                  <strong><%= a.SENIOR_NAME %></strong>
+
+                  <span>
+                    <%= ({
+                      TAKEN:'복용 완료',
+                      MISSED_MEDICINE:'복약 누락',
+                      WARN:'경고',
+                      SYSTEM:'시스템'
+                    })[a.ALERT_TYPE] || a.ALERT_TYPE %>
+                  </span>
+
                 </div>
-                <p class="db-alert__msg"><%= a.alertMsg %></p>
-                <p class="db-alert__time">
-                  <%= new Date(a.alertTime.replace(' ', 'T')).toLocaleString('ko-KR') %> · 수신 여부 <%= a.isReceived %>
+
+                <p class="db-alert__msg">
+                  <%= a.ALERT_MSG %>
                 </p>
+
+                <p class="db-alert__time">
+
+                  <%= a.ALERT_TIME
+                      ? new Date(a.ALERT_TIME).toLocaleString('ko-KR')
+                      : '-' %>
+
+                  · 수신 여부 <%= a.IS_RECEIVED %>
+
+                </p>
+
               </div>
+
             </li>
+
             <% }) %>
           </ul>
         </div>
@@ -253,6 +305,21 @@
       });
     }
   </script>
+
+    <script>
+    const seniorDropdown = document.getElementById('seniorDropdown');
+    if (seniorDropdown) {
+      seniorDropdown.addEventListener('click', (e) => {
+        seniorDropdown.classList.toggle('is-open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!seniorDropdown.contains(e.target)) {
+          seniorDropdown.classList.remove('is-open');
+        }
+      });
+    }
+  </script>
+
 
 </body>
 </html>
