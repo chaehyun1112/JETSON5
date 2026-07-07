@@ -58,26 +58,57 @@
 
       <section class="db-card">
         <div class="db-card__header db-card__header--record">
-          <h2 class="db-card__title">복약 일정</h2>
-          <div class="db-senior-select" id="seniorDropdown">
-            <span class="db-senior-select__label">보호대상</span>
-            <% const currentSenior = seniorOptions.find(s => s.id === selectedSeniorId) || seniorOptions[0]; %>
-            <span class="db-senior-select__value"><%= currentSenior ? currentSenior.name : '-' %></span>
-            <span class="db-senior-select__caret">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </span>
-            <div class="db-senior-select__menu">
-              <div class="db-senior-select__menu-inner">
-                <% seniorOptions.forEach(s => { %>
-                <a href="?senior=<%= s.id %>" class="<%= s.id === (currentSenior ? currentSenior.id : '') ? 'is-active' : '' %>"><%= s.name %></a>
-                <% }) %>
+            <h2 class="db-card__title">복약 일정</h2>
+              <div class="db-query-box">
+                  <form class="db-query-form">
+                      <div class="db-query-fields">
+                          <div class="db-date-select">
+                              <label for="recordDate"></label>
+                              <input
+                                  type="date"
+                                  id="recordDate"
+                                  value="<%= selectedDate %>">
+                          </div>
+                          <div class="db-senior-select" id="seniorDropdown">
+                              <span class="db-senior-select__label">
+                                  보호대상
+                              </span>
+                              <%
+                              const currentSenior =
+                                  seniorOptions.find(
+                                      s => s.SENIOR_ID === selectedSeniorId
+                                  ) || seniorOptions[0];
+                              %>
+                              <span class="db-senior-select__value">
+                                  <%= currentSenior.SENIOR_NAME %>
+                              </span>
+                              <span class="db-senior-select__caret">
+                                  <svg width="12"
+                                      height="12"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="2.5">
+                                      <polyline points="6 9 12 15 18 9"/>
+                                  </svg>
+                              </span>
+                              <div class="db-senior-select__menu">
+                                  <div class="db-senior-select__menu-inner">
+                                      <% seniorOptions.forEach(s=>{ %>
+                                      <a
+                                          href="?senior=<%= s.SENIOR_ID %>&date=<%= selectedDate %>"
+                                          class="<%= s.SENIOR_ID===selectedSeniorId ? 'is-active':'' %>">
+                                          <%= s.SENIOR_NAME %>
+                                      </a>
+                                      <% }) %>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <button type="submit">조회</button>
+                  </form>
               </div>
             </div>
-          </div>
-        </div>
-
         <% if (schedules.length === 0) { %>
           <p class="db-empty">해당 날짜에 등록된 복약 일정이 없습니다.</p>
         <% } else { %>
