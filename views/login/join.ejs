@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입</title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/login/join.css">
+</head>
+
+<body>
+  <main class="join-page">
+    <section class="join-box">
+      <h1>약 속 : 藥 束</h1>
+      <p class="subtitle">나에게 알맞은 약상자 케어 시스템</p>
+  <div class="icon-box">
+      <img src="/icon/main_log.png" class="logo-icon">
+    </div>
+  </div>
+
+  <h2>회원가입</h2>
+
+  <form action="/join" method="post" class="join-form">
+
+    <label>회원 유형</label>
+    <select name="role" required>
+      <option value="">선택해주세요</option>
+      <option value="P">보호자</option>
+      <option value="S">대상자</option>
+      <option value="A">관리자</option>
+    </select>
+
+    <label>아이디</label>
+      <div class="input-row">
+        <input type="text" name="id" id="id" placeholder="아이디를 입력하세요">
+        <button type="button" id="checkIdBtn" class="btn-action"> 중복확인 </button>
+      </div>
+      <p id="idCheckMessage"></p>
+
+    <label>비밀번호</label>
+    <input type="password" name="pw" placeholder="비밀번호를 입력해주세요" required>
+
+    <label>이름</label>
+    <input type="text" name="name" placeholder="이름을 입력해주세요" required>
+
+    <label>이메일</label>
+    <div class="input-row">
+      <input type="email" id="email" name="email" placeholder="이메일을 입력해주세요" required>
+      <button type="button" id="sendEmailBtn" class="btn-action">인증번호 보내기</button>
+    </div>
+    <p id="emailMessage"></p>
+
+    <label>인증번호</label>
+    <div class="input-row">
+      <input type="text" id="emailCode"  placeholder="인증번호 입력">
+      <button type="button" id="verifyEmailBtn" class="btn-action"> 인증하기 </button>
+    </div>
+    <p id="verifyMessage"></p>
+
+    <label>연락처</label>
+    <input type="text" name="phone" placeholder="연락처를 입력해주세요" required>
+    
+    <label>주소 (선택)</label>
+    <input type="text" name="addr" placeholder="주소를 입력해주세요">
+
+
+  
+  <div class="terms-list">
+    <label class="terms-item">
+      <input type="checkbox" class="terms-checkbox item-check" name="terms_privacy" required>
+      <span class="checkbox-custom"></span>
+      <span class="terms-text">개인정보 수집 및 이용 <span class="badge-required">(필수)</span></span>
+    </label>
+
+    <label class="terms-item">
+      <input type="checkbox" class="terms-checkbox item-check" name="terms_connection" required>
+      <span class="checkbox-custom"></span>
+      <span class="terms-text">연결 정보 사용 <span class="badge-required">(필수)</span></span>
+    </label>
+
+    <label class="terms-item">
+      <input type="checkbox" class="terms-checkbox item-check" name="terms_provider" required>
+      <span class="checkbox-custom"></span>
+      <span class="terms-text">서비스 공급자 이용약관 <span class="badge-required">(필수)</span></span>
+    </label>
+
+    <label class="terms-item">
+      <input type="checkbox" class="terms-checkbox item-check" name="terms_use" required>
+      <span class="checkbox-custom"></span>
+      <span class="terms-text">이용약관 <span class="badge-required">(필수)</span></span>
+    </label>
+ 
+
+    <label class="terms-item terms-item--all">
+      <input type="checkbox" id="allCheck" class="terms-checkbox">
+      <span class="checkbox-custom"></span>
+      <span class="terms-text terms-text--all">위의 내용을 모두 읽었으며 이에 동의합니다.</span>
+    </label>
+  </div>
+
+
+    <button type="submit" class="join-btn">회원가입</button>
+  </form>
+
+  <div class="links">
+    <a href="/login">로그인 페이지로 이동</a>
+  </div>
+</section>
+
+  </main>
+<script>
+
+    let idChecked = false;
+    let checkedId = "";
+    let emailVerified = false;
+
+    // 아이디 중복 확인
+    document.getElementById("checkIdBtn").addEventListener("click", () => {
+
+        const id = document.getElementById("id").value.trim();
+
+        if (id === "") {
+            alert("아이디를 입력하세요.");
+            return;
+        }
+
+        fetch("/checkId", {
+
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id
+            })
+        })
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            const msg = document.getElementById("idCheckMessage");
+
+            if (data.available) {
+                msg.innerHTML = "✔ 사용 가능한 아이디입니다.";
+                msg.style.color = "green";
+
+                idChecked = true;
+                checkedId = id;
+            } else {
+
+                msg.innerHTML = "❌ 이미 사용중인 아이디입니다.";
+                msg.style.color = "red";
+
+                idChecked = false;
+                checkedId = "";
+            }
+        });
+    });
+
+    // 아이디 변경 시 다시 중복확인
+    document.getElementById("id").addEventListener("input", () => {
+
+        idChecked = false;
+        checkedId = "";
+
+        document.getElementById("idCheckMessage").innerHTML = "";
+    });
+
+    // 이메일 인증번호 발송
+    document.getElementById("sendEmailBtn").addEventListener("click", () => {
+
+        const email = document.getElementById("email").value.trim();
+
+        if(email === ""){
+            alert("이메일을 입력하세요.");
+            return;
+        }
+
+        fetch("/sendEmailCode",{
+
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                email
+            })
+        })
+
+        .then(res=>res.json())
+
+        .then(data=>{
+            const msg=document.getElementById("emailMessage");
+
+            if(data.success){
+                msg.innerHTML="✔ 인증번호를 발송했습니다.";
+                msg.style.color="green";
+            }else{
+                msg.innerHTML="❌ 메일 발송 실패";
+                msg.style.color="red";
+            }
+        });
+    });
+
+    // 이메일 인증번호 확인
+    document.getElementById("verifyEmailBtn").addEventListener("click",()=>{
+        const email = document.getElementById("email").value.trim();
+        const code=document.getElementById("emailCode").value.trim();
+
+        if(code===""){
+            alert("인증번호를 입력하세요.");
+            return;
+        }
+
+        fetch("/verifyEmailCode",{
+
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                email,
+                code
+            })
+        })
+
+        .then(res=>res.json())
+
+        .then(data=>{
+
+            const msg=document.getElementById("verifyMessage");
+
+            if(data.success){
+                emailVerified=true;
+
+                msg.innerHTML="✔ 이메일 인증이 완료되었습니다.";
+                msg.style.color="green";
+            }else{
+                emailVerified=false;
+
+                msg.innerHTML="❌ 인증번호가 올바르지 않습니다.";
+                msg.style.color="red";
+            }
+        });
+    });
+
+    // 회원가입 전 검사
+    document.querySelector(".join-form").addEventListener("submit",(e)=>{
+
+        const currentId=document.getElementById("id").value.trim();
+
+        if(!idChecked || checkedId!==currentId){
+            e.preventDefault();
+
+            alert("아이디 중복확인을 먼저 해주세요.");
+            return;
+        }
+
+        if(!emailVerified){
+            e.preventDefault();
+
+            alert("이메일 인증을 완료해주세요.");
+            return;
+        }
+    });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const allCheck = document.getElementById('allCheck');
+    const itemChecks = document.querySelectorAll('.item-check');
+    const joinForm = document.getElementById('joinForm');
+
+    // 1. 전체 동의 체크박스 제어
+    if (allCheck) {
+        allCheck.addEventListener('change', (e) => {
+        itemChecks.forEach(cb => {
+            cb.checked = e.target.checked;
+        });
+        });
+    }
+
+    // 2. 하위 체크박스 변경 시 전체 동의 상태 동기화
+    itemChecks.forEach(cb => {
+        cb.addEventListener('change', () => {
+        const allChecked = Array.from(itemChecks).every(item => item.checked);
+        allCheck.checked = allChecked;
+        });
+    });
+
+    // 3. 폼 서브밋 시 필수 약관 체크 검증 기본 방어
+    if (joinForm) {
+        joinForm.addEventListener('submit', (e) => {
+        const allChecked = Array.from(itemChecks).every(item => item.checked);
+        if (!allChecked) {
+            e.preventDefault();
+            alert('본인 인증을 위한 모든 필수 약관에 동의하셔야 회원가입이 가능합니다.');
+        }
+        });
+    }
+    });
+
+    </script>
+  </body>
+</html>

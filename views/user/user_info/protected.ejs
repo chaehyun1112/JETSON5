@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/user/user_info/style_protected.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+
+<%- include('../../partials/user_partials/nav_about') %>
+
+  <div class="protected-header">
+    <div class="protected-header__inner">
+        <p class="section-tag">보호대상 정보</p>
+        <h1 class="protected-header__title">보호대상 정보 관리</h1>
+        <p class="protected-header__sub">
+            등록된 보호대상자의 정보를 확인하고 관리하세요.
+        </p>
+    </div>
+</div>
+
+<main class="protected-main">
+<div class="protected-container">
+
+<% if(protectedPersons.length === 0){ %>
+
+    <div class="protected-empty">
+
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.4">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <line x1="19" y1="8" x2="19" y2="14"/>
+            <line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+
+        <p class="protected-empty__text">
+            아직 등록된 보호대상자가 없습니다.
+        </p>
+
+        <a href="/user/user_info/seniorRegister" class="btn-add">
+            + 보호대상 등록하기
+        </a>
+
+    </div>
+
+<% } else { %>
+
+<div class="protected-list">
+
+<% protectedPersons.forEach(function(person){ %>
+
+<div class="pcard">
+
+    <div class="pcard__top">
+
+        <div class="pcard__avatar">
+            <%= person.SENIOR_NAME.charAt(0) %>
+        </div>
+
+        <div class="pcard__identity">
+            <h2 class="pcard__name">
+                <%= person.SENIOR_NAME %>
+            </h2>
+        </div>
+
+        <a href="/user/user_info/user_update/<%= person.SENIOR_ID %>"
+           class="pcard__edit">
+            수정
+        </a>
+
+        <a href="/user/user_info/protected/delete/<%= person.SENIOR_ID %>"
+           class="pcard__delete"
+           onclick="return confirm('<%= person.SENIOR_NAME %> 님을 삭제하시겠습니까?')">
+            삭제
+        </a>
+
+    </div>
+
+    <div class="pcard__grid">
+
+        <div class="pcard__row">
+            <span class="pcard__label">보호대상 아이디</span>
+            <span class="pcard__value"><%= person.SENIOR_ID %></span>
+        </div>
+
+        <div class="pcard__row">
+            <span class="pcard__label">이메일</span>
+            <span class="pcard__value"><%= person.SENIOR_EMAIL %></span>
+        </div>
+
+        <div class="pcard__row">
+            <span class="pcard__label">연락처</span>
+            <span class="pcard__value"><%= person.SENIOR_CONTACT %></span>
+        </div>
+
+        <div class="pcard__row">
+            <span class="pcard__label">주소</span>
+            <span class="pcard__value"><%= person.SENIOR_ADDR %></span>
+        </div>
+
+        <div class="pcard__row">
+            <span class="pcard__label">약통 번호</span>
+            <span class="pcard__value">
+                <%= person.PILLBOX_NUM || "-" %>
+            </span>
+        </div>
+
+        <div class="pcard__row">
+            <span class="pcard__label">가입 일자</span>
+            <span class="pcard__value">
+                <%= new Date(person.JOINED_AT).toLocaleDateString("ko-KR") %>
+            </span>
+        </div>
+
+    </div>
+
+    <div class="pcard__footer">
+
+        <div class="pcard__stat">
+
+            <span class="pcard__stat-label">
+                이번 달 복약률
+            </span>
+
+            <div class="pcard__bar-wrap">
+                <div class="pcard__bar"
+                     style="width:<%= person.complianceRate || 0 %>%">
+                </div>
+            </div>
+
+            <span class="pcard__stat-value">
+                <%= person.complianceRate || 0 %>%
+            </span>
+
+        </div>
+
+        <a href="/user/user_dashboard/main_dashboard"
+           class="pcard__link">
+            대시보드 보기 →
+        </a>
+
+    </div>
+
+    <div class="pcard__schedule">
+
+        <div class="pcard__schedule-header"
+             onclick="toggleSchedule(this)">
+
+            <div class="pcard__schedule-title">
+                💊 복약 스케줄
+            </div>
+
+            <div class="pcard__schedule-arrow">
+                ▼
+            </div>
+
+        </div>
+
+        <div class="pcard__schedule-body">
+
+            <div class="schedule-date">
+
+                <div class="schedule-date__title">
+                    현재 등록된 복약 스케줄
+                </div>
+
+                <% if(person.scheduleList.length===0){ %>
+
+                    <div class="schedule-item">
+
+                        <div class="schedule-item__left">
+                            등록된 복약 스케줄이 없습니다.
+                        </div>
+
+                    </div>
+
+                <% } %>
+
+                <% person.scheduleList.forEach(function(schedule){ %>
+
+                    <div class="schedule-item">
+
+                        <div class="schedule-item__left">
+
+                            <div class="schedule-type">
+                                <%= schedule.TAKING_TYPE %>
+                            </div>
+
+                            <div class="schedule-time">
+                                <%= schedule.TAKING_TIME.toString().substring(0,5) %>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<% }); %>
+
+</div>
+
+<div class="protected-add-wrap">
+    <a href="/user/user_info/seniorRegister"
+       class="btn-add">
+        + 보호대상 추가하기
+    </a>
+</div>
+
+<% } %>
+
+</div>
+</main>
+
+<footer class="footer">
+  © 2026 <span>약속:藥束</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
+
+<script>
+function toggleSchedule(element){
+    const body = element.nextElementSibling;
+    const arrow = element.querySelector(".pcard__schedule-arrow");
+
+    body.classList.toggle("active");
+    arrow.classList.toggle("rotate");
+}
+</script>
+
+    <script>
+
+function toggleSchedule(header){
+
+    const body = header.nextElementSibling;
+
+    const arrow = header.querySelector(".pcard__schedule-arrow");
+
+    body.classList.toggle("active");
+
+    arrow.classList.toggle("rotate");
+
+}
+
+</script>
+
+</body>
+</html>

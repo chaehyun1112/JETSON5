@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>문의 내역 목록</title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/user/user_service/style_check_inquiry.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <% if (user && user.role === 'S') { %>
+    <%- include('../../partials/user_partials/nav_senior') %>
+    <% } else { %>
+  <%- include('../../partials/user_partials/nav_index') %>
+  <% } %>
+<main class="inquiry-container">
+  <div class="table-responsive">
+    <table class="inquiry-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">유형</th>
+          <th style="width: 50%;">제목</th>
+          <th style="width: 15%;">상태</th>
+          <th style="width: 20%;">작성일</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% inquiryList.forEach(inquiry => { %>
+      <tr
+      onclick="location.href='/user/user_service/inquiry/<%= inquiry.INQUIRY_CD %>'"
+      style="cursor:pointer;"
+      >
+          <td>
+              <span class="type-badge">
+                  <%= inquiry.INQUIRY_TYPE %>
+              </span>
+          </td>
+          <td class="inquiry-title-cell">
+              <%= inquiry.INQUIRY_TITLE %>
+          </td>
+          <td>
+              <% if(inquiry.INQUIRY_STATUS === "답변완료"){ %>
+                  <span class="status-badge status-답변완료">
+                      답변완료
+                  </span>
+              <% } else { %>
+                  <span class="status-badge status-답변대기">
+                      답변대기
+                  </span>
+              <% } %>
+          </td>
+          <td>
+              <%= inquiry.CREATED_AT.toLocaleDateString("ko-KR") %>
+          </td>
+      </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="footer">
+  © 2026 <span>약속:藥束</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
+</body>
+</html>
