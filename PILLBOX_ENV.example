@@ -1,0 +1,32 @@
+﻿# /home/pi/.pillbox_env 예시 파일
+# 실제 API 키/시크릿/전화번호는 이 예시 파일이 아니라 라즈베리파이의 /home/pi/.pillbox_env에 넣는다.
+
+# 약통 번호. TB_SENIOR.PILLBOX_NUM과 같아야 한다.
+PILLBOX_NUM="PILL01"
+
+# SOLAPI 실제 문자 발송 설정.
+# 실제 발송: SMS_DRY_RUN=0
+# 문자 발송 없이 로그만 확인: SMS_DRY_RUN=1
+SOLAPI_API_KEY="발급받은_API_KEY"
+SOLAPI_API_SECRET="발급받은_API_SECRET"
+SMS_SENDER_PHONE="SOLAPI에_등록된_발신번호"
+SMS_DRY_RUN=1
+
+# WS2812B 8구 LED 바.
+LED_TYPE="ws2812"
+WS2812_ENABLE=1
+WS2812_PIN=12
+WS2812_LED_COUNT=8
+WS2812_BRIGHTNESS=128
+
+# 실제 배선 기준 리드스위치 핀 매핑.
+REED_PIN_1=17
+REED_PIN_2=27
+REED_PIN_3=18
+REED_PIN_4=22
+MICRO_SWITCH_PIN=23
+
+# 문 센서 기준.
+DOOR_PULL_MODE=up
+DOOR_OPEN_VALUE=1
+DOOR_OPEN_MODE=reed_and_micro
