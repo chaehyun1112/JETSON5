@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/user/user_dashboard/dashboard_pages.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body class="db-page">
+  <%- include('../../partials/user_partials/nav_dashboard') %>
+
+  <section class="db-header">
+    <div class="db-header__inner">
+      <div>
+        <p class="db-header__greeting">안녕하세요, <strong><%= user.name %></strong> 님 👋</p>
+        <h1 class="db-header__title">복약 기록</h1>
+        <p class="db-header__date">등록된 시니어별 복약 시간을 복약 일정 기준으로 확인합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="db-main">
+    <div class="db-container">
+      <section class="db-stats">
+        <div class="db-stat-card">
+          <span class="db-stat-card__emoji">💊</span>
+          <div>
+            <p class="db-stat-card__label">전체 일정</p>
+            <p class="db-stat-card__num"><%= summary.total %><span>건</span></p>
+          </div>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-card__emoji">✅</span>
+          <div>
+            <p class="db-stat-card__label">복용 완료</p>
+            <p class="db-stat-card__num db-stat-card__num--green"><%= summary.done %><span>건</span></p>
+          </div>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-card__emoji">❌</span>
+          <div>
+            <p class="db-stat-card__label">미복용</p>
+            <p class="db-stat-card__num db-stat-card__num--red"><%= summary.miss %><span>건</span></p>
+          </div>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-card__emoji">🕒</span>
+          <div>
+            <p class="db-stat-card__label">복용 예정</p>
+            <p class="db-stat-card__num db-stat-card__num--purple"><%= summary.pending %><span>건</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="db-card">
+          <div class="db-card__header db-card__header--record">
+              <h2 class="db-card__title">복약 일정</h2>
+              <div class="db-query-box">
+                  <form
+                      method="GET"
+                      action="/user/user_dashboard/dashboard_record"
+                      class="db-query-form">
+                      <div class="db-query-fields">
+                          <div class="db-date-select">
+                              <input
+                                  type="date"
+                                  id="recordDate"
+                                  name="date"
+                                  value="<%= selectedDate %>">
+                          </div>
+                          <input
+                              type="hidden"
+                              id="selectedSenior"
+                              name="senior"
+                              value="<%= selectedSeniorId %>">
+                          <div class="db-senior-select" id="seniorDropdown">
+                              <span class="db-senior-select__label">
+                                  보호대상
+                              </span>
+                              <%
+                              const currentSenior =
+                                  seniorOptions.find(
+                                      s=>s.SENIOR_ID===selectedSeniorId
+                                  ) || seniorOptions[0];
+                              %>
+                              <span
+                                  class="db-senior-select__value"
+                                  id="selectedSeniorText">
+                                  <%= selectedSeniorId ? currentSenior.SENIOR_NAME : "전체" %>
+                              </span>
+                              <span class="db-senior-select__caret">
+                                  <svg width="12"
+                                      height="12"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="2.5">
+                                      <polyline points="6 9 12 15 18 9"/>
+                                  </svg>
+                              </span>
+                              <div class="db-senior-select__menu">
+                                  <div class="db-senior-select__menu-inner">
+                                    <a href="#"
+                                      data-id=""
+                                      data-name="전체"
+                                      class="<%= !selectedSeniorId ? 'is-active' : '' %>">
+                                        전체
+                                    </a>
+                                      <% seniorOptions.forEach(s=>{ %>
+                                      <a href="#"
+                                        data-id="<%= s.SENIOR_ID %>"
+                                        data-name="<%= s.SENIOR_NAME %>">
+                                          <%= s.SENIOR_NAME %>
+                                      </a>
+                                      <% }) %>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <button type="submit">
+                          조회
+                      </button>
+                  </form>
+              </div>
+          </div>
+        <% if (schedules.length === 0) { %>
+          <p class="db-empty">해당 날짜에 등록된 복약 일정이 없습니다.</p>
+        <% } else { %>
+          <div class="db-table-wrap">
+            <table class="db-table">
+              <thead>
+                <tr>
+                  <th>시간</th>
+                  <th>보호대상</th>
+                  <th>복용 구분</th>
+                  <th>약통 칸</th>
+                  <th>실제 복용</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% schedules.forEach((item) => { %>
+                  <tr>
+                    <td><strong><%= item.takingTime %></strong></td>
+                    <td>
+                      <div class="db-table__name">
+                        <span class="db-avatar"><%= item.seniorName.charAt(0) %></span>
+                        <div>
+                          <strong><%= item.seniorName %></strong>
+                          <p class="db-table__drug"><%= item.seniorId %></p>
+                        </div>
+                      </div>
+                    </td>
+                    <td><%= item.takingType || '-' %></td>
+                    <td><%= item.pillboxOrder %>번</td>
+                    <td><%= item.takenTime || '-' %></td>
+                    <td>
+                      <span class="db-status db-status--<%= item.status === 'done' ? 'ok' : item.status === 'miss' ? 'late' : 'warn' %>">
+                        <%= item.statusLabel %>
+                      </span>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+<script>
+const seniorDropdown=document.getElementById("seniorDropdown");
+const selectedSenior=document.getElementById("selectedSenior");
+const selectedSeniorText=document.getElementById("selectedSeniorText");
+
+if(seniorDropdown){
+
+    seniorDropdown.addEventListener("click",(e)=>{
+        if(e.target.closest("a")) return;
+        e.stopPropagation();
+        seniorDropdown.classList.toggle("is-open");
+    });
+
+    document.querySelectorAll(".db-senior-select__menu a").forEach(a=>{
+        a.addEventListener("click",(e)=>{
+            e.preventDefault();
+            selectedSenior.value=a.dataset.id;
+            selectedSeniorText.textContent=a.dataset.name;
+            document.querySelectorAll(".db-senior-select__menu a").forEach(x=>{
+                x.classList.remove("is-active");
+            });
+            a.classList.add("is-active");
+            seniorDropdown.classList.remove("is-open");
+        });
+    });
+    document.addEventListener("click",()=>{
+        seniorDropdown.classList.remove("is-open");
+    });
+}
+</script>
+
+  
+<footer class="footer">
+  © 2026 <span>약속:藥束</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
+</body>
+</html>

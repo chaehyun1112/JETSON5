@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대상자 등록</title>
+    
+    <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/user/user_service/seniorRegister.css">
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+
+    <main class="register-page">
+
+        <section class="register-box">
+
+        <div class="logo-area">
+            <h1>약 속 : 藥 束</h1>
+            <p>나에게 알맞은 약상자 케어 시스템</p>
+        </div>
+
+      <img src="/icon/main6_logo.png" class="logo-icon">
+                </div>
+            </div>
+
+            <h2>보호자 등록</h2>
+
+            <form action="/user/senior_info/senior_register" method="post" class="register-form">
+
+                <label>보호자 아이디</label>
+                <input
+                    type="text"
+                    id="guardianId"
+                    name="guardianId"
+                    placeholder="보호자 아이디"
+                    required>
+
+                <label>이름</label>
+                <input
+                    type="text"
+                    id="guardianName"
+                    name="guardianName"
+                    placeholder="이름을 입력해주세요"
+                    required>
+
+                <label>이메일</label>
+
+                <div class="email-box">
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="이메일을 입력해주세요"
+                        required>
+                    <button
+                        type="button"
+                        id="sendBtn" 
+                        class="btn-action">
+                        인증번호 보내기
+                    </button>
+                </div>
+                <p id="emailMessage"></p>
+
+                <label>인증번호</label>
+                <div class="email-box">
+                    <input
+                        type="text"
+                        id="verifyCode"
+                        placeholder="인증번호를 입력해주세요">
+                    <button
+                        type="button"
+                        id="verifyBtn"
+                        class="btn-action">
+                        인증번호 확인
+                    </button>
+                </div>
+                <p id="verifyMessage"></p>
+
+                <input
+                    type="hidden"
+                    id="emailVerified"
+                    name="emailVerified"
+                    value="N">
+ 
+                <button type="submit" id="registerBtn" class="register-btn" disabled>
+                    등록하기
+                </button>
+
+            </form>
+
+            <div class="links">
+                <a href="/user/senior_service/senior_about">대시보드로 돌아가기</a>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+let emailVerified = false;
+
+// 인증번호 보내기
+document.getElementById("sendBtn").addEventListener("click", () => {
+
+    const email = document.getElementById("email").value.trim();
+
+    if(email === ""){
+        alert("이메일을 입력하세요.");
+        return;
+    }
+
+    fetch("/sendEmailCode", {
+        method: "POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({ email })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        const msg = document.getElementById("emailMessage");
+
+        if(data.success){
+            msg.innerHTML = "✔ 인증번호를 발송했습니다.";
+            msg.style.color = "green";
+        }else{
+            msg.innerHTML = "❌ 메일 발송 실패";
+            msg.style.color = "red";
+        }
+
+    });
+
+});
+
+// 인증번호 확인
+document.getElementById("verifyBtn").addEventListener("click", () => {
+
+    const email = document.getElementById("email").value.trim();
+    const code = document.getElementById("verifyCode").value.trim();
+
+    if(code === ""){
+        alert("인증번호를 입력하세요.");
+        return;
+    }
+
+    fetch("/verifyEmailCode",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            email,
+            code
+        })
+    })
+    .then(res=>res.json())
+    .then(data=>{
+
+        const msg=document.getElementById("verifyMessage");
+
+        if(data.success){
+
+            emailVerified = true;
+
+            document.getElementById("emailVerified").value="Y";
+            document.getElementById("registerBtn").disabled=false;
+
+            msg.innerHTML="✔ 이메일 인증이 완료되었습니다.";
+            msg.style.color="green";
+
+        }else{
+
+            emailVerified = false;
+
+            document.getElementById("emailVerified").value="N";
+            document.getElementById("registerBtn").disabled=true;
+
+            msg.innerHTML="❌ 인증번호가 올바르지 않습니다.";
+            msg.style.color="red";
+        }
+
+    });
+
+});
+</script>
+
+</body>
+</html>

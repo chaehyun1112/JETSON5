@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/index/style_index_inquiry.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <% if (user && user.role === 'S') { %>
+    <%- include('../partials/user_partials/nav_senior') %>
+<% } else { %>
+  <%- include('../partials/user_partials/nav_index') %>
+<% } %>
+
+
+  <div class="about-header">
+    <div class="about-header__inner">
+      <p class="section-tag">문의 하기</p>
+      <h1 class="about-header__title">복약안심서비스란?</h1>
+      <p class="about-header__sub">스마트 약상자와 함께하는 안심 복약 관리 플랫폼입니다.</p>
+    </div>
+  </div>
+
+<main class="inquiry-container">
+  <h2>문의하기</h2>
+
+  <form action="/index/index_inquiry" method="POST" class="inquiry-form">
+    <div class="form-group">
+      <label for="inquiry_type">문의 유형</label>
+      <select name="inquiry_type" id="inquiry_type">
+        <option value="서비스문의">서비스 문의</option>
+        <option value="결제문의">결제 문의</option>
+        <option value="기술문의">기술 문의</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="inquiry_title">제목</label>
+      <input type="text" name="inquiry_title" id="inquiry_title" maxlength="200" required>
+    </div>
+
+    <div class="form-group">
+      <label for="inquiry_content">내용</label>
+      <textarea name="inquiry_content" id="inquiry_content" rows="8" required></textarea>
+    </div>
+
+    <div class="form-actions">
+      <a href="/" class="btn-cancel">취소</a>
+      <button type="submit" class="btn-submit">등록하기</button>
+    </div>
+  </form>
+</main>
+
+
+<footer class="footer">
+  © 2026 <span>약속:藥束</span> | Team Jetson5 | 스마트 약상자 기반 복약 관리 플랫폼
+</footer>
+</body>
+</html>

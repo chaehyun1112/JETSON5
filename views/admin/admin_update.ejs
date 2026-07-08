@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/common.css">
+  <link rel="stylesheet" href="/admin/style_admin_update.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+
+<main class="profile-container">
+  <div class="profile-header">
+    <h1 class="profile-header__title">관리자 정보 설정</h1>
+    <p class="profile-header__sub">시스템 관리자 계정 및 담당자 연락처 정보를 관리합니다.</p>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-summary">
+      <div class="avatar-circle">A</div>
+      <div class="summary-text">
+        <h2><%= member.MEM_NAME %> <span class="badge-admin">관리자</span></h2>
+        <p>계정 가입일: <span class="highlight-date"><%= new Date(member.JOINED_AT).toLocaleDateString("ko-KR") %></span></p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <form action="/admin/admin_update" method="POST">
+      <div class="form-grid">
+        
+        <div class="form-section">
+          <h3>🔐 계정 보안 설정</h3>
+          
+          <div class="form-group">
+            <label for="adminName">관리자 이름</label>
+            <input type="text" id="adminName" name="adminName" value="<%= member.MEM_NAME %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="adminPw">관리자 비밀번호</label>
+            <input type="password" id="adminPw" name="adminPw" placeholder="변경할 비밀번호를 입력하세요.">
+            <small class="form-tip">* 변경 시에만 입력하세요. 평소엔 비워둡니다.</small>
+          </div>
+
+        </div>
+
+        <div class="form-section">
+          <h3>📞 담당자 인적 사항</h3>
+
+          <div class="form-group">
+            <label for="managerEmail">관리자 이메일</label>
+            <input type="email" id="managerEmail" name="adminEmail"value="<%= member.MEM_EMAIL || '' %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="managerPhone">관리자 전화번호</label>
+            <input type="tel" id="managerPhone" name="adminPhone" value="<%= member.MEM_CONTACT || '' %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="managerAddress">관리자 주소</label>
+            <input type="text" id="managerAddress" name="adminAddr" value="<%= member.MEM_ADDR || '' %>">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" onclick="history.back()">뒤로가기</button>
+        <button type="submit" class="btn-submit">변경사항 저장하기</button>
+      </div>
+    </form>
+
+  
+    <div class="form-group">
+      <label>계정 관리</label>
+      <form
+      action="/admin/admin_delete"
+      method="POST"
+      onsubmit="return confirm('정말 탈퇴하시겠습니까?');">
+
+      <button
+      type="submit"
+      class="btn-delete-account">
+
+      ❌ 관리자 계정 탈퇴하기
+
+      </button>
+
+      </form>
+      <small class="form-tip red-tip">* 탈퇴 시 관리자 권한이 즉시 상실되며 복구할 수 없습니다.</small>
+    </div>
+  </div>
+</main>
+
+
+<script>
+// 임시 저장용 함수 (나중에 fetch로 연결할 부분)
+function unregisterAdmin() {
+    // 1차 확인
+    if (!confirm("정말로 관리자 계정을 탈퇴하시겠습니까?")) {
+        return; // 취소 누르면 아무 일도 안 일어남
+    }
+    
+    // 2차 확인 (중요한 작업이므로 한 번 더 확인)
+    if (!confirm("탈퇴 시 복약안심서비스 시스템 관리 권한이 완전히 삭제됩니다. 진행하시겠습니까?")) {
+        return;
+    }
+
+    // 🚀 실제 DB가 없으므로 성공했다고 가정하고 메인 화면이나 로그인 화면으로 이동시킵니다.
+    alert("관리자 계정이 성공적으로 탈퇴 처리되었습니다. 메인 페이지로 이동합니다.");
+    location.href = "/"; // 프로젝트의 메인 주소나 로그인 라우터 경로로 맞춰주세요!
+}
+function updateAdminProfile(event) {
+    event.preventDefault();
+    
+    const adminName = document.getElementById('adminName').value;
+    const memberStatus = document.getElementById('memberStatus').value;
+    const managerName = document.getElementById('managerName').value;
+
+    // 콘솔에서 데이터가 잘 수집되는지 확인용
+    console.log({ adminName, memberStatus, managerName });
+    
+    alert('화면의 변경사항이 감지되었습니다! (DB 연동 전 임시 알림)');
+}
+</script>
+
+</body>
+</html>
