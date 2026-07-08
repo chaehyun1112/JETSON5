@@ -56,19 +56,27 @@ main {
   line-height: 1.5;
 }
 
-.notice-date {
-  flex-shrink: 0;
-  font-size: 13px;
-  color: #8a9ac0;
-  white-space: nowrap;
+.notice-link{
+    margin-left:10px;
+    text-decoration:none;
+    color:inherit;
+    flex:1;
 }
 
-.notice-link {
-  text-decoration: none;
-  color: inherit;
+.notice-date{
+    margin-left:auto;
+    color:#888;
+    white-space:nowrap;
 }
 
 .notice-link:hover {
   color: #2563eb;
   text-decoration: underline;
 }
+
+.notice-content{
+    display:flex;
+    align-items:center;
+    width:100%;
+}
+

@@ -88,7 +88,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
               </div>
               <div>
-                <p class="db-stat-card__label">이번주 평균 복약률</p>
+                <p class="db-stat-card__label">평균 복약률</p>
                 <p class="db-stat-card__num db-stat-card__num--green"><%= weekly.avgRate %><span>%</span></p>
               </div>
             </div>
@@ -150,8 +150,12 @@
 
         <div class="db-card">
           <div class="db-card__header">
-            <h2 class="db-card__title">감지 현황</h2>
-            <span class="db-sensor-updated">최근 업데이트 <strong><%= sensor.updatedAt %></strong></span>
+              <h2 class="db-card__title">감지 현황</h2>
+
+              <div class="db-sensor-updated">
+                  <span>최근 업데이트</span>
+                  <strong><%= sensor.updatedAt %></strong>
+              </div>
           </div>
           <ul class="db-sensor-list">
             <li class="db-sensor-item">
@@ -168,15 +172,24 @@
               </span>
             </li>
             <li class="db-sensor-item">
-              <div class="db-sensor-item__icon-wrap db-sensor-item__icon-wrap--<%= sensor.dbSync ? 'ok' : 'error' %>">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+              <div class="db-sensor-item__icon-wrap db-sensor-item__icon-wrap--<%= sensor.powerStatus === 'Y' ? 'ok' : 'error' %>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <polyline points="1 4 1 10 7 10"/>
+                  <polyline points="23 20 23 14 17 14"/>
+                  <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
+                </svg>
               </div>
+
               <div class="db-sensor-item__body">
-                <p class="db-sensor-item__name">최근 업데이트</p>
-                <p class="db-sensor-item__val">마지막 동기화 : <%= sensor.lastSync %></p>
+                <p class="db-sensor-item__name">전원 연결 상태</p>
+
+                <p class="db-sensor-item__val">
+                    <%= sensor.lastHeartbeat %>
+                </p>
               </div>
-              <span class="db-sensor-badge db-sensor-badge--<%= sensor.dbSync ? 'ok' : 'error' %>">
-                <%= sensor.dbSync ? '업데이트됨' : '오류' %>
+
+              <span class="db-sensor-badge db-sensor-badge--<%= sensor.powerStatus === 'Y' ? 'ok' : 'error' %>">
+                <%= sensor.powerStatus === 'Y' ? '연결됨' : '연결 안됨' %>
               </span>
             </li>
             <li class="db-sensor-item">

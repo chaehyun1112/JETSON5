@@ -114,7 +114,7 @@
             </div>
 
             <div>
-              <p class="db-stat-card__label">이번주 평균 복약률</p>
+              <p class="db-stat-card__label">평균 복약률</p>
 
               <p class="db-stat-card__num db-stat-card__num--green">
                 <%= weekly.avgRate %><span>%</span>
@@ -302,19 +302,18 @@
               <div class="db-sensor-item__body">
 
                 <p class="db-sensor-item__name">
-                  최근 업데이트
+                  전원 연결 상태
                 </p>
 
                 <p class="db-sensor-item__val">
-                  마지막 동기화 :
-                  <%= sensor.lastSync %>
+                  <%= sensor.lastHeartbeat %>
                 </p>
 
               </div>
 
               <span class="db-sensor-badge db-sensor-badge--<%= sensor.dbSync ? 'ok' : 'error' %>">
 
-                <%= sensor.dbSync ? '업데이트됨' : '오류' %>
+                <%= sensor.dbSync ? '연결됨' : '연결 안됨' %>
 
               </span>
 

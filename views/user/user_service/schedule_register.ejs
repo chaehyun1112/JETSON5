@@ -23,7 +23,7 @@
                     method="post"
                     class="schedule-form">
                     <% } else { %>
-                    <form action="/user/user_service/about"
+                    <form action="/user/user_service/schedule_register"
                     method="post"
                     class="schedule-form">
                   <% } %>
@@ -55,9 +55,18 @@
                 <!-- 스케줄 시작일 -->
                 <div class="form-group">
                     <label class="form-label">스케줄 시작일</label>
-                    <p class="form-input">
-                    <%= new Date().toISOString().split('T')[0] %>
-                    </p>
+
+                    <input
+                        type="text"
+                        class="form-input"
+                        value="<%= new Date().toISOString().slice(0,10) %>"
+                        readonly>
+
+                    <input
+                        type="hidden"
+                        name="startDate"
+                        value="<%= new Date().toISOString().slice(0,10) %>">
+                </div>
 
                 <!-- 4개 시간 카드 -->
  <div class="time-grid">
@@ -253,10 +262,10 @@
                 <!-- 버튼 -->
                 <div class="btn-row">
                     <% if (user && user.role === 'S') { %>
-    <a href="/user/senior_service/senior_about" class="btn-cancel">취소</a>
-<% } else { %>
-    <a href="/user/user_service/about" class="btn-cancel">취소</a>
-<% } %>
+                    <a href="/user/senior_service/senior_about" class="btn-cancel">취소</a>
+                    <% } else { %>
+                        <a href="/user/user_service/about" class="btn-cancel">취소</a>
+                    <% } %>
                     <button type="submit" class="btn-submit">스케줄 등록</button>
                 </div>
 

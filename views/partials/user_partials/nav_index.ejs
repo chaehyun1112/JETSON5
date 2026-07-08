@@ -18,7 +18,11 @@
 
     <!-- 메뉴 링크 -->
     <nav class="nav__links" aria-label="주요 메뉴">
+      <% if (user) { %>
       <a href="/user/user_service/about">서비스 소개</a>
+      <%} else { %>
+      <a href="/index/index_about">서비스 소개</a> %>
+      <%} %> 
       <a href="/index/index_HowToUse">이용 방법</a>
 
       <div class="nav__dropdown">

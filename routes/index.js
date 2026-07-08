@@ -823,12 +823,25 @@ router.post("/user/user_info/delete", isLoggedIn, (req, res) => {
                                                 res.send("<script>alert('탈퇴 실패');history.back();</script>");
                                             });
 
+                                        // 알림 삭제
+                                        conn.query(
+                                            "DELETE FROM TB_ALERT WHERE SENIOR_ID IN (?)",
+                                            [seniorIds],
+                                            (err) => {
+
+                                                if (err)
+                                                    return conn.rollback(() => {
+                                                        console.log(err);
+                                                        res.send("<script>alert('탈퇴 실패');history.back();</script>");
+                                                    });
+
                                         callback();
                                     }
                                 );
                             }
                         );
-                    };
+                    });
+                }
 
                     deleteSchedules(() => {
 
@@ -1049,7 +1062,9 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
             return res.send("DB 오류");
         }
 
-        if(rows.length===0){
+        if(rows.length===0 ||
+    rows.every(row => !row.PILLBOX_NUM)
+        ){
             return res.render("user/user_service/no-pillbox",{
                 title:"약통 미등록 — 복약안심서비스"
             });
@@ -1106,17 +1121,17 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
                     }
 
                     const today={
-                        morning:"⏳ 대기중",
-                        lunch:"⏳ 대기중",
-                        dinner:"⏳ 대기중",
-                        bedtime:"⏳ 대기중"
+                        morning:"대기중",
+                        lunch:"대기중",
+                        dinner:"대기중",
+                        bedtime:"대기중"
                     };
 
                     const schedule=[];
 
                     todayRows.forEach(row=>{
 
-                        let text="⏳ 대기중";
+                        let text="대기중";
                         let status="plan";
 
                         if(row.TAKING_YN==="Y"){
@@ -1333,9 +1348,9 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
 
                             let sensor={
                                 lidOpen:false,
-                                dbSync:false,
+                                powerStatus: "N",
                                 updatedAt:"-",
-                                lastSync:"-",
+                                lastHeartbeat:"-",
                                 lastDetected:"-"
                             };
 
@@ -1344,13 +1359,13 @@ router.get('/user/user_dashboard/main_dashboard', isLoggedIn, (req, res) => {
                                 const row=sensorRows[0];
 
                                 sensor.lidOpen=row.LAST_LOG==="OPEN";
-                                sensor.dbSync=row.POWER_STATUS==="Y";
+                                sensor.powerStatus=row.POWER_STATUS;
 
                                 sensor.updatedAt=row.UPDATED_AT
                                     ?row.UPDATED_AT.toLocaleString("ko-KR")
                                     :"-";
 
-                                sensor.lastSync=row.LAST_HEARTBEAT_AT
+                                sensor.lastHeartbeat=row.LAST_HEARTBEAT_AT
                                     ?row.LAST_HEARTBEAT_AT.toLocaleString("ko-KR")
                                     :"-";
 
@@ -1626,15 +1641,16 @@ router.get("/admin/admin_dashboard/medicine_boxes", async (req, res) => {
       ON PS.PILLBOX_NUM = S.PILLBOX_NUM
 
     LEFT JOIN (
-      SELECT L1.*
-      FROM TB_PILLBOX_LOG L1
-      INNER JOIN (
-        SELECT SENIOR_ID, MAX(LOGGED_AT) AS LOGGED_AT
-        FROM TB_PILLBOX_LOG
-        GROUP BY SENIOR_ID
-      ) L2 ON L2.SENIOR_ID = L1.SENIOR_ID
-         AND L2.LOGGED_AT = L1.LOGGED_AT
-    ) L ON L.SENIOR_ID = S.SENIOR_ID
+        SELECT L1.*
+        FROM TB_PILLBOX_LOG L1
+        INNER JOIN (
+            SELECT SENIOR_ID, MAX(LOG_CD) AS LOG_CD
+            FROM TB_PILLBOX_LOG
+            GROUP BY SENIOR_ID
+        ) L2
+        ON L1.LOG_CD = L2.LOG_CD
+    ) L
+    ON L.SENIOR_ID = S.SENIOR_ID
 
     LEFT JOIN TB_MEDICINE_SCHEDULE M
       ON M.SENIOR_ID = S.SENIOR_ID
@@ -2034,7 +2050,7 @@ router.get('/user/user_info/protected', isLoggedIn, (req, res) => {
     });
 });
 
-// 시니어 정보 입력
+// 시니어 추가 post
 router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
 
     const {
@@ -2116,16 +2132,33 @@ router.post("/user/user_info/seniorRegister", isLoggedIn, async (req, res) => {
                     return res.send("<script>alert('등록 실패');history.back();</script>");
                 }
 
-                delete req.session.emailCode;
-                delete req.session.email;
-                delete req.session.emailVerified;
+                // 기존 알림의 MEM_ID도 다시 연결
+                const alertUpdateSql = `
+                    UPDATE TB_ALERT
+                    SET MEM_ID = ?
+                    WHERE SENIOR_ID = ?
+                `;
 
-                return res.send(`
-                    <script>
-                        alert('보호대상 등록이 완료되었습니다.');
-                        location.href='/user/user_info/protected';
-                    </script>
-                `);
+                conn.query(alertUpdateSql, [memId, seniorId], (err4) => {
+
+                    if (err4) {
+                        console.log(err4);
+                        return res.send("<script>alert('등록 실패');history.back();</script>");
+                    }
+
+                    delete req.session.emailCode;
+                    delete req.session.email;
+                    delete req.session.emailVerified;
+
+                    return res.send(`
+                        <script>
+                            alert('보호대상 등록이 완료되었습니다.');
+                            location.href='/user/user_info/protected';
+                        </script>
+                    `);
+
+                });
+
             });
         });
     });
@@ -2184,27 +2217,27 @@ router.get("/user/user_info/user_update/:id", (req, res) => {
 });
 
 // 시니어 기본 정보 수정 POST
-router.post("/user/user_info/protected/info/update/:id", (req, res) => {
+router.post("/user/user_info/protected/info/update/:id",(req,res)=>{
 
-    const seniorId = req.params.id;
+    const seniorId=req.params.id;
 
-    const {
+    const{
         SENIOR_NAME,
         SENIOR_EMAIL,
         SENIOR_CONTACT,
         SENIOR_ADDR,
         PILLBOX_NUM
-    } = req.body;
+    }=req.body;
 
-    const sql = `
+    const sql=`
         UPDATE TB_SENIOR
         SET
-            SENIOR_NAME = ?,
-            SENIOR_EMAIL = ?,
-            SENIOR_CONTACT = ?,
-            SENIOR_ADDR = ?,
-            PILLBOX_NUM = ?
-        WHERE SENIOR_ID = ?
+            SENIOR_NAME=?,
+            SENIOR_EMAIL=?,
+            SENIOR_CONTACT=?,
+            SENIOR_ADDR=?,
+            PILLBOX_NUM=?
+        WHERE SENIOR_ID=?
     `;
 
     conn.query(
@@ -2214,17 +2247,42 @@ router.post("/user/user_info/protected/info/update/:id", (req, res) => {
             SENIOR_EMAIL,
             SENIOR_CONTACT,
             SENIOR_ADDR,
-            PILLBOX_NUM,
+            PILLBOX_NUM || null,
             seniorId
         ],
-        (err) => {
+        (err)=>{
 
-            if (err) {
+            if(err){
                 console.log(err);
                 return res.redirect("back");
             }
 
-            res.redirect("/user/user_info/protected");
+            // 약통을 삭제한 경우
+            if(!PILLBOX_NUM){
+
+                const endSql=`
+                    UPDATE TB_MEDICINE_SCHEDULE
+                    SET
+                        USE_YN='N',
+                        END_DATE=CURDATE(),
+                        UPDATED_AT=NOW()
+                    WHERE SENIOR_ID=?
+                    AND USE_YN='Y'
+                `;
+
+                conn.query(endSql,[seniorId],(err2)=>{
+
+                    if(err2){
+                        console.log(err2);
+                    }
+
+                    return res.redirect("/user/user_info/protected");
+                });
+
+            }else{
+
+                res.redirect("/user/user_info/protected");
+            }
         }
     );
 });
@@ -2363,7 +2421,7 @@ router.get("/user/user_info/protected/delete/:seniorId", isLoggedIn, (req, res) 
         UPDATE TB_SENIOR
         SET MEM_ID = NULL
         WHERE SENIOR_ID = ?
-          AND MEM_ID = ?
+        AND MEM_ID = ?
     `;
 
     conn.query(updateSql, [seniorId, memId], (err, result) => {
@@ -2377,15 +2435,30 @@ router.get("/user/user_info/protected/delete/:seniorId", isLoggedIn, (req, res) 
             return res.send("<script>alert('삭제할 대상자가 없습니다.');history.back();</script>");
         }
 
-        res.send(`
-            <script>
-                alert('보호대상 연결이 해제되었습니다.');
-                location.href='/user/user_info/protected';
-            </script>
-        `);
+        const alertSql = `
+            UPDATE TB_ALERT
+            SET MEM_ID = NULL
+            WHERE MEM_ID = ?
+            AND SENIOR_ID = ?
+        `;
+
+        conn.query(alertSql, [memId, seniorId], (err) => {
+
+            if (err) {
+                console.log(err);
+                return res.send("<script>alert('삭제 실패');history.back();</script>");
+            }
+
+            res.send(`
+                <script>
+                    alert('보호대상 연결이 해제되었습니다.');
+                    location.href='/user/user_info/protected';
+                </script>
+            `);
+
+        });
 
     });
-
 });
 
 // 개인정보 관리
@@ -3154,107 +3227,133 @@ router.post("/user/senior_info/senior_settings/update", isLoggedIn, (req, res) =
 // 태헌님 router 코드
 
 // 복약 기록 페이지
-router.get("/user/user_dashboard/dashboard_record", isLoggedIn, (req,res)=>{
+router.get("/user/user_dashboard/dashboard_record", isLoggedIn, (req, res) => {
 
-    const selectedDate=req.query.date || new Date().toISOString().slice(0,10);
+    const selectedDate = req.query.date || new Date().toISOString().slice(0, 10);
 
-    const seniorSql=`
-    SELECT
-        SENIOR_ID,
-        SENIOR_NAME
-    FROM TB_SENIOR
-    WHERE MEM_ID=?
-    ORDER BY SENIOR_NAME
+    const seniorSql = `
+        SELECT
+            SENIOR_ID,
+            SENIOR_NAME
+        FROM TB_SENIOR
+        WHERE MEM_ID = ?
+        ORDER BY SENIOR_NAME
     `;
 
-    conn.query(seniorSql,[req.session.user.id],(err,seniorRows)=>{
+    conn.query(seniorSql, [req.session.user.id], (err, seniorRows) => {
 
-        if(err){
+        if (err) {
             console.log(err);
             return res.send("DB 오류");
         }
 
-        if(seniorRows.length===0){
+        if (seniorRows.length === 0) {
             return res.send("등록된 보호대상이 없습니다.");
         }
 
-        const selectedSeniorId=
-            req.query.senior || seniorRows[0].SENIOR_ID;
-        
-        const recordSql=`
+        const selectedSeniorId =
+            req.query.senior !== undefined ? req.query.senior : "";
+
+        let recordSql = `
             SELECT
+                MS.MEDI_SCHE_CD,
                 SC.SCHE_CD,
                 SC.TAKING_DATE,
                 SC.TAKING_YN,
-                SC.TAKEN_TIME,
+                TIME_FORMAT(SC.TAKEN_TIME, '%H:%i') AS TAKEN_TIME,
                 MS.TAKING_TIME,
                 MS.TAKING_TYPE,
                 MS.PILLBOX_ORDER,
                 S.SENIOR_ID,
                 S.SENIOR_NAME
-            FROM TB_SCHEDULE SC
-            JOIN TB_MEDICINE_SCHEDULE MS
-            ON SC.MEDI_SCHE_CD=MS.MEDI_SCHE_CD
-            AND SC.SENIOR_ID=MS.SENIOR_ID
+
+            FROM TB_MEDICINE_SCHEDULE MS
+
             JOIN TB_SENIOR S
-            ON SC.SENIOR_ID=S.SENIOR_ID
-            WHERE SC.SENIOR_ID=?
-            AND SC.TAKING_DATE=?
-            ORDER BY MS.TAKING_TIME
+                ON MS.SENIOR_ID = S.SENIOR_ID
+
+            LEFT JOIN TB_SCHEDULE SC
+                ON SC.MEDI_SCHE_CD = MS.MEDI_SCHE_CD
+                AND SC.SENIOR_ID = MS.SENIOR_ID
+                AND SC.TAKING_DATE = ?
+
+            WHERE
+                S.MEM_ID = ?
+                AND MS.USE_YN = 'Y'
+        `;
+
+        const params = [
+            selectedDate,
+            req.session.user.id
+        ];
+
+        if (selectedSeniorId) {
+            recordSql += `
+                AND MS.SENIOR_ID = ?
             `;
+            params.push(selectedSeniorId);
+        }
 
-        conn.query(recordSql,[selectedSeniorId,selectedDate],(err,rows)=>{
+        recordSql += `
+            ORDER BY
+                S.SENIOR_NAME,
+                MS.TAKING_TIME
+        `;
 
-            if(err){
+        conn.query(recordSql, params, (err, rows) => {
+
+            if (err) {
                 console.log(err);
                 return res.send("DB 오류");
             }
 
-            const schedules=rows.map(r=>{
+            const schedules = rows.map(r => {
 
-                let status="pending";
-                let statusLabel="복용 예정";
+                let status = "pending";
+                let statusLabel = "복용 예정";
 
-                if(r.TAKING_YN==="Y"){
-                    status="done";
-                    statusLabel="복용 완료";
-                }else if(r.TAKING_YN==="N"){
-                    status="miss";
-                    statusLabel="미복용";
+                if (r.TAKING_YN === "Y") {
+                    status = "done";
+                    statusLabel = "복용 완료";
+                } else if (r.TAKING_YN === "N") {
+                    status = "miss";
+                    statusLabel = "미복용";
                 }
 
-                return{
-                    seniorId:r.SENIOR_ID,
-                    seniorName:r.SENIOR_NAME,
-                    takingDate:r.TAKING_DATE,
-                    takingTime:r.TAKING_TIME.toString().substring(0,5),
-                    takenTime:r.TAKEN_TIME
-                        ?r.TAKEN_TIME.toString().substring(0,5)
-                        :"",
-                    pillboxOrder:r.PILLBOX_ORDER,
-                    takingType:r.TAKING_TYPE,
+                return {
+                    seniorId: r.SENIOR_ID,
+                    seniorName: r.SENIOR_NAME,
+                    takingDate: r.TAKING_DATE,
+                    takingTime: r.TAKING_TIME.toString().substring(0, 5),
+                    takenTime: r.TAKEN_TIME || "",
+                    pillboxOrder: r.PILLBOX_ORDER,
+                    takingType: r.TAKING_TYPE,
                     status,
                     statusLabel
                 };
             });
 
-            const summary={
-                total:schedules.length,
-                done:schedules.filter(s=>s.status==="done").length,
-                miss:schedules.filter(s=>s.status==="miss").length,
-                pending:schedules.filter(s=>s.status==="pending").length
+            const summary = {
+                total: schedules.length,
+                done: schedules.filter(s => s.status === "done").length,
+                miss: schedules.filter(s => s.status === "miss").length,
+                pending: schedules.filter(s => s.status === "pending").length
             };
-            res.render("user/user_dashboard/dashboard_record",{
-                title:"복약 기록",
-                user:req.session.user,
+
+            res.render("user/user_dashboard/dashboard_record", {
+                title: "복약 기록",
+                user: req.session.user,
                 selectedDate,
                 schedules,
                 summary,
-                seniorOptions:seniorRows,
+                seniorOptions: seniorRows,
                 selectedSeniorId
             });
+
         });
+
     });
+
 });
 
 // 실시간 상태 페이지
@@ -3345,7 +3444,7 @@ router.get("/user/user_dashboard/dashboard_stat", isLoggedIn, (req,res)=>{
                         S.SENIOR_NAME,
                         S.PILLBOX_NUM,
 
-                        COUNT(SC.SCHE_CD) AS todayTotal,
+                        COUNT(MS.MEDI_SCHE_CD) AS todayTotal,
 
                         SUM(CASE
                             WHEN SC.TAKING_YN='Y'
@@ -3365,16 +3464,21 @@ router.get("/user/user_dashboard/dashboard_stat", isLoggedIn, (req,res)=>{
                         CASE
                             WHEN SUM(CASE WHEN SC.TAKING_YN='N' THEN 1 ELSE 0 END)>0
                                 THEN 'late'
-                            WHEN SUM(CASE WHEN SC.TAKING_YN IS NULL THEN 1 ELSE 0 END)>0
+                            WHEN SUM(CASE WHEN SC.SCHE_CD IS NULL THEN 1 ELSE 0 END)>0
                                 THEN 'warn'
                             ELSE 'ok'
                         END AS state
 
                     FROM TB_SENIOR S
 
+                    LEFT JOIN TB_MEDICINE_SCHEDULE MS
+                    ON S.SENIOR_ID = MS.SENIOR_ID
+                    AND MS.USE_YN = 'Y'
+
                     LEFT JOIN TB_SCHEDULE SC
-                    ON S.SENIOR_ID=SC.SENIOR_ID
-                    AND SC.TAKING_DATE=CURDATE()
+                    ON SC.MEDI_SCHE_CD = MS.MEDI_SCHE_CD
+                    AND SC.SENIOR_ID = MS.SENIOR_ID
+                    AND SC.TAKING_DATE = CURDATE()
 
                     LEFT JOIN TB_ALERT AL
                     ON AL.ALERT_CD=(
@@ -3437,6 +3541,8 @@ router.get("/user/user_dashboard/dashboard_stat", isLoggedIn, (req,res)=>{
 // 알림 관리 페이지
 router.get("/user/user_dashboard/dashboard_call", isLoggedIn, (req, res) => {
 
+    console.log(req.query);
+
     const seniorSql = `
         SELECT
             SENIOR_ID,
@@ -3452,47 +3558,44 @@ router.get("/user/user_dashboard/dashboard_call", isLoggedIn, (req, res) => {
             console.log(err);
             return res.send("DB 오류");
         }
+        const selectedSeniorId = req.query.senior || "";
 
-        const selectedSeniorId =
-            req.query.senior || "";
+        const today = new Date();
+        const todayStr = today.toISOString().split("T")[0];
 
-        const selectedDate =
-            req.query.date || "";
+        const selectedDate = req.query.date || todayStr;
 
-        const summarySql = `
-            SELECT
-                COUNT(*) AS total,
+        let summarySql = `
+        SELECT
+            COUNT(*) total,
 
-                SUM(
-                    CASE
-                        WHEN ALERT_TYPE='MISSED_MEDICINE'
-                        THEN 1
-                        ELSE 0
-                    END
-                ) AS missed,
+            SUM(CASE WHEN ALERT_TYPE='MISSED_MEDICINE'
+                THEN 1 ELSE 0 END) missed,
 
-                SUM(
-                    CASE
-                        WHEN ALERT_TYPE='WARN'
-                        THEN 1
-                        ELSE 0
-                    END
-                ) AS warn,
+            SUM(CASE WHEN ALERT_TYPE='WARN'
+                THEN 1 ELSE 0 END) warn,
 
-                SUM(
-                    CASE
-                        WHEN IS_RECEIVED='Y'
-                        THEN 1
-                        ELSE 0
-                    END
-                ) AS received
+            SUM(CASE WHEN IS_RECEIVED='Y'
+                THEN 1 ELSE 0 END) received
 
-            FROM TB_ALERT
+        FROM TB_ALERT
 
-            WHERE MEM_ID=?
+        WHERE MEM_ID = ?
         `;
 
-        conn.query(summarySql,[req.session.user.id],(err,summaryRows)=>{
+        const summaryParams = [req.session.user.id];
+
+        if(selectedSeniorId){
+            summarySql += ` AND SENIOR_ID = ? `;
+            summaryParams.push(selectedSeniorId);
+        }
+
+        if(selectedDate){
+            summarySql += ` AND DATE(ALERT_TIME)=? `;
+            summaryParams.push(selectedDate);
+        }
+
+        conn.query(summarySql,summaryParams,(err,summaryRows)=>{
 
             if(err){
                 console.log(err);
@@ -3663,6 +3766,9 @@ router.get('/index/index_inquiry', isLoggedIn, (req, res) => {
 // 문의 등록
 router.post("/index/index_inquiry", isLoggedIn, (req, res) => {
 
+    console.log("문의 POST 들어옴");
+    console.log(req.body);
+
     const {
         inquiry_type,
         inquiry_title,
@@ -3718,7 +3824,7 @@ router.post("/index/index_inquiry", isLoggedIn, (req, res) => {
                 <script>
                     alert('문의가 등록되었습니다.');
 
-                    location.href='/index/index_inquiry';
+                    location.href='/user/user_service/check_inquiry';
                 </script>
             `);
         }
@@ -3979,15 +4085,15 @@ router.get("/user/senior_dashboard/senior_main_dashboard", (req, res) => {
                     return res.send("DB 오류");
                 }
                 const today={
-                    morning:"⏳ 대기중",
-                    lunch:"⏳ 대기중",
-                    dinner:"⏳ 대기중",
-                    bedtime:"⏳ 대기중"
+                    morning:"대기중",
+                    lunch:"대기중",
+                    dinner:"대기중",
+                    bedtime:"대기중"
                 };
                  const schedule=[];
 
                 todayRows.forEach(row=>{
-                    let text="⏳ 대기중";
+                    let text="대기중";
                     let status="plan";
                     if(row.TAKING_YN==="Y"){
                         text="✅ 복용완료";
@@ -4018,18 +4124,21 @@ router.get("/user/senior_dashboard/senior_main_dashboard", (req, res) => {
                         time:row.TAKING_TIME.toString().substring(0,5),
                         status
                     });
-                    const weeklySql = `
 
-                        SELECT
-                            TAKING_DATE,
-                            TAKING_TYPE,
-                            TAKING_YN
+                });
 
-                        FROM TB_SCHEDULE
-                        WHERE SENIOR_ID=?
-                        AND YEARWEEK(TAKING_DATE,1)=YEARWEEK(CURDATE(),1)
-                        ORDER BY TAKING_DATE
-                        `;
+                const weeklySql = `
+
+                    SELECT
+                        TAKING_DATE,
+                        TAKING_TYPE,
+                        TAKING_YN
+
+                    FROM TB_SCHEDULE
+                    WHERE SENIOR_ID=?
+                    AND YEARWEEK(TAKING_DATE,1)=YEARWEEK(CURDATE(),1)
+                    ORDER BY TAKING_DATE
+                    `;
 
                         conn.query(weeklySql,[senior.SENIOR_ID],(err,weekRows)=>{
                             if(err){
@@ -4194,7 +4303,7 @@ router.get("/user/senior_dashboard/senior_main_dashboard", (req, res) => {
                                         lidOpen:false,
                                         dbSync:false,
                                         updatedAt:"-",
-                                        lastSync:"-",
+                                        lastHeartbeat:"-",
                                         lastDetected:"-"
 
                                     };
@@ -4209,7 +4318,7 @@ router.get("/user/senior_dashboard/senior_main_dashboard", (req, res) => {
                                             row.UPDATED_AT
                                             ?row.UPDATED_AT.toLocaleString("ko-KR")
                                             :"-";
-                                        sensor.lastSync=
+                                        sensor.lastHeartbeat=
                                             row.LAST_HEARTBEAT_AT
                                             ?row.LAST_HEARTBEAT_AT.toLocaleString("ko-KR")
                                             :"-";
@@ -4230,15 +4339,15 @@ router.get("/user/senior_dashboard/senior_main_dashboard", (req, res) => {
                                             weekly,
                                             schedule,
                                             sensor
-                                }
-                             );
-                        }
-                    );
-                });
+                            }
+                        );
+                    }
+                );
             });
         });
     });
 });
+
 
 
 // 사용자 공지사항 상세
