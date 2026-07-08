@@ -18,7 +18,7 @@
       <div>
         <p class="db-header__greeting">안녕하세요, <strong><%= user.name %></strong> 님 👋</p>
         <h1 class="db-header__title">복약 기록</h1>
-        <p class="db-header__date">등록된 시니어별 복약 시간을 복약일정 기준으로 확인합니다.</p>
+        <p class="db-header__date">등록된 시니어별 복약 시간을 복약 일정 기준으로 확인합니다.</p>
       </div>
     </div>
   </section>
@@ -57,18 +57,26 @@
       </section>
 
       <section class="db-card">
-        <div class="db-card__header db-card__header--record">
-            <h2 class="db-card__title">복약 일정</h2>
+          <div class="db-card__header db-card__header--record">
+              <h2 class="db-card__title">복약 일정</h2>
               <div class="db-query-box">
-                  <form class="db-query-form">
+                  <form
+                      method="GET"
+                      action="/user/user_dashboard/dashboard_record"
+                      class="db-query-form">
                       <div class="db-query-fields">
                           <div class="db-date-select">
-                              <label for="recordDate"></label>
                               <input
                                   type="date"
                                   id="recordDate"
+                                  name="date"
                                   value="<%= selectedDate %>">
                           </div>
+                          <input
+                              type="hidden"
+                              id="selectedSenior"
+                              name="senior"
+                              value="<%= selectedSeniorId %>">
                           <div class="db-senior-select" id="seniorDropdown">
                               <span class="db-senior-select__label">
                                   보호대상
@@ -76,11 +84,13 @@
                               <%
                               const currentSenior =
                                   seniorOptions.find(
-                                      s => s.SENIOR_ID === selectedSeniorId
+                                      s=>s.SENIOR_ID===selectedSeniorId
                                   ) || seniorOptions[0];
                               %>
-                              <span class="db-senior-select__value">
-                                  <%= currentSenior.SENIOR_NAME %>
+                              <span
+                                  class="db-senior-select__value"
+                                  id="selectedSeniorText">
+                                  <%= selectedSeniorId ? currentSenior.SENIOR_NAME : "전체" %>
                               </span>
                               <span class="db-senior-select__caret">
                                   <svg width="12"
@@ -94,10 +104,16 @@
                               </span>
                               <div class="db-senior-select__menu">
                                   <div class="db-senior-select__menu-inner">
+                                    <a href="#"
+                                      data-id=""
+                                      data-name="전체"
+                                      class="<%= !selectedSeniorId ? 'is-active' : '' %>">
+                                        전체
+                                    </a>
                                       <% seniorOptions.forEach(s=>{ %>
-                                      <a
-                                          href="?senior=<%= s.SENIOR_ID %>&date=<%= selectedDate %>"
-                                          class="<%= s.SENIOR_ID===selectedSeniorId ? 'is-active':'' %>">
+                                      <a href="#"
+                                        data-id="<%= s.SENIOR_ID %>"
+                                        data-name="<%= s.SENIOR_NAME %>">
                                           <%= s.SENIOR_NAME %>
                                       </a>
                                       <% }) %>
@@ -105,10 +121,12 @@
                               </div>
                           </div>
                       </div>
-                      <button type="submit">조회</button>
+                      <button type="submit">
+                          조회
+                      </button>
                   </form>
               </div>
-            </div>
+          </div>
         <% if (schedules.length === 0) { %>
           <p class="db-empty">해당 날짜에 등록된 복약 일정이 없습니다.</p>
         <% } else { %>
@@ -155,19 +173,36 @@
     </div>
   </main>
 
-  <script>
-    const seniorDropdown = document.getElementById('seniorDropdown');
-    if (seniorDropdown) {
-      seniorDropdown.addEventListener('click', (e) => {
-        seniorDropdown.classList.toggle('is-open');
-      });
-      document.addEventListener('click', (e) => {
-        if (!seniorDropdown.contains(e.target)) {
-          seniorDropdown.classList.remove('is-open');
-        }
-      });
-    }
-  </script>
+<script>
+const seniorDropdown=document.getElementById("seniorDropdown");
+const selectedSenior=document.getElementById("selectedSenior");
+const selectedSeniorText=document.getElementById("selectedSeniorText");
+
+if(seniorDropdown){
+
+    seniorDropdown.addEventListener("click",(e)=>{
+        if(e.target.closest("a")) return;
+        e.stopPropagation();
+        seniorDropdown.classList.toggle("is-open");
+    });
+
+    document.querySelectorAll(".db-senior-select__menu a").forEach(a=>{
+        a.addEventListener("click",(e)=>{
+            e.preventDefault();
+            selectedSenior.value=a.dataset.id;
+            selectedSeniorText.textContent=a.dataset.name;
+            document.querySelectorAll(".db-senior-select__menu a").forEach(x=>{
+                x.classList.remove("is-active");
+            });
+            a.classList.add("is-active");
+            seniorDropdown.classList.remove("is-open");
+        });
+    });
+    document.addEventListener("click",()=>{
+        seniorDropdown.classList.remove("is-open");
+    });
+}
+</script>
 
   
 <footer class="footer">

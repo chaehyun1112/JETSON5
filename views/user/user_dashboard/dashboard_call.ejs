@@ -68,22 +68,27 @@
                     class="db-query-form">
                 <div class="db-query-fields">
                 <div class="db-date-select">
-                    <label for="recordDate"></label>
                     <input
                         type="date"
                         id="recordDate"
+                        name="date"
                         value="<%= selectedDate %>">
                 </div>
+                <input
+                    type="hidden"
+                    id="selectedSenior"
+                    name="senior"
+                    value="<%= selectedSeniorId %>">
                   <div class="db-senior-select" id="seniorDropdown">
+                    <span class="db-senior-select__label">
+                        보호대상
                       <% const currentSenior =
                           seniorOptions.find(s => s.SENIOR_ID === selectedSeniorId)
                           || seniorOptions[0];
                       %>
-                      <span class="db-senior-select__label">
-                          보호대상
                       </span>
                       <span class="db-senior-select__value">
-                          <%= currentSenior ? currentSenior.SENIOR_NAME : "전체 보호대상" %>
+                          <%= currentSenior ? currentSenior.SENIOR_NAME : "전체" %>
                       </span>
                       <span class="db-senior-select__caret">
                           <svg width="12" height="12" viewBox="0 0 24 24"
@@ -93,9 +98,9 @@
                       </span>
                       <div class="db-senior-select__menu">
                           <div class="db-senior-select__menu-inner">
-                              <a href="?date=<%= selectedDate || '' %>"
+                              <a href="?date=<%= selectedDate || '' %>" data-name="전체"
                                 class="<%= !selectedSeniorId ? 'is-active' : '' %>">
-                                  전체 보호대상
+                                  전체
                               </a>
                               <% seniorOptions.forEach(s=>{ %>
                               <a href="?date=<%= selectedDate || '' %>&senior=<%= s.SENIOR_ID %>"
@@ -107,7 +112,7 @@
                       </div>
                   </div>
                 </div>
-                <button type="submit"> 조회 </button>
+                <button type="submit" class="btn btn-primary"> 조회 </button>
               </form>
             </div>
         </div>
@@ -176,17 +181,6 @@
         });
 
     }
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
-  <script>
-    flatpickr("#callDate", {
-      locale: "ko",
-      dateFormat: "Y-m-d",
-      minDate: "2020-01-01",
-      maxDate: "2030-12-31"
-    });
   </script>
   
 <footer class="footer">
