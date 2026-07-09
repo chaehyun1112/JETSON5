@@ -1,4 +1,4 @@
-<img width="821" height="311" alt="image" src="https://github.com/user-attachments/assets/adced8cb-10de-4558-8fcb-a7c9aee58ebc" /># README 산출 문서 검토 부탁드리고, 수정 필요 시 수정 부탁드립니다. (박건희)
+# README 산출 문서 검토 부탁드리고, 수정 필요 시 수정 부탁드립니다. (박건희)
 
 ## 추가 확인 필요
 
