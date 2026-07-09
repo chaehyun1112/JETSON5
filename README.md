@@ -347,12 +347,12 @@ flowchart LR
   </tr>
   <tr>
     <td align="center"><strong>임채현</strong></td>
-    <td align="center"><b>데이터베이스</b></td>
+    <td align="center"><b>백엔드</b></td>
     <td>서비스 데이터 구조 설계, DB 연동, 프로젝트 문서 정리</td>
   </tr>
   <tr>
     <td align="center"><strong>박건희</strong></td>
-    <td align="center"><b>데이터베이스</b></td>
+    <td align="center"><b>백엔드</b></td>
     <td>DB 설계 및 데이터 관리, API/데이터 처리 지원</td>
   </tr>
   <tr>
