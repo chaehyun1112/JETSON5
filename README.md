@@ -115,7 +115,7 @@
 <br>
 
 ## ⚙ 시스템 아키텍처
-!시스템 아키텍처(<img width="821" height="311" alt="image" src="https://github.com/user-attachments/assets/06a919f5-8824-4a16-97d5-6fe5dc1b61f6" />)
+<img width="821" height="311" alt="image" src="https://github.com/user-attachments/assets/06a919f5-8824-4a16-97d5-6fe5dc1b61f6" />
 
 ```mermaid
 flowchart LR
