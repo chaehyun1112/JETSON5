@@ -346,8 +346,8 @@ flowchart LR
     <th>담당 내용</th>
   </tr>
   <tr>
-    <td align="center"><strong>임채현</strong></td>
-    <td align="center"><b>팀장, 백엔드</b></td>
+    <td align="center"><strong>임채현(팀장)</strong></td>
+    <td align="center"><b>백엔드</b></td>
     <td>서비스 데이터 구조 설계, DB 연동, 프로젝트 문서 정리</td>
   </tr>
   <tr>
