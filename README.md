@@ -455,3 +455,6 @@ flowchart LR
 * 주요 기술: HTML/CSS/JavaScript, Node.js, Express, EJS, MySQL, Raspberry Pi, 센서 기반 하드웨어
 
 
+
+### 최종 시연영상 링크
+https://youtu.be/0wQ0a-uhASo
