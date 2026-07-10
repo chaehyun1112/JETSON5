@@ -61,7 +61,6 @@ app.use("/",router);
 
 
 //EJS 사용할때
-
-
-
-app.listen(3000)
+app.listen(PORT, () => {
+    console.log(`Server Running ${PORT}`);
+});
